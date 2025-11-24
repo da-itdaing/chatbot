@@ -1,0 +1,43 @@
+# LangGraph / LangChain core
+langgraph==1.0.3
+langchain==1.0.5
+langchain-core==1.0.4
+
+# LangChain ecosystem
+langchain-community>=0.4.1
+langchain-openai>=1.0.2
+langchain-postgres>=0.0.16
+langchain-text-splitters>=1.0.0
+langchain-cohere>=0.5.0
+langsmith>=0.4.42
+langgraph-checkpoint-postgres
+
+# Vector / DB drivers
+pgvector==0.3.6
+psycopg[binary]==3.2.12
+psycopg-pool>=3.2.7
+asyncpg>=0.30.0
+SQLAlchemy>=2.0.44
+
+# Model / embedding clients
+openai>=2.8.0
+cohere>=5.20.0
+tiktoken>=0.12.0
+
+# Config / utils
+python-dotenv>=1.2.1
+pydantic>=2.12.4
+pydantic-settings>=2.12.0
+typing_extensions>=4.12.2
+tenacity>=9.1.2
+numpy>=2.3.4
+orjson>=3.11.4
+requests>=2.32.5
+tqdm>=4.67.1
+
+# Template / front
+Jinja2>=3.1.4
+
+# API server
+fastapi>=0.110.0
+uvicorn[standard]>=0.30.0

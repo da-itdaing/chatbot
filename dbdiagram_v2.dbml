@@ -1,0 +1,233 @@
+// Database Schema Diagram
+// Last Updated: 2025-11-24
+
+Table users {
+  id bigint [pk]
+  login_id varchar(100) [not null, unique]
+  password varchar(255) [not null]
+  name varchar(100)
+  nickname varchar(100)
+  email varchar(255) [not null, unique]
+  role varchar(20) [not null] // CONSUMER, SELLER, ADMIN
+  age_group integer
+  mbti varchar(20)
+  profile_image_url varchar(500)
+  profile_image_key varchar(255)
+  status varchar(20) [not null, default: 'ACTIVE']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table seller_profile {
+  user_id bigint [pk, ref: > users.id]
+  profile_image_url varchar(500)
+  introduction varchar(500)
+  activity_region varchar(100)
+  category varchar(100)
+  contact_phone varchar(50)
+  sns_url varchar(200)
+}
+
+Table popup {
+  id bigint [pk]
+  seller_id bigint [not null, ref: > users.id]
+  zone_cell_id bigint [not null, ref: > zone_cell.id]
+  name varchar(200) [not null]
+  description text
+  start_date date
+  end_date date
+  operating_time varchar(50)
+  approval_status varchar(20) [not null, default: 'PENDING'] // PENDING, APPROVED, REJECTED
+  rejection_reason varchar(500)
+  view_count bigint [not null, default: 0]
+  favorite_count bigint [not null, default: 0]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table popup_image {
+  id bigint [pk]
+  popup_id bigint [not null, ref: > popup.id]
+  image_url varchar(500) [not null]
+  image_key varchar(255)
+  is_thumbnail boolean
+  ordering int
+  created_at timestamp [not null]
+}
+
+Table popup_category {
+  id bigint [pk]
+  popup_id bigint [not null, ref: > popup.id]
+  category_id bigint [not null, ref: > category.id]
+  category_role varchar(20) // POPUP or TARGET
+}
+
+Table popup_style {
+  id bigint [pk]
+  popup_id bigint [not null, ref: > popup.id]
+  style_id bigint [not null, ref: > style.id]
+}
+
+Table popup_feature {
+  id bigint [pk]
+  popup_id bigint [not null, ref: > popup.id]
+  feature_id bigint [not null, ref: > feature.id]
+}
+
+Table wishlist {
+  id bigint [pk]
+  user_id bigint [not null, ref: > users.id]
+  popup_id bigint [not null, ref: > popup.id]
+  created_at timestamp [not null]
+  
+  indexes {
+    (user_id, popup_id) [unique, name: 'uk_wishlist']
+  }
+}
+
+Table review {
+  id bigint [pk]
+  consumer_id bigint [not null, ref: > users.id]
+  popup_id bigint [not null, ref: > popup.id]
+  rating smallint [not null] // 1-5 stars
+  content varchar(150)
+  created_at timestamp [not null]
+  
+  indexes {
+    (consumer_id, popup_id) [unique, name: 'uk_review_once']
+  }
+}
+
+Table review_image {
+  id bigint [pk]
+  review_id bigint [not null, ref: > review.id]
+  image_url varchar(500) [not null]
+  image_key varchar(255)
+  created_at timestamp [not null]
+}
+
+Table refresh_tokens {
+  id bigint [pk]
+  user_id bigint [not null, ref: > users.id]
+  token_hash varchar(128) [not null, unique]
+  issued_at timestamp [not null]
+  expires_at timestamp [not null]
+  revoked boolean [not null, default: false]
+}
+
+Table announcement {
+  id bigint [pk]
+  author_id bigint [not null, ref: > users.id]
+  audience varchar(20) [not null] // ALL, SELLER, CONSUMER
+  popup_id bigint [ref: > popup.id]
+  title varchar(200) [not null]
+  content text
+  created_at timestamp [not null]
+}
+
+Table category {
+  id bigint [pk]
+  name varchar(100) [not null]
+  type varchar(20) // POPUP or CONSUMER
+}
+
+Table style {
+  id bigint [pk]
+  name varchar(100) [not null]
+}
+
+Table region {
+  id bigint [pk]
+  name varchar(100) [not null]
+}
+
+Table feature {
+  id bigint [pk]
+  name varchar(100) [not null]
+}
+
+Table user_pref_category {
+  id bigint [pk]
+  user_id bigint [not null, ref: > users.id]
+  category_id bigint [not null, ref: > category.id]
+}
+
+Table user_pref_style {
+  id bigint [pk]
+  user_id bigint [not null, ref: > users.id]
+  style_id bigint [not null, ref: > style.id]
+}
+
+Table user_pref_region {
+  id bigint [pk]
+  user_id bigint [not null, ref: > users.id]
+  region_id bigint [not null, ref: > region.id]
+}
+
+Table user_pref_feature {
+  id bigint [pk]
+  user_id bigint [not null, ref: > users.id]
+  feature_id bigint [not null, ref: > feature.id]
+}
+
+Table zone_area {
+  id bigint [pk]
+  region_id bigint [not null, ref: > region.id]
+  name varchar(100) [not null]
+  geometry_data text // GeoJSON/WKT
+  status varchar(20) [not null] // AVAILABLE, UNAVAILABLE, HIDDEN
+  created_at timestamp [not null]
+}
+
+Table zone_cell {
+  id bigint [pk]
+  zone_area_id bigint [not null, ref: > zone_area.id]
+  owner_id bigint [not null, ref: > users.id]
+  label varchar(100)
+  lat double [not null]
+  lng double [not null]
+  status varchar(20) [not null] // PENDING, APPROVED...
+  created_at timestamp [not null]
+}
+
+Table zone_availability {
+  id bigint [pk]
+  zone_cell_id bigint [not null, ref: > zone_cell.id]
+  start_date date [not null]
+  end_date date [not null]
+  daily_price numeric [not null]
+}
+
+Table approval_record {
+  id bigint [pk]
+  target_type varchar(20) [not null] // POPUP
+  target_id bigint [not null]
+  decision varchar(20) [not null] // APPROVE, REJECT
+  reason varchar(1000)
+  admin_id bigint [not null, ref: > users.id]
+  created_at timestamp [not null]
+}
+
+Table message_thread {
+  id bigint [pk]
+  seller_id bigint [not null, ref: > users.id]
+  admin_id bigint [ref: > users.id]
+  subject varchar(200)
+  created_at timestamp [not null]
+}
+
+Table message {
+  id bigint [pk]
+  thread_id bigint [not null, ref: > message_thread.id]
+  sender_id bigint [not null, ref: > users.id]
+  receiver_id bigint [not null, ref: > users.id]
+  content text
+  created_at timestamp [not null]
+}
+
+Table message_attachment {
+  id bigint [pk]
+  message_id bigint [not null, ref: > message.id]
+  file_url varchar(500) [not null]
+  created_at timestamp [not null]
+}

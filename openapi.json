@@ -1,0 +1,4244 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Itdaing API",
+    "description": "Itdaing 팝업스토어 추천 서비스 API\n\n## 인증 방식\nJWT Bearer Token 기반 인증을 사용합니다.\n\n1. `/api/auth/login` 엔드포인트로 로그인하여 JWT 토큰을 발급받습니다.\n2. 발급받은 토큰을 Authorization 헤더에 포함하여 API를 호출합니다.\n   - 형식: `Authorization: Bearer {token}`\n\n## 사용자 역할\n- **CONSUMER**: 일반 소비자 (팝업스토어 검색, 위시리스트, 리뷰 작성)\n- **SELLER**: 판매자 (팝업스토어 등록 및 관리)\n- **ADMIN**: 관리자 (시스템 관리 및 승인)\n\n## JWT 토큰 구조\nJWT 토큰에는 다음 클레임이 포함됩니다:\n- `sub`: 사용자 ID\n- `role`: ROLE_CONSUMER, ROLE_SELLER, ROLE_ADMIN 중 하나\n- `iss`: itdaing-server\n- `iat`: 발급 시각 (Unix timestamp)\n- `exp`: 만료 시각 (발급 후 24시간)\n\n## 공개 API\n다음 엔드포인트는 인증 없이 접근 가능합니다:\n- `/api/auth/**`: 인증 관련 API (회원가입, 로그인)\n- `GET /api/master/**`: 마스터 데이터 조회 (지역, 스타일, 카테고리 등)\n",
+    "version": "v1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "인증 API"
+    }
+  ],
+  "paths": {
+    "/api/sellers/me/profile": {
+      "get": {
+        "tags": [
+          "seller-profile-controller"
+        ],
+        "operationId": "getMyProfile",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseSellerProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "seller-profile-controller"
+        ],
+        "operationId": "upsertMyProfile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SellerProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseSellerProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews/{reviewId}": {
+      "put": {
+        "tags": [
+          "review-command-controller"
+        ],
+        "summary": "리뷰 수정",
+        "description": "소비자가 자신이 작성한 리뷰를 수정합니다.",
+        "operationId": "updateReview",
+        "parameters": [
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "review-command-controller"
+        ],
+        "summary": "리뷰 삭제",
+        "description": "소비자가 자신이 작성한 리뷰를 삭제하거나 관리자가 리뷰를 삭제합니다.",
+        "operationId": "deleteReview",
+        "parameters": [
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/popups/{popupId}": {
+      "get": {
+        "tags": [
+          "popup-query-controller"
+        ],
+        "operationId": "getPopup",
+        "parameters": [
+          {
+            "name": "popupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePopupSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "popup-command-controller"
+        ],
+        "summary": "팝업 수정",
+        "description": "판매자가 자신의 팝업 정보를 수정합니다.",
+        "operationId": "updatePopup",
+        "parameters": [
+          {
+            "name": "popupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PopupCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePopupSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "popup-command-controller"
+        ],
+        "summary": "팝업 삭제",
+        "description": "판매자가 자신의 팝업을 삭제합니다.",
+        "operationId": "deletePopup",
+        "parameters": [
+          {
+            "name": "popupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/geo/cells/{id}": {
+      "get": {
+        "tags": [
+          "Geo Cell (Admin)"
+        ],
+        "summary": "셀 상세 조회 (관리자/판매자)",
+        "operationId": "getCell",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCellResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Geo Cell (Admin)"
+        ],
+        "summary": "셀 수정 (관리자)",
+        "operationId": "updateCell",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCellRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCellResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Geo Cell (Admin)"
+        ],
+        "summary": "셀 삭제 (관리자)",
+        "operationId": "deleteCell",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/geo/areas/{id}": {
+      "get": {
+        "tags": [
+          "Geo Area (Admin)"
+        ],
+        "summary": "구역 상세 조회 (관리자/판매자)",
+        "operationId": "getArea",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAreaResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Geo Area (Admin)"
+        ],
+        "summary": "구역 수정 (관리자)",
+        "operationId": "updateArea",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAreaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAreaResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Geo Area (Admin)"
+        ],
+        "summary": "구역 삭제 (관리자)",
+        "operationId": "deleteArea",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/uploads/images": {
+      "post": {
+        "tags": [
+          "Upload"
+        ],
+        "summary": "이미지 업로드 (복수)",
+        "operationId": "uploadImages",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "images"
+                ],
+                "type": "object",
+                "properties": {
+                  "images": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseUploadImagesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/popups": {
+      "get": {
+        "tags": [
+          "popup-query-controller"
+        ],
+        "operationId": "getPopups",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListPopupSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "popup-command-controller"
+        ],
+        "summary": "팝업 등록",
+        "description": "판매자가 셀을 선택해 신규 팝업을 등록합니다.",
+        "operationId": "createPopup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PopupCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePopupSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/popups/{popupId}/reviews": {
+      "get": {
+        "tags": [
+          "popup-query-controller"
+        ],
+        "operationId": "getReviewsByPopup",
+        "parameters": [
+          {
+            "name": "popupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListPopupReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "review-command-controller"
+        ],
+        "summary": "리뷰 작성",
+        "description": "소비자가 팝업에 리뷰를 작성합니다.",
+        "operationId": "createReview",
+        "parameters": [
+          {
+            "name": "popupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inquiries": {
+      "get": {
+        "tags": [
+          "message-controller"
+        ],
+        "operationId": "listThreads",
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "box",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseThreadListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "message-controller"
+        ],
+        "operationId": "createThreadAndSend",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInquiryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCreateInquiryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inquiries/{threadId}/reply": {
+      "post": {
+        "tags": [
+          "message-controller"
+        ],
+        "operationId": "reply",
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseIdResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/geo/zones": {
+      "get": {
+        "tags": [
+          "Geo Zone (Seller/Admin)"
+        ],
+        "summary": "특정 구역의 존 목록 (관리자)",
+        "operationId": "listZonesByArea",
+        "parameters": [
+          {
+            "name": "areaId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseZoneListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Geo Zone (Seller/Admin)"
+        ],
+        "summary": "존 생성 (관리자)",
+        "operationId": "createZone",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateZoneRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseZoneResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/geo/cells": {
+      "get": {
+        "tags": [
+          "Geo Cell (Admin)"
+        ],
+        "summary": "셀 목록 조회 (관리자/판매자, 필터링 지원)",
+        "operationId": "listCells",
+        "parameters": [
+          {
+            "name": "areaId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "ownerId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "APPROVED",
+                "REJECTED",
+                "HIDDEN"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCellListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Geo Cell (Admin)"
+        ],
+        "summary": "셀 생성 (관리자)",
+        "operationId": "createCell",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCellRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCellResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/geo/areas": {
+      "get": {
+        "tags": [
+          "Geo Area (Admin)"
+        ],
+        "summary": "구역 목록 조회 (관리자/판매자)",
+        "operationId": "listAreas",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAreaListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Geo Area (Admin)"
+        ],
+        "summary": "구역 생성 (관리자)",
+        "operationId": "createArea",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAreaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAreaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/signup/seller": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "판매자 회원가입",
+        "description": "팝업스토어 판매자 계정을 생성합니다.\n\n가입된 사용자는 SELLER 역할이 부여되며, 다음 권한을 가집니다:\n- 팝업스토어 등록 및 관리\n- 판매자 프로필 관리\n- 팝업스토어 승인 요청\n- 고객 리뷰 조회\n\n판매자 프로필 정보(활동 지역, SNS URL, 프로필 이미지, 소개)도 함께 등록됩니다.\n- 활동 지역은 필수 입력 항목입니다.\n- SNS URL은 선택 항목이며, 입력 시 유효한 URL 형식이어야 합니다.\n- 프로필 이미지 URL과 소개는 선택 항목입니다.\n\n로그인 시 JWT 토큰의 role 클레임에는 \"ROLE_SELLER\"가 설정됩니다.\n",
+        "operationId": "signupSeller",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupSellerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "409": {
+            "description": "이메일 또는 로그인ID 중복",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "status": 409,
+                    "code": "E202",
+                    "message": "이미 사용 중인 이메일입니다"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "입력값 검증 실패",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "status": 400,
+                    "code": "E001",
+                    "message": "입력값이 올바르지 않습니다"
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "회원가입 성공",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "userId": 12,
+                    "email": "seller1@example.com",
+                    "role": "SELLER",
+                    "profile": {
+                      "activityRegion": "광주/남구",
+                      "snsUrl": "https://instagram.com/popup_seller",
+                      "profileImageUrl": "https://cdn.example.com/profiles/popup_seller.png",
+                      "introduction": "팝업 운영 3년차, 굿즈 위주"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/signup/consumer": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "소비자 회원가입",
+        "description": "일반 소비자 계정을 생성합니다.\n\n가입된 사용자는 CONSUMER 역할이 부여되며, 다음 권한을 가집니다:\n- 팝업스토어 검색 및 조회\n- 위시리스트 관리\n- 리뷰 작성 및 조회\n- 소비자 선호 정보 설정\n\n회원가입 시 선호 정보를 함께 등록합니다:\n- 관심 카테고리: 1~4개 (필수)\n- 팝업 스타일: 1~4개 (필수)\n- 선호 지역: 1~2개 (필수)\n\n모든 선호 정보는 마스터 데이터에 존재하는 ID여야 하며, 중복은 자동으로 제거됩니다.\n\n로그인 시 JWT 토큰의 role 클레임에는 \"ROLE_CONSUMER\"가 설정됩니다.\n",
+        "operationId": "signupConsumer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupConsumerRequest"
+              },
+              "examples": {
+                "소비자 회원가입 요청 예시": {
+                  "description": "소비자 회원가입 요청 예시",
+                  "value": {
+                    "email": "consumer1@example.com",
+                    "password": "P@ssw0rd1!",
+                    "passwordConfirm": "P@ssw0rd1!",
+                    "loginId": "consumer1",
+                    "name": "김소비",
+                    "nickname": "소비왕",
+                    "ageGroup": 20,
+                    "interestCategoryIds": [
+                      101,
+                      105
+                    ],
+                    "styleIds": [
+                      12,
+                      15,
+                      19
+                    ],
+                    "regionIds": [
+                      2
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "409": {
+            "description": "이메일 또는 로그인ID 중복",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "status": 409,
+                    "code": "E202",
+                    "message": "이미 사용 중인 이메일입니다"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "입력값 검증 실패 (선호 정보 개수 초과 등)",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "선호 개수 초과": {
+                    "description": "선호 개수 초과",
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "status": 400,
+                        "code": "E001",
+                        "message": "스타일 개수는 1~4개여야 합니다"
+                      }
+                    }
+                  },
+                  "비밀번호 불일치": {
+                    "description": "비밀번호 불일치",
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "status": 400,
+                        "code": "E001",
+                        "message": "입력값이 올바르지 않습니다"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "마스터 데이터 ID 불일치",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "status": 404,
+                    "code": "E101",
+                    "message": "존재하지 않는 스타일이 포함되어 있습니다"
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "회원가입 성공",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "data": {
+                    "userId": 1,
+                    "email": "consumer1@example.com",
+                    "role": "CONSUMER"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "토큰 재발급 (Refresh Rotation)",
+        "description": "유효한 refreshToken을 보내면 새 accessToken/refreshToken을 발급합니다.",
+        "operationId": "refresh",
+        "requestBody": {
+          "description": "리프레시 토큰을 담아 요청합니다.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRefreshRequest"
+              },
+              "example": {
+                "refreshToken": "existing.refresh.jwt.token"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseTokenPair"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "로그아웃",
+        "description": "현재 로그인 세션을 종료합니다.\n- **Authorization: Bearer {accessToken}** 헤더가 필요합니다.\n- 선택적으로 본문에 **refreshToken**을 함께 전달할 수 있습니다(서버에 저장/블랙리스트 전략에 따라 무효화).\n- 성공 시 본문 없이 **204 No Content**를 반환합니다.\n",
+        "operationId": "logout",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "선택적으로 refreshToken을 본문에 포함",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequest"
+              },
+              "example": {
+                "refreshToken": "existing.refresh.jwt.token"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "로그아웃 성공 (본문 없음)"
+          },
+          "401": {
+            "description": "인증 실패 - Authorization 헤더 없음/형식 오류/토큰 무효",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "status": 401,
+                    "code": "AUTH-401",
+                    "message": "인증이 필요합니다"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "로그인",
+        "description": "로그인 ID와 비밀번호로 로그인하여 JWT 액세스 토큰을 발급받습니다.\n\nJWT 토큰에는 다음 클레임이 포함됩니다:\n- sub: 사용자 ID\n- role: ROLE_CONSUMER, ROLE_SELLER, ROLE_ADMIN 중 하나\n- iss: itdaing-server\n- iat: 발급 시각 (Unix timestamp)\n- exp: 만료 시각 (발급 후 24시간)\n\n발급받은 토큰은 Authorization 헤더에 \"Bearer {token}\" 형식으로 포함하여 인증이 필요한 API를 호출할 수 있습니다.\n\n예시 토큰 페이로드 (디코딩 후):\n{\n  \"sub\": \"1\",\n  \"role\": \"ROLE_CONSUMER\",\n  \"iss\": \"itdaing-server\",\n  \"iat\": 1730419200,\n  \"exp\": 1730505600\n}\n",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "로그인 성공",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "로그인 성공 응답": {
+                    "description": "소비자(CONSUMER) 계정으로 로그인한 경우",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6IlJPTEVfQ09OU1VNRVIiLCJpc3MiOiJpdGRhaW5nLXNlcnZlciIsImlhdCI6MTczMDQxOTIwMCwiZXhwIjoxNzMwNTA1NjAwfQ.signature"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "status": 401,
+                    "code": "AUTH-401",
+                    "message": "로그인ID 또는 비밀번호가 올바르지 않습니다"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/approvals/{id}/reject": {
+      "post": {
+        "tags": [
+          "Approval Management (Admin)"
+        ],
+        "summary": "거부 처리 (관리자)",
+        "operationId": "reject",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalDecisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseApprovalDecisionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/approvals/{id}/approve": {
+      "post": {
+        "tags": [
+          "Approval Management (Admin)"
+        ],
+        "summary": "승인 처리 (관리자)",
+        "operationId": "approve",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalDecisionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseApprovalDecisionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/geo/zones/{zoneId}/status": {
+      "patch": {
+        "tags": [
+          "Geo Zone (Seller/Admin)"
+        ],
+        "summary": "존 상태 변경 (관리자)",
+        "operationId": "changeZoneStatus",
+        "parameters": [
+          {
+            "name": "zoneId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateZoneStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/zones": {
+      "get": {
+        "tags": [
+          "zone-query-controller"
+        ],
+        "operationId": "getZones",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListZoneSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "내 프로필 조회",
+        "description": "인증된 사용자의 프로필 정보를 조회합니다.\n\n이 API는 JWT 토큰 인증이 필요합니다.\nAuthorization 헤더에 \"Bearer {token}\" 형식으로 토큰을 포함해야 합니다.\n\n응답의 role 필드는 다음 값 중 하나입니다:\n- CONSUMER: 일반 소비자\n- SELLER: 팝업스토어 판매자\n- ADMIN: 시스템 관리자\n",
+        "operationId": "getMyProfile_1",
+        "responses": {
+          "404": {
+            "description": "사용자를 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "status": 404,
+                    "code": "COMMON-404",
+                    "message": "사용자를 찾을 수 없습니다"
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "조회 성공",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "소비자 프로필": {
+                    "description": "CONSUMER 역할의 사용자 프로필",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "id": 1,
+                        "email": "consumer@example.com",
+                        "name": "김소비",
+                        "nickname": "소비왕",
+                        "role": "CONSUMER"
+                      }
+                    }
+                  },
+                  "판매자 프로필": {
+                    "description": "SELLER 역할의 사용자 프로필",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "id": 2,
+                        "email": "seller@example.com",
+                        "name": "박판매",
+                        "nickname": "팝업왕",
+                        "role": "SELLER"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "인증 실패 - 토큰이 없거나 유효하지 않음",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "error": {
+                    "status": 401,
+                    "code": "AUTH-401",
+                    "message": "인증이 필요합니다"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/sellers": {
+      "get": {
+        "tags": [
+          "seller-query-controller"
+        ],
+        "operationId": "getSellers",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListSellerSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sellers/{sellerId}": {
+      "get": {
+        "tags": [
+          "seller-query-controller"
+        ],
+        "operationId": "getSeller",
+        "parameters": [
+          {
+            "name": "sellerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseSellerSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sellers/me/popups": {
+      "get": {
+        "tags": [
+          "seller-popup-controller"
+        ],
+        "operationId": "getMyPopups",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListPopupSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/popups/search": {
+      "get": {
+        "tags": [
+          "popup-query-controller"
+        ],
+        "operationId": "searchPopups",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "regionId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "categoryIds",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "approvalStatus",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePagePopupSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/popups/reviews": {
+      "get": {
+        "tags": [
+          "popup-query-controller"
+        ],
+        "operationId": "getAllReviews",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListPopupReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/master/styles": {
+      "get": {
+        "tags": [
+          "master-query-controller"
+        ],
+        "operationId": "getStyles",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListStyleResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/master/regions": {
+      "get": {
+        "tags": [
+          "master-query-controller"
+        ],
+        "operationId": "getRegions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListRegionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/master/features": {
+      "get": {
+        "tags": [
+          "master-query-controller"
+        ],
+        "operationId": "getFeatures",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListFeatureResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/master/categories": {
+      "get": {
+        "tags": [
+          "master-query-controller"
+        ],
+        "operationId": "getCategories",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListCategoryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inquiries/{threadId}": {
+      "get": {
+        "tags": [
+          "message-controller"
+        ],
+        "operationId": "getThreadDetail",
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseThreadDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/geo/zones/me": {
+      "get": {
+        "tags": [
+          "Geo Zone (Seller/Admin)"
+        ],
+        "summary": "내가 만든 존 목록 (판매자)",
+        "operationId": "listMyZones",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseZoneListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/approvals": {
+      "get": {
+        "tags": [
+          "Approval Management (Admin)"
+        ],
+        "summary": "승인 대기 목록 조회 (관리자)",
+        "operationId": "listPendingApprovals",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseApprovalListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inquiries/messages/{messageId}": {
+      "delete": {
+        "tags": [
+          "message-controller"
+        ],
+        "operationId": "softDelete",
+        "parameters": [
+          {
+            "name": "messageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SellerProfileRequest": {
+        "type": "object",
+        "properties": {
+          "profileImageUrl": {
+            "maxLength": 512,
+            "minLength": 0,
+            "type": "string",
+            "description": "프로필 이미지 URL",
+            "example": "https://example.com/image.jpg"
+          },
+          "introduction": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "description": "소개글",
+            "example": "안녕하세요! 팝업 운영자입니다."
+          },
+          "activityRegion": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "활동 지역",
+            "example": "광주 남구"
+          },
+          "snsUrl": {
+            "maxLength": 512,
+            "minLength": 0,
+            "type": "string",
+            "description": "SNS URL",
+            "example": "https://instagram.com/itdaing"
+          }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "fieldErrors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldError"
+            }
+          }
+        }
+      },
+      "ApiResponseSellerProfileResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SellerProfileResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "FieldError": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "SellerProfileResponse": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "description": "사용자 ID",
+            "format": "int64"
+          },
+          "exists": {
+            "type": "boolean"
+          },
+          "profileImageUrl": {
+            "type": "string",
+            "description": "프로필 이미지 URL"
+          },
+          "introduction": {
+            "type": "string",
+            "description": "소개"
+          },
+          "activityRegion": {
+            "type": "string",
+            "description": "활동 지역"
+          },
+          "snsUrl": {
+            "type": "string",
+            "description": "SNS URL"
+          },
+          "email": {
+            "type": "string",
+            "description": "email"
+          }
+        }
+      },
+      "ReviewUpdateRequest": {
+        "required": [
+          "rating"
+        ],
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "string",
+            "format": "byte"
+          },
+          "content": {
+            "maxLength": 150,
+            "minLength": 0,
+            "type": "string"
+          },
+          "imageUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ApiResponseReviewResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ReviewResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "ReviewResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "popupId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "consumerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "consumerName": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "string",
+            "format": "byte"
+          },
+          "content": {
+            "type": "string"
+          },
+          "imageUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PopupCreateRequest": {
+        "required": [
+          "title",
+          "zoneCellId"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 3000,
+            "minLength": 0,
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "operatingTime": {
+            "type": "string"
+          },
+          "zoneCellId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "targetCategoryIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "featureIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "styleIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "thumbnailImageUrl": {
+            "type": "string"
+          },
+          "imageUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ApiResponsePopupSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PopupSummaryResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "PopupOperatingHourResponse": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string"
+          },
+          "time": {
+            "type": "string"
+          }
+        }
+      },
+      "PopupReviewSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "average": {
+            "type": "number",
+            "format": "double"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "distribution": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "PopupSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": {
+            "type": "string"
+          },
+          "sellerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sellerName": {
+            "type": "string"
+          },
+          "zoneId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cellId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cellName": {
+            "type": "string"
+          },
+          "locationName": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "hours": {
+            "type": "string"
+          },
+          "operatingHours": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PopupOperatingHourResponse"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "viewCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "favoriteCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "featureIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "styleTags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "thumbnail": {
+            "type": "string"
+          },
+          "gallery": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reviewSummary": {
+            "$ref": "#/components/schemas/PopupReviewSummaryResponse"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateCellRequest": {
+        "type": "object",
+        "properties": {
+          "areaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ownerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "label": {
+            "type": "string"
+          },
+          "detailedAddress": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lng": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "HIDDEN"
+            ]
+          },
+          "maxCapacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notice": {
+            "type": "string"
+          }
+        },
+        "description": "셀 수정 요청 (관리자)"
+      },
+      "ApiResponseCellResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CellResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "CellResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "areaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "areaName": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ownerLoginId": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "detailedAddress": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lng": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "HIDDEN"
+            ]
+          },
+          "maxCapacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notice": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UpdateAreaRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "polygonGeoJson": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "UNAVAILABLE",
+              "HIDDEN"
+            ]
+          },
+          "maxCapacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notice": {
+            "type": "string"
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "구역 수정 요청 (관리자)"
+      },
+      "ApiResponseAreaResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AreaResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "AreaResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "polygonGeoJson": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "UNAVAILABLE",
+              "HIDDEN"
+            ]
+          },
+          "maxCapacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notice": {
+            "type": "string"
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ApiResponseUploadImagesResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UploadImagesResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "UploadImageResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "단일 업로드 응답"
+      },
+      "UploadImagesResponse": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UploadImageResponse"
+            }
+          }
+        },
+        "description": "복수 업로드 응답"
+      },
+      "ReviewCreateRequest": {
+        "required": [
+          "rating"
+        ],
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "string",
+            "format": "byte"
+          },
+          "content": {
+            "maxLength": 150,
+            "minLength": 0,
+            "type": "string"
+          },
+          "imageUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AttachmentDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "fileKey": {
+            "type": "string"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "메시지 첨부"
+      },
+      "CreateInquiryRequest": {
+        "required": [
+          "content",
+          "receiverId",
+          "subject"
+        ],
+        "type": "object",
+        "properties": {
+          "receiverId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentDto"
+            }
+          }
+        },
+        "description": "문의(스레드) 생성 요청"
+      },
+      "ApiResponseCreateInquiryResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CreateInquiryResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "CreateInquiryResponse": {
+        "type": "object",
+        "properties": {
+          "threadId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "messageId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ReplyRequest": {
+        "required": [
+          "content"
+        ],
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentDto"
+            }
+          }
+        },
+        "description": "답장 요청"
+      },
+      "ApiResponseIdResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/IdResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "IdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CreateZoneRequest": {
+        "type": "object",
+        "properties": {
+          "areaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ownerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "label": {
+            "type": "string"
+          },
+          "detailedAddress": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lng": {
+            "type": "number",
+            "format": "double"
+          },
+          "maxCapacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notice": {
+            "type": "string"
+          }
+        },
+        "description": "존 생성 요청 (관리자)"
+      },
+      "ApiResponseZoneResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ZoneResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "ZoneResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "areaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ownerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "label": {
+            "type": "string"
+          },
+          "detailedAddress": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lng": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "HIDDEN"
+            ]
+          },
+          "maxCapacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notice": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateCellRequest": {
+        "type": "object",
+        "properties": {
+          "areaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ownerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "label": {
+            "type": "string"
+          },
+          "detailedAddress": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lng": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "HIDDEN"
+            ]
+          },
+          "maxCapacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notice": {
+            "type": "string"
+          }
+        },
+        "description": "셀 생성 요청 (관리자)"
+      },
+      "CreateAreaRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "polygonGeoJson": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "UNAVAILABLE",
+              "HIDDEN"
+            ]
+          },
+          "maxCapacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notice": {
+            "type": "string"
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "구역 생성 요청"
+      },
+      "SignupSellerRequest": {
+        "required": [
+          "activityRegion",
+          "email",
+          "loginId",
+          "name",
+          "password",
+          "passwordConfirm"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "이메일 주소",
+            "example": "seller@example.com"
+          },
+          "password": {
+            "maxLength": 20,
+            "minLength": 8,
+            "type": "string",
+            "description": "비밀번호 (8-20자)",
+            "example": "P@ssw0rd1!"
+          },
+          "passwordConfirm": {
+            "type": "string",
+            "description": "비밀번호 확인",
+            "example": "P@ssw0rd1!"
+          },
+          "loginId": {
+            "maxLength": 20,
+            "minLength": 4,
+            "pattern": "^[a-z0-9_-]+$",
+            "type": "string",
+            "description": "로그인 ID(영문 소문자/숫자/하이픈/언더스코어, 4~20자)",
+            "example": "seller1"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "이름",
+            "example": "박판매"
+          },
+          "nickname": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "닉네임",
+            "example": "팝업왕"
+          },
+          "activityRegion": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "description": "활동 지역 (필수)",
+            "example": "광주/남구"
+          },
+          "snsUrl": {
+            "pattern": "^https?://.+",
+            "type": "string",
+            "description": "SNS URL (선택)",
+            "example": "https://instagram.com/popup_seller"
+          },
+          "profileImageUrl": {
+            "maxLength": 512,
+            "minLength": 0,
+            "type": "string",
+            "description": "프로필 이미지 URL (선택)",
+            "example": "https://cdn.example.com/profiles/popup_seller.png"
+          },
+          "introduction": {
+            "maxLength": 1000,
+            "minLength": 0,
+            "type": "string",
+            "description": "소개 (선택)",
+            "example": "팝업 운영 3년차, 굿즈 위주"
+          }
+        },
+        "description": "판매자 회원가입 요청"
+      },
+      "SignupConsumerRequest": {
+        "required": [
+          "ageGroup",
+          "email",
+          "featureIds",
+          "interestCategoryIds",
+          "loginId",
+          "name",
+          "password",
+          "passwordConfirm",
+          "regionIds",
+          "styleIds"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "이메일 주소",
+            "example": "consumer1@example.com"
+          },
+          "password": {
+            "maxLength": 20,
+            "minLength": 8,
+            "type": "string",
+            "description": "비밀번호 (8-20자)",
+            "example": "P@ssw0rd1!"
+          },
+          "passwordConfirm": {
+            "type": "string",
+            "description": "비밀번호 확인",
+            "example": "P@ssw0rd1!"
+          },
+          "loginId": {
+            "maxLength": 30,
+            "minLength": 4,
+            "type": "string",
+            "description": "로그인 ID",
+            "example": "juchan01"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "이름",
+            "example": "김소비"
+          },
+          "nickname": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "description": "닉네임",
+            "example": "소비왕"
+          },
+          "ageGroup": {
+            "maximum": 90,
+            "minimum": 10,
+            "type": "integer",
+            "description": "나이대(10단위 정수)",
+            "format": "int32",
+            "example": 20,
+            "enum": [
+              10,
+              20,
+              30,
+              40,
+              50,
+              60,
+              70,
+              80,
+              90
+            ]
+          },
+          "mbti": {
+            "maxLength": 4,
+            "minLength": 0,
+            "type": "string",
+            "description": "MBTI",
+            "example": "ENFP"
+          },
+          "interestCategoryIds": {
+            "maxItems": 4,
+            "minItems": 1,
+            "type": "array",
+            "description": "관심 카테고리 ID 목록(소비자용, 1~4개)",
+            "example": [
+              101,
+              105
+            ],
+            "items": {
+              "type": "integer",
+              "description": "관심 카테고리 ID 목록(소비자용, 1~4개)",
+              "format": "int64"
+            }
+          },
+          "styleIds": {
+            "maxItems": 4,
+            "minItems": 1,
+            "type": "array",
+            "description": "스타일 ID 목록(1~4개)",
+            "example": [
+              12,
+              15,
+              19
+            ],
+            "items": {
+              "type": "integer",
+              "description": "스타일 ID 목록(1~4개)",
+              "format": "int64"
+            }
+          },
+          "regionIds": {
+            "maxItems": 4,
+            "minItems": 1,
+            "type": "array",
+            "description": "선호 지역 ID 목록(1~4개)",
+            "example": [
+              2
+            ],
+            "items": {
+              "type": "integer",
+              "description": "선호 지역 ID 목록(1~4개)",
+              "format": "int64"
+            }
+          },
+          "featureIds": {
+            "maxItems": 4,
+            "minItems": 1,
+            "type": "array",
+            "description": "선호 특징 ID 목록(1~4개)",
+            "example": [
+              2
+            ],
+            "items": {
+              "type": "integer",
+              "description": "선호 특징 ID 목록(1~4개)",
+              "format": "int64"
+            }
+          },
+          "ageGroupTens": {
+            "type": "boolean"
+          }
+        },
+        "description": "소비자 회원가입 요청(기본정보 + 선호 선택을 한 번에 제출)"
+      },
+      "TokenRefreshRequest": {
+        "required": [
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseTokenPair": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TokenPair"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "TokenPair": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "LogoutRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginRequest": {
+        "required": [
+          "loginId",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "loginId": {
+            "type": "string",
+            "description": "로그인 ID",
+            "example": "juchan01"
+          },
+          "password": {
+            "type": "string",
+            "description": "비밀번호",
+            "example": "P@ssw0rd1"
+          }
+        },
+        "description": "로그인 요청"
+      },
+      "ApprovalDecisionRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        },
+        "description": "승인/거부 요청"
+      },
+      "ApiResponseApprovalDecisionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ApprovalDecisionResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "ApprovalDecisionResponse": {
+        "type": "object",
+        "properties": {
+          "approvalRecordId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "targetType": {
+            "type": "string",
+            "enum": [
+              "POPUP"
+            ]
+          },
+          "targetId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "processedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UpdateZoneStatusRequest": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED",
+              "HIDDEN"
+            ]
+          }
+        }
+      },
+      "ApiResponseVoid": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "ApiResponseListZoneSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ZoneSummaryResponse"
+            }
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "ZoneCellSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "label": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lng": {
+            "type": "number",
+            "format": "double"
+          },
+          "maxCapacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "notice": {
+            "type": "string"
+          },
+          "reservedBy": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ZoneSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "regionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string"
+          },
+          "maxCapacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notice": {
+            "type": "string"
+          },
+          "geometry": {
+            "type": "string"
+          },
+          "cells": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ZoneCellSummaryResponse"
+            }
+          }
+        }
+      },
+      "ApiResponseListSellerSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerSummaryResponse"
+            }
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "SellerSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "profileImage": {
+            "type": "string"
+          },
+          "mainArea": {
+            "type": "string"
+          },
+          "sns": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseSellerSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SellerSummaryResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "ApiResponseListPopupSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PopupSummaryResponse"
+            }
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "ApiResponseListPopupReviewResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PopupReviewResponse"
+            }
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "PopupReviewAuthorResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          }
+        }
+      },
+      "PopupReviewResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "popupId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "author": {
+            "$ref": "#/components/schemas/PopupReviewAuthorResponse"
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "date": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ApiResponsePagePopupSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PagePopupSummaryResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "PagePopupSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageable": {
+            "$ref": "#/components/schemas/PageableObject"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PopupSummaryResponse"
+            }
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PageableObject": {
+        "type": "object",
+        "properties": {
+          "paged": {
+            "type": "boolean"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unpaged": {
+            "type": "boolean"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SortObject"
+          }
+        }
+      },
+      "SortObject": {
+        "type": "object",
+        "properties": {
+          "sorted": {
+            "type": "boolean"
+          },
+          "unsorted": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseListStyleResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StyleResponse"
+            }
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "StyleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseListRegionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegionResponse"
+            }
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "RegionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseListFeatureResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeatureResponse"
+            }
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "FeatureResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseListCategoryResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryResponse"
+            }
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "CategoryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "POPUP",
+              "CONSUMER"
+            ]
+          }
+        }
+      },
+      "ApiResponseThreadListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ThreadListResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "ThreadListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ThreadSummary"
+            }
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ThreadParticipantSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      },
+      "ThreadSummary": {
+        "type": "object",
+        "properties": {
+          "threadId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "lastSnippet": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "unreadForMe": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "counterpart": {
+            "$ref": "#/components/schemas/ThreadParticipantSummary"
+          }
+        }
+      },
+      "ApiResponseThreadDetailResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ThreadDetailResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "MessageItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "senderId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "receiverId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "sentAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttachmentDto"
+            }
+          }
+        }
+      },
+      "ThreadDetailResponse": {
+        "type": "object",
+        "properties": {
+          "threadId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageItem"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseZoneListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ZoneListResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "ZoneListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ZoneResponse"
+            }
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseCellListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CellListResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "CellListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CellResponse"
+            }
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseAreaListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AreaListResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "AreaListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AreaResponse"
+            }
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseApprovalListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ApprovalListResponse"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ApiError"
+          }
+        }
+      },
+      "ApprovalItemResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "targetType": {
+            "type": "string",
+            "enum": [
+              "POPUP"
+            ]
+          },
+          "targetId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "targetName": {
+            "type": "string"
+          },
+          "currentStatus": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "APPROVED",
+              "REJECTED"
+            ]
+          },
+          "requesterLoginId": {
+            "type": "string"
+          },
+          "requesterId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "ApprovalListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApprovalItemResponse"
+            }
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "description": "JWT 액세스 토큰을 입력하세요.\n\n토큰 발급:\n1. POST /api/auth/login으로 로그인\n2. 응답의 accessToken 값을 복사\n3. 우측 상단 'Authorize' 버튼 클릭 후 토큰 입력\n\n예시: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwicm9sZSI6IlJPTEVfQ09OU1VNRVIifQ...\n",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

@@ -1,0 +1,1442 @@
+[
+  {
+    "zone_id": "east-001",
+    "zone_name": "충장로 패션의 거리",
+    "address": "광주광역시 동구 충장로 2가",
+    "zone_type": "상업 중심지",
+    "zone_style_tags": ["유행선도", "쇼핑", "활기찬", "1020세대"],
+    "latitude": 35.14842034928355,
+    "longitude": 126.92141943157667,
+    "allowed_categories": ["의류", "화장품", "패스트푸드", "액세서리"],
+    "operating_hours_weekday": "10:30-22:00",
+    "operating_hours_weekend": "10:30-22:30",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.35,
+        "20s": 0.4,
+        "30s": 0.15,
+        "40s_plus": 0.1
+      },
+      "group_type_ratio": {
+        "couple": 0.25,
+        "family": 0.15,
+        "friends": 0.5,
+        "solo": 0.1
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["16:00-20:00"],
+      "weekend_peak_times": ["13:00-21:00"]
+    },
+    "long_description": "광주 최대의 패션 중심지로 10대와 20대 초반의 유동인구가 압도적으로 많은 지역입니다. 최신 트렌드에 민감한 소비자들이 끊임없이 오가며, 빠른 회전율을 보이는 저가형 패션 아이템과 길거리 음식이 주를 이룹니다. 학생들이 학교를 마치고 친구들과 쇼핑을 하거나 데이트를 즐기러 오는 필수 코스로, 시각적으로 화려하고 즉각적인 구매 결정을 유도하는 아이템이 승산이 있습니다.",
+    "commercial_insight": {
+      "spending_power": "중하 (박리다매 유리)",
+      "traffic_type": "목적형 쇼핑 및 배회형",
+      "atmosphere": "빠르고 시끄럽고 에너지가 넘침"
+    },
+    "search_keywords": [
+      "10대 핫플",
+      "학생 쇼핑",
+      "저렴한 옷",
+      "유행하는 악세사리",
+      "길거리 간식",
+      "탕후루",
+      "인생네컷",
+      "친구랑 놀기",
+      "가성비",
+      "빠른 유행",
+      "시내 중심",
+      "보세 옷",
+      "화장품 세일",
+      "교복 데이트",
+      "사람 많은 곳"
+    ],
+    "recommended_items_detail": [
+      "캐릭터 솜사탕",
+      "만원 케이스",
+      "트렌디한 양말",
+      "저렴한 귀걸이",
+      "컵떡볶이"
+    ]
+  },
+  {
+    "zone_id": "east-002",
+    "zone_name": "ACC 하늘마당 입구",
+    "address": "광주광역시 동구 문화전당로 38",
+    "zone_type": "문화·휴식",
+    "zone_style_tags": ["피크닉", "낭만적인", "야경", "버스킹"],
+    "latitude": 35.1486944898163,
+    "longitude": 126.92023395360302,
+    "allowed_categories": ["테이크아웃 음식", "굿즈", "전시", "공연"],
+    "operating_hours_weekday": "13:00-22:00",
+    "operating_hours_weekend": "11:00-23:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.1,
+        "20s": 0.55,
+        "30s": 0.25,
+        "40s_plus": 0.1
+      },
+      "group_type_ratio": {
+        "couple": 0.45,
+        "family": 0.15,
+        "friends": 0.35,
+        "solo": 0.05
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["18:00-21:00"],
+      "weekend_peak_times": ["15:00-22:00"]
+    },
+    "long_description": "국립아시아문화전당의 잔디밭 광장인 하늘마당으로 이어지는 입구로, 돗자리를 펴고 피크닉을 즐기는 20대 커플과 대학생 그룹이 주를 이룹니다. 저녁이 되면 조명이 켜지며 낭만적인 분위기가 연출되어 버스킹 공연과 함께 가볍게 즐길 수 있는 핑거푸드나 감성적인 굿즈에 대한 수요가 폭발합니다. 앉아서 머무르는 시간이 길어 시선을 끄는 체험형 부스도 적합합니다.",
+    "commercial_insight": {
+      "spending_power": "중 (감성 소비 중심)",
+      "traffic_type": "체류형 및 휴식형",
+      "atmosphere": "여유롭고 로맨틱함"
+    },
+    "search_keywords": [
+      "돗자리 데이트",
+      "야외 맥주",
+      "피크닉 도시락",
+      "버스킹 구경",
+      "광주 야경 명소",
+      "감성 소품",
+      "플리마켓",
+      "잔디밭",
+      "치맥",
+      "푸드트럭",
+      "대학생 커플",
+      "인스타 사진",
+      "밤산책",
+      "문화 행사",
+      "여유로운 저녁"
+    ],
+    "recommended_items_detail": [
+      "큐브 스테이크",
+      "닭강정",
+      "야광 용품",
+      "일러스트 엽서",
+      "휴대용 조명"
+    ]
+  },
+  {
+    "zone_id": "east-003",
+    "zone_name": "예술의 거리 & 대인시장",
+    "address": "광주광역시 동구 예술길 18",
+    "zone_type": "전통·예술 혼합",
+    "zone_style_tags": ["레트로", "갤러리", "전통시장", "야시장"],
+    "latitude": 35.15226295378116,
+    "longitude": 126.91554427995192,
+    "allowed_categories": ["미술품", "골동품", "국밥", "전통디저트"],
+    "operating_hours_weekday": "10:00-19:00",
+    "operating_hours_weekend": "10:00-23:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.05,
+        "20s": 0.2,
+        "30s": 0.25,
+        "40s_plus": 0.5
+      },
+      "group_type_ratio": {
+        "couple": 0.2,
+        "family": 0.3,
+        "friends": 0.2,
+        "solo": 0.3
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["12:00-14:00"],
+      "weekend_peak_times": ["18:00-22:00"]
+    },
+    "long_description": "오랜 역사를 지닌 예술의 거리와 전통시장인 대인시장이 결합된 상권입니다. 낮에는 중장년층의 예술 애호가들이 갤러리와 화방을 찾고, 밤(특히 야시장 기간)에는 레트로 감성을 찾는 젊은 층이 유입됩니다. 손으로 직접 만든 공예품이나 옛 추억을 자극하는 전통 간식, 그리고 시장 특유의 푸근한 인심이 느껴지는 먹거리가 사랑받는 곳입니다.",
+    "commercial_insight": {
+      "spending_power": "중상 (예술품 구매) / 하 (시장 먹거리)",
+      "traffic_type": "탐방형 및 식사 목적",
+      "atmosphere": "고즈넉함과 왁자지껄함의 공존"
+    },
+    "search_keywords": [
+      "부모님 선물",
+      "골동품 수집",
+      "도자기 체험",
+      "전통 야시장",
+      "만원의 행복",
+      "순대국밥",
+      "레트로 감성",
+      "예술가 거리",
+      "수공예품",
+      "옛날 과자",
+      "어르신 타겟",
+      "시장 구경",
+      "빈티지 소품",
+      "가족 나들이",
+      "토속적인"
+    ],
+    "recommended_items_detail": [
+      "수제 도장",
+      "전통 부채",
+      "옛날 핫도그",
+      "빈티지 컵",
+      "수제 잼"
+    ]
+  },
+  {
+    "zone_id": "east-004",
+    "zone_name": "동명동 카페거리",
+    "address": "광주광역시 동구 동명로 14번길",
+    "zone_type": "F&B 특화",
+    "zone_style_tags": ["인스타감성", "브런치", "데이트", "핫플레이스"],
+    "latitude": 35.14811326967954,
+    "longitude": 126.92398492963875,
+    "allowed_categories": ["스페셜티 커피", "양식", "베이커리", "와인"],
+    "operating_hours_weekday": "11:30-22:00",
+    "operating_hours_weekend": "11:00-23:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.05,
+        "20s": 0.5,
+        "30s": 0.35,
+        "40s_plus": 0.1
+      },
+      "group_type_ratio": {
+        "couple": 0.5,
+        "family": 0.05,
+        "friends": 0.4,
+        "solo": 0.05
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["12:00-14:00", "18:00-20:00"],
+      "weekend_peak_times": ["13:00-21:00"]
+    },
+    "long_description": "광주의 '연남동'으로 불리는 곳으로, 주택을 개조한 감각적인 카페와 레스토랑이 밀집해 있습니다. 방문객의 대부분이 데이트나 소개팅, 혹은 '인생샷'을 남기기 위해 방문하는 2030 세대입니다. 따라서 맛뿐만 아니라 플레이팅과 매장 인테리어 등 시각적인 요소가 매우 중요하며, 일반적인 프랜차이즈보다는 독특한 컨셉의 디저트나 독립 서점, 소품샵 등이 경쟁력이 있습니다.",
+    "commercial_insight": {
+      "spending_power": "중상 (분위기 비용 지불 의사 높음)",
+      "traffic_type": "목적형 방문 및 카페 투어",
+      "atmosphere": "트렌디하고 세련된"
+    },
+    "search_keywords": [
+      "소개팅 장소",
+      "분위기 좋은 카페",
+      "브런치 맛집",
+      "인스타 핫플",
+      "디저트 투어",
+      "기념일 데이트",
+      "감성 소품샵",
+      "와인바",
+      "수제 케이크",
+      "포토존",
+      "줄서는 식당",
+      "여심 저격",
+      "고급스러운",
+      "트렌드세터",
+      "MZ세대"
+    ],
+    "recommended_items_detail": [
+      "커스텀 케이크",
+      "수입 잡화",
+      "향수/디퓨저",
+      "휘낭시에/마들렌",
+      "내추럴 와인"
+    ]
+  },
+  {
+    "zone_id": "east-005",
+    "zone_name": "동구 인문학당 공원",
+    "address": "광주광역시 동구 동명동 137",
+    "zone_type": "문화·휴식",
+    "zone_style_tags": ["조용한", "한옥", "책", "산책"],
+    "latitude": 35.149962501041784,
+    "longitude": 126.91274544709353,
+    "allowed_categories": ["서점", "티하우스", "공예", "세미나"],
+    "operating_hours_weekday": "10:00-20:00",
+    "operating_hours_weekend": "10:00-21:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.1,
+        "20s": 0.25,
+        "30s": 0.35,
+        "40s_plus": 0.3
+      },
+      "group_type_ratio": {
+        "couple": 0.2,
+        "family": 0.3,
+        "friends": 0.2,
+        "solo": 0.3
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["14:00-17:00"],
+      "weekend_peak_times": ["11:00-18:00"]
+    },
+    "long_description": "동명동의 번화함에서 한 발짝 벗어나 고즈넉한 한옥과 인문학적 정취를 느낄 수 있는 힐링 공간입니다. 조용히 책을 읽거나 사색을 즐기려는 1인 방문객, 그리고 차분한 대화를 나누고 싶어 하는 소규모 모임이 주로 찾습니다. 자극적인 상업 시설보다는 차(Tea), 책, 명상, 슬로우 라이프와 관련된 콘텐츠나 워크숍 형태의 비즈니스가 잘 어울립니다.",
+    "commercial_insight": {
+      "spending_power": "중 (가치 소비 중심)",
+      "traffic_type": "체류형 및 사색형",
+      "atmosphere": "차분하고 정적인"
+    },
+    "search_keywords": [
+      "북카페",
+      "한옥 체험",
+      "조용한 데이트",
+      "혼자 가기 좋은",
+      "힐링 스팟",
+      "차 마시는 곳",
+      "인문학 강의",
+      "독서 모임",
+      "전통 차",
+      "슬로우 라이프",
+      "사색",
+      "도심 속 휴식",
+      "고급 취미",
+      "교양 있는",
+      "안락한"
+    ],
+    "recommended_items_detail": [
+      "블렌딩 티",
+      "독립 출판물",
+      "도자기 찻잔",
+      "아로마 오일",
+      "수제 노트"
+    ]
+  },
+  {
+    "zone_id": "west-001",
+    "zone_name": "상무지구 메인 스트리트",
+    "address": "광주광역시 서구 상무중앙로 72",
+    "zone_type": "유흥·업무 복합",
+    "zone_style_tags": ["화려한", "밤문화", "회식", "비즈니스"],
+    "latitude": 35.14883093721706,
+    "longitude": 126.84837461605271,
+    "allowed_categories": ["주점", "고기집", "노래방", "호텔"],
+    "operating_hours_weekday": "11:00-02:00",
+    "operating_hours_weekend": "12:00-04:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.0,
+        "20s": 0.3,
+        "30s": 0.4,
+        "40s_plus": 0.3
+      },
+      "group_type_ratio": {
+        "couple": 0.1,
+        "family": 0.05,
+        "friends": 0.3,
+        "solo": 0.05
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["11:30-13:00", "19:00-23:00"],
+      "weekend_peak_times": ["19:00-01:00"]
+    },
+    "long_description": "광주의 대표적인 업무 지구이자 최대의 유흥 상권입니다. 낮에는 인근 관공서와 기업 직장인들이 점심 식사를 위해 쏟아져 나오며, 밤에는 회식과 접대, 유흥을 즐기는 직장인 및 2030 세대로 불야성을 이룹니다. 법인 카드 사용 비중이 높고 객단가가 높은 편이라 고급스러운 고기집이나 대형 주점, 또는 음주 후 즐길 수 있는 해장 음식이나 오락 시설이 성행합니다.",
+    "commercial_insight": {
+      "spending_power": "최상 (법인카드, 회식 수요)",
+      "traffic_type": "직장인 점심 & 저녁 유흥",
+      "atmosphere": "흥청망청하고 화려함"
+    },
+    "search_keywords": [
+      "직장인 회식",
+      "법카 찬스",
+      "밤새는 곳",
+      "대형 룸소주방",
+      "고급 횟집",
+      "비즈니스 접대",
+      "점심 맛집",
+      "해장국",
+      "24시간 영업",
+      "유흥가",
+      "헌팅 포차",
+      "노래 타운",
+      "단체 모임",
+      "택시 잘 잡히는",
+      "시끌벅적한"
+    ],
+    "recommended_items_detail": [
+      "숙취 해소제",
+      "프리미엄 한우",
+      "고급 위스키",
+      "대형 꽃다발(행사)",
+      "실내 야구/사격"
+    ]
+  },
+  {
+    "zone_id": "west-002",
+    "zone_name": "상무지구 평화공원 카페길",
+    "address": "광주광역시 서구 치평동 1163",
+    "zone_type": "휴식·상업",
+    "zone_style_tags": ["도심속여유", "브런치", "산책로", "모던"],
+    "latitude": 35.15088710161189,
+    "longitude": 126.84922681228679,
+    "allowed_categories": ["카페", "캐주얼다이닝", "꽃집", "편의점"],
+    "operating_hours_weekday": "08:00-23:00",
+    "operating_hours_weekend": "10:00-23:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.05,
+        "20s": 0.35,
+        "30s": 0.4,
+        "40s_plus": 0.2
+      },
+      "group_type_ratio": {
+        "couple": 0.3,
+        "family": 0.2,
+        "friends": 0.3,
+        "solo": 0.2
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["12:00-14:00"],
+      "weekend_peak_times": ["13:00-17:00"]
+    },
+    "long_description": "상무지구의 번잡함 속에서 잠시 숨을 돌릴 수 있는 공원 인근 카페 거리입니다. 점심 식사 후 산책을 나온 직장인들과 주말 브런치를 즐기러 온 커플, 가족 단위 방문객이 섞여 있습니다. 너무 시끄럽지 않으면서도 세련된 분위기를 선호하며, 테이크아웃 커피뿐만 아니라 여유롭게 앉아서 즐길 수 있는 디저트나 가벼운 식사 메뉴가 인기가 많습니다.",
+    "commercial_insight": {
+      "spending_power": "중상 (커피 및 디저트 소비)",
+      "traffic_type": "산책 및 휴식형",
+      "atmosphere": "쾌적하고 모던함"
+    },
+    "search_keywords": [
+      "산책하기 좋은",
+      "직장인 커피타임",
+      "주말 브런치",
+      "공원 뷰 카페",
+      "애견 동반",
+      "테라스 자리",
+      "가벼운 점심",
+      "샌드위치",
+      "조각 케이크",
+      "데이트 코스",
+      "깔끔한 식당",
+      "도심 휴식",
+      "커피 맛집",
+      "여유로운 오후",
+      "사진 잘 나오는"
+    ],
+    "recommended_items_detail": [
+      "샐러드/포케",
+      "아인슈페너",
+      "반려동물 간식",
+      "피크닉 세트 대여",
+      "생화 꽃다발"
+    ]
+  },
+  {
+    "zone_id": "west-003",
+    "zone_name": "화정동 힐스테이트 상권",
+    "address": "광주광역시 서구 화정로 272",
+    "zone_type": "주거 밀착형",
+    "zone_style_tags": ["실속있는", "생활편의", "학원가", "가족단위"],
+    "latitude": 35.151342819504556,
+    "longitude": 126.87769397062982,
+    "allowed_categories": ["분식", "마트", "학원", "병원"],
+    "operating_hours_weekday": "09:00-21:00",
+    "operating_hours_weekend": "10:00-21:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.3,
+        "20s": 0.1,
+        "30s": 0.2,
+        "40s_plus": 0.4
+      },
+      "group_type_ratio": {
+        "couple": 0.1,
+        "family": 0.6,
+        "friends": 0.2,
+        "solo": 0.1
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["15:00-19:00"],
+      "weekend_peak_times": ["11:00-18:00"]
+    },
+    "long_description": "대단지 아파트와 학교가 밀집된 전형적인 항아리 상권입니다. 주 고객은 하교하는 학생들과 장을 보러 나온 주부, 그리고 주말 외식을 하는 가족 단위입니다. 화려함보다는 '실용성'과 '가성비'가 중요하며, 아이들 간식거리나 학원 가기 전 간단히 먹을 수 있는 분식, 혹은 가족끼리 편하게 먹을 수 있는 외식 메뉴가 안정적인 매출을 올릴 수 있습니다.",
+    "commercial_insight": {
+      "spending_power": "중 (생활비 지출 위주)",
+      "traffic_type": "거주민 생활 동선",
+      "atmosphere": "안전하고 일상적인"
+    },
+    "search_keywords": [
+      "아파트 단지 앞",
+      "아이들 간식",
+      "학원 끝나고",
+      "가족 외식",
+      "동네 맛집",
+      "반찬 가게",
+      "떡볶이",
+      "김밥",
+      "마트 장보기",
+      "엄마들 모임",
+      "가성비 식당",
+      "포장 전문",
+      "생활 밀착",
+      "초등학생 픽업",
+      "안전한 거리"
+    ],
+    "recommended_items_detail": [
+      "컵강정/떡꼬치",
+      "밀키트",
+      "수제 반찬",
+      "저렴한 문구류",
+      "테이크아웃 커피"
+    ]
+  },
+  {
+    "zone_id": "west-004",
+    "zone_name": "농성역 먹자골목",
+    "address": "광주광역시 서구 죽봉대로 56",
+    "zone_type": "서민형 상업",
+    "zone_style_tags": ["노포", "가성비", "퇴근길", "전통"],
+    "latitude": 35.152851352350844,
+    "longitude": 126.88564841531374,
+    "allowed_categories": ["한식", "횟집", "호프", "시장"],
+    "operating_hours_weekday": "11:00-23:00",
+    "operating_hours_weekend": "11:00-22:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.05,
+        "20s": 0.15,
+        "30s": 0.3,
+        "40s_plus": 0.5
+      },
+      "group_type_ratio": {
+        "couple": 0.15,
+        "family": 0.15,
+        "friends": 0.5,
+        "solo": 0.2
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["18:00-21:00"],
+      "weekend_peak_times": ["17:00-21:00"]
+    },
+    "long_description": "오래된 맛집(노포)들이 즐비하여 중장년층 직장인들이 퇴근 후 소주 한잔 기울이기에 최적화된 골목입니다. 화려한 인테리어보다는 '맛'과 '푸짐한 양', 그리고 '사람 냄새나는 분위기'가 중요합니다. 서민적인 가격대의 횟집, 고깃집, 호프집이 주를 이루며, 단골 위주의 장사가 잘 되는 곳이라 친근한 서비스가 필수적입니다.",
+    "commercial_insight": {
+      "spending_power": "중 (술자리 비용)",
+      "traffic_type": "퇴근 후 음주 및 식사",
+      "atmosphere": "구수하고 시끌벅적한"
+    },
+    "search_keywords": [
+      "퇴근길 소주",
+      "아재 입맛",
+      "숨은 맛집",
+      "노포 감성",
+      "삼겹살에 소주",
+      "가성비 횟집",
+      "동네 술집",
+      "편안한 분위기",
+      "2차 가기 좋은",
+      "오래된 단골",
+      "푸짐한 안주",
+      "막걸리",
+      "직장인 저녁",
+      "친구랑 한잔",
+      "소박한"
+    ],
+    "recommended_items_detail": [
+      "계란말이",
+      "마른안주",
+      "순대볶음",
+      "생맥주",
+      "매운탕"
+    ]
+  },
+  {
+    "zone_id": "west-005",
+    "zone_name": "유스퀘어 터미널 복합관",
+    "address": "광주광역시 서구 무진대로 904",
+    "zone_type": "교통·쇼핑 허브",
+    "zone_style_tags": ["여행", "복합쇼핑몰", "영화", "유동인구최대"],
+    "latitude": 35.15654093728224,
+    "longitude": 126.881755267746,
+    "allowed_categories": ["서점", "영화관", "프랜차이즈", "기념품"],
+    "operating_hours_weekday": "08:00-23:00",
+    "operating_hours_weekend": "08:00-24:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.2,
+        "20s": 0.4,
+        "30s": 0.2,
+        "40s_plus": 0.2
+      },
+      "group_type_ratio": {
+        "couple": 0.35,
+        "family": 0.25,
+        "friends": 0.2,
+        "solo": 0.2
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["17:00-19:00"],
+      "weekend_peak_times": ["11:00-20:00"]
+    },
+    "long_description": "광주 교통의 관문이자, 쇼핑/문화/외식이 한곳에서 해결되는 거대 복합 몰입니다. 버스를 기다리는 여행객, 영화를 보러 온 커플, 쇼핑하러 온 가족 등 가장 다양한 군상이 모이는 곳입니다. 유동인구가 엄청나게 많지만, 이동 속도가 빠르므로 눈에 확 띄고 빨리 제공될 수 있는 서비스나 상품이 유리합니다. 선물용 기념품 수요도 꾸준합니다.",
+    "commercial_insight": {
+      "spending_power": "중상 (다양한 소비 목적)",
+      "traffic_type": "환승 및 몰링(Malling)",
+      "atmosphere": "매우 혼잡하고 바쁨"
+    },
+    "search_keywords": [
+      "버스 기다릴 때",
+      "영화관 데이트",
+      "복합 쇼핑몰",
+      "비 오는 날 실내",
+      "여행 선물",
+      "광주 기념품",
+      "빠른 식사",
+      "책 구경",
+      "프랜차이즈 카페",
+      "사람 제일 많은",
+      "약속 장소",
+      "터미널 맛집",
+      "아이쇼핑",
+      "시간 때우기",
+      "전국구 유동인구"
+    ],
+    "recommended_items_detail": [
+      "지역 특산 빵",
+      "여행용 목베개",
+      "모바일 액세서리",
+      "패스트푸드",
+      "책/잡지"
+    ]
+  },
+  {
+    "zone_id": "south-001",
+    "zone_name": "양림동 펭귄마을 & 역사문화지구",
+    "address": "광주광역시 남구 천변좌로 450번길",
+    "zone_type": "관광·문화",
+    "zone_style_tags": ["근대역사", "사진명소", "레트로", "골목여행"],
+    "latitude": 35.13995323568196,
+    "longitude": 126.91644581173303,
+    "allowed_categories": ["공예체험", "기념품", "감성카페", "양식"],
+    "operating_hours_weekday": "10:00-20:00",
+    "operating_hours_weekend": "10:00-21:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.15,
+        "20s": 0.4,
+        "30s": 0.25,
+        "40s_plus": 0.2
+      },
+      "group_type_ratio": {
+        "couple": 0.45,
+        "family": 0.25,
+        "friends": 0.25,
+        "solo": 0.05
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["13:00-17:00"],
+      "weekend_peak_times": ["11:00-18:00"]
+    },
+    "long_description": "근대 서양식 건축물과 한국 전통 가옥이 어우러진 역사문화 마을이자, 정크아트로 꾸며진 펭귄마을이 있는 관광지입니다. 타지에서 온 관광객과 사진 찍기를 좋아하는 커플들이 골목골목을 누비며 탐험합니다. 대량 생산품보다는 작가의 손길이 닿은 굿즈, 스토리가 있는 기념품, 그리고 걷다가 지쳤을 때 들어갈 수 있는 아기자기한 카페가 적합합니다.",
+    "commercial_insight": {
+      "spending_power": "중 (관광 기념품 및 간식)",
+      "traffic_type": "관광 및 골목 투어",
+      "atmosphere": "예술적이고 아기자기함"
+    },
+    "search_keywords": [
+      "광주 여행 필수코스",
+      "골목길 데이트",
+      "레트로 사진",
+      "정크 아트",
+      "근대 역사 투어",
+      "기념품 샵",
+      "공예품 체험",
+      "펭귄 빵",
+      "이색 카페",
+      "한복 대여",
+      "벽화 마을",
+      "걷기 좋은 곳",
+      "추억 여행",
+      "관광객 많은",
+      "아날로그 감성"
+    ],
+    "recommended_items_detail": [
+      "펭귄 모양 쿠키",
+      "업사이클링 굿즈",
+      "수제 엽서",
+      "개화기 의상 대여",
+      "전통차"
+    ]
+  },
+  {
+    "zone_id": "south-002",
+    "zone_name": "사직공원 전망타워 입구",
+    "address": "광주광역시 남구 사직길 49",
+    "zone_type": "자연·휴식",
+    "zone_style_tags": ["힐링", "전망", "숲길", "야경"],
+    "latitude": 35.14269642578126,
+    "longitude": 126.91435806208209,
+    "allowed_categories": ["전통차", "전망대카페", "산책로", "공연"],
+    "operating_hours_weekday": "09:00-22:00",
+    "operating_hours_weekend": "09:00-22:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.05,
+        "20s": 0.3,
+        "30s": 0.25,
+        "40s_plus": 0.4
+      },
+      "group_type_ratio": {
+        "couple": 0.5,
+        "family": 0.3,
+        "friends": 0.1,
+        "solo": 0.1
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["19:00-21:00"],
+      "weekend_peak_times": ["14:00-21:00"]
+    },
+    "long_description": "광주 시내를 한눈에 내려다볼 수 있는 전망대와 울창한 숲이 있는 공원입니다. 낮에는 산책하러 온 인근 주민과 어르신들이, 밤에는 야경을 보러 온 연인들이 주를 이룹니다. 자연 친화적인 분위기 속에서 힐링할 수 있는 아이템이나, 야경을 보며 분위기를 잡을 수 있는 식음료 서비스가 유효합니다. 축제가 열릴 때는 통기타 거리의 음악적 요소와 결합되기도 합니다.",
+    "commercial_insight": {
+      "spending_power": "중 (음료 및 가벼운 간식)",
+      "traffic_type": "등산/산책 및 야경 관람",
+      "atmosphere": "조용하고 숲 내음 가득함"
+    },
+    "search_keywords": [
+      "광주 야경",
+      "전망대 데이트",
+      "숲속 산책",
+      "통기타 거리",
+      "드라이브 코스",
+      "힐링 카페",
+      "조용한 저녁",
+      "공기 좋은 곳",
+      "부모님 모시고",
+      "야외 공연",
+      "커피 한잔",
+      "도심 숲",
+      "가을 단풍",
+      "벚꽃 명소",
+      "운치 있는"
+    ],
+    "recommended_items_detail": [
+      "따뜻한 차(Tea)",
+      "츄러스",
+      "야광 팔찌(밤)",
+      "어묵 국물",
+      "즉석 사진"
+    ]
+  },
+  {
+    "zone_id": "south-003",
+    "zone_name": "봉선동 명문학원가 & 카페",
+    "address": "광주광역시 남구 봉선로 150",
+    "zone_type": "교육·고급주거",
+    "zone_style_tags": ["프리미엄", "교육열", "스타벅스", "맘스커뮤니티"],
+    "latitude": 35.12740961072385,
+    "longitude": 126.90860039501082,
+    "allowed_categories": ["스터디카페", "브런치", "유기농마켓", "학원"],
+    "operating_hours_weekday": "08:00-23:00",
+    "operating_hours_weekend": "09:00-22:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.4,
+        "20s": 0.1,
+        "30s": 0.1,
+        "40s_plus": 0.4
+      },
+      "group_type_ratio": {
+        "couple": 0.05,
+        "family": 0.5,
+        "friends": 0.25,
+        "solo": 0.2
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["16:00-22:00"],
+      "weekend_peak_times": ["10:00-20:00"]
+    },
+    "long_description": "광주의 '대치동'으로 불리는 최고급 학원가이자 부촌입니다. 자녀 교육에 관심이 지대한 학부모와 늦은 시간까지 공부하는 학생들이 주 구성원입니다. 학부모들의 모임 장소로 활용되는 고급 브런치 카페나 유기농/웰빙 식자재 매장, 그리고 학생들의 집중력을 높여줄 스터디 카페나 건강한 간식거리가 높은 수요를 보입니다. 가격보다는 '품질'과 '브랜드 이미지'가 중요합니다.",
+    "commercial_insight": {
+      "spending_power": "상 (자녀 및 건강 투자에 적극적)",
+      "traffic_type": "학원 픽업 및 학습",
+      "atmosphere": "차분하고 교육적 열기 높음"
+    },
+    "search_keywords": [
+      "광주 학원가",
+      "스터디 카페",
+      "학부모 모임",
+      "브런치 맛집",
+      "건강 간식",
+      "수험생 영양식",
+      "고급 아파트 상권",
+      "조용한 카페",
+      "아이들 픽업",
+      "프리미엄 독서실",
+      "유기농 빵집",
+      "교육 정보 교류",
+      "퀄리티 높은",
+      "안전 귀가",
+      "입시 스트레스 해소"
+    ],
+    "recommended_items_detail": [
+      "그릭 요거트",
+      "샌드위치 도시락",
+      "프리미엄 김밥",
+      "브레인 푸드(견과류)",
+      "고급 문구"
+    ]
+  },
+  {
+    "zone_id": "south-004",
+    "zone_name": "백운광장 스트리트 푸드존",
+    "address": "광주광역시 남구 대남대로 200",
+    "zone_type": "교통·도시재생",
+    "zone_style_tags": ["푸드트럭", "공중보행로", "교통요지", "활기찬"],
+    "latitude": 35.135066165272235,
+    "longitude": 126.90215105369694,
+    "allowed_categories": ["길거리음식", "편의점", "패스트푸드", "세계요리"],
+    "operating_hours_weekday": "11:00-23:00",
+    "operating_hours_weekend": "11:00-23:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.2,
+        "20s": 0.25,
+        "30s": 0.25,
+        "40s_plus": 0.3
+      },
+      "group_type_ratio": {
+        "couple": 0.2,
+        "family": 0.3,
+        "friends": 0.3,
+        "solo": 0.2
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["17:00-20:00"],
+      "weekend_peak_times": ["12:00-21:00"]
+    },
+    "long_description": "도시 재생 사업을 통해 '스트리트 푸드존'과 공중보행로가 조성된 새로운 핫플레이스입니다. 교통량이 많은 백운광장 주변으로, 퇴근길 직장인이나 인근 주민들이 가볍게 들러 다양한 길거리 음식을 즐깁니다. 야외 테이블에서 맥주 한잔하기 좋은 분위기이며, 푸드트럭 형태의 이색적인 세계 요리나 트렌디한 퓨전 간식이 경쟁력이 있습니다.",
+    "commercial_insight": {
+      "spending_power": "중하 (가벼운 군것질)",
+      "traffic_type": "통행 중 방문 및 야식",
+      "atmosphere": "개방적이고 자유로움"
+    },
+    "search_keywords": [
+      "푸드트럭 맛집",
+      "백운광장 야시장",
+      "길거리 스테이크",
+      "공중보행로 산책",
+      "퇴근길 간식",
+      "야외 맥주",
+      "타코야끼",
+      "세계 음식 체험",
+      "버스킹 공연",
+      "가볍게 먹기 좋은",
+      "남구청 근처",
+      "새로운 핫플",
+      "다리 위 산책",
+      "야식 추천",
+      "이색 데이트"
+    ],
+    "recommended_items_detail": [
+      "큐브 스테이크",
+      "새우 꼬치",
+      "불초밥",
+      "칵테일 봉지",
+      "와플"
+    ]
+  },
+  {
+    "zone_id": "north-001",
+    "zone_name": "전남대 후문 대학로",
+    "address": "광주광역시 북구 용봉동 152",
+    "zone_type": "대학 상권",
+    "zone_style_tags": ["젊음", "가성비", "게임", "에너지"],
+    "latitude": 35.17603744191093,
+    "longitude": 126.92141943157667,
+    "allowed_categories": ["PC방", "저렴한술집", "분식", "코인노래방"],
+    "operating_hours_weekday": "10:00-03:00",
+    "operating_hours_weekend": "10:00-05:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.1,
+        "20s": 0.8,
+        "30s": 0.05,
+        "40s_plus": 0.05
+      },
+      "group_type_ratio": {
+        "couple": 0.3,
+        "family": 0.05,
+        "friends": 0.6,
+        "solo": 0.05
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["12:00-13:30", "18:00-02:00"],
+      "weekend_peak_times": ["18:00-04:00"]
+    },
+    "long_description": "광주 최대의 대학가 상권으로, 24시간 젊음의 열기가 식지 않는 곳입니다. 주머니 사정이 가벼운 대학생들을 타겟으로 한 '저렴하고 양 많은' 식당과 술집이 즐비합니다. 식사 후 즐길 수 있는 노래방, PC방, 오락실 등 엔터테인먼트 요소가 강하며, 늦은 밤까지 술자리가 이어지므로 해장 음식이나 간단한 안주류가 매우 잘 팔립니다.",
+    "commercial_insight": {
+      "spending_power": "중하 (가성비 최우선)",
+      "traffic_type": "등하교 및 유흥",
+      "atmosphere": "매우 시끄럽고 활기참"
+    },
+    "search_keywords": [
+      "대학생 핫플",
+      "전대후문 맛집",
+      "가성비 술집",
+      "개강 파티",
+      "미팅 장소",
+      "코인 노래방",
+      "늦게까지 하는",
+      "저렴한 점심",
+      "보드게임 카페",
+      "친구들이랑",
+      "시험 기간 야식",
+      "대학로 감성",
+      "만원의 행복",
+      "헌팅 술집",
+      "북적북적한"
+    ],
+    "recommended_items_detail": [
+      "대용량 커피",
+      "조각 피자",
+      "저가형 파스타",
+      "소주 안주(탕)",
+      "인생네컷"
+    ]
+  },
+  {
+    "zone_id": "north-002",
+    "zone_name": "운암동 예술회관 인근",
+    "address": "광주광역시 북구 북문대로 60",
+    "zone_type": "문화·주거",
+    "zone_style_tags": ["공연관람", "차분한", "가족외식", "교통편리"],
+    "latitude": 35.14842034928355,
+    "longitude": 126.91398005108572,
+    "allowed_categories": ["한정식", "카페", "꽃집", "문화센터"],
+    "operating_hours_weekday": "10:00-22:00",
+    "operating_hours_weekend": "09:00-22:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.1,
+        "20s": 0.2,
+        "30s": 0.3,
+        "40s_plus": 0.4
+      },
+      "group_type_ratio": {
+        "couple": 0.2,
+        "family": 0.6,
+        "friends": 0.15,
+        "solo": 0.05
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["12:00-14:00"],
+      "weekend_peak_times": ["12:00-15:00", "17:00-20:00"]
+    },
+    "long_description": "광주문화예술회관과 인접하여 공연을 관람하러 온 가족 단위 방문객과 인근 대단지 아파트 주민들이 섞이는 상권입니다. 공연 전후로 식사나 차를 즐기는 수요가 많아 깔끔하고 정갈한 한식당이나 분위기 있는 카페가 선호됩니다. 서구와 북구를 잇는 교통 요충지이기도 하여, 모임 장소로 잡기에도 적절한 위치입니다.",
+    "commercial_insight": {
+      "spending_power": "중상 (가족 외식 및 문화생활)",
+      "traffic_type": "문화생활 및 거주민",
+      "atmosphere": "교양 있고 안정적인"
+    },
+    "search_keywords": [
+      "문화예술회관 맛집",
+      "공연 전 식사",
+      "가족 모임 장소",
+      "깔끔한 한정식",
+      "주차 편한 카페",
+      "부모님 생신",
+      "아이랑 공연",
+      "운암동 맛집",
+      "분위기 있는 저녁",
+      "문화 생활",
+      "꽃다발 선물",
+      "전통 찻집",
+      "조용한 식사",
+      "예술적 감성",
+      "교통 편리한"
+    ],
+    "recommended_items_detail": [
+      "꽃바구니(공연용)",
+      "한식 코스",
+      "전통차/다과",
+      "브런치",
+      "고급 베이커리"
+    ]
+  },
+  {
+    "zone_id": "north-003",
+    "zone_name": "용봉지구 맛집 거리",
+    "address": "광주광역시 북구 용봉택지로 65",
+    "zone_type": "외식 특화",
+    "zone_style_tags": ["회식", "맛집투어", "먹자골목", "술한잔"],
+    "latitude": 35.17785141520792,
+    "longitude": 126.91396990658497,
+    "allowed_categories": ["삼겹살", "이자카야", "해장국", "치킨"],
+    "operating_hours_weekday": "16:00-02:00",
+    "operating_hours_weekend": "12:00-03:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.05,
+        "20s": 0.3,
+        "30s": 0.35,
+        "40s_plus": 0.3
+      },
+      "group_type_ratio": {
+        "couple": 0.2,
+        "family": 0.2,
+        "friends": 0.6,
+        "solo": 0.0
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["18:30-23:00"],
+      "weekend_peak_times": ["17:00-24:00"]
+    },
+    "long_description": "북구의 대표적인 '먹자골목'으로, 저녁 식사와 술자리를 겸하러 오는 직장인과 주민들로 붐빕니다. 전철우 사거리를 중심으로 다양한 고기집, 횟집, 이자카야가 밀집해 있어 1차, 2차, 3차까지 한곳에서 해결하는 경향이 강합니다. 맛에 대한 기준이 높은 편이라 '진짜 맛집'으로 소문나면 멀리서도 찾아오는 충성 고객층을 확보할 수 있습니다.",
+    "commercial_insight": {
+      "spending_power": "중상 (저녁 회식 비용)",
+      "traffic_type": "저녁 식사 및 음주",
+      "atmosphere": "활기차고 맛있는 냄새 가득"
+    },
+    "search_keywords": [
+      "전철우 사거리",
+      "용봉동 술집",
+      "삼겹살 맛집",
+      "직장인 회식",
+      "이자카야 추천",
+      "안주 맛있는",
+      "구워주는 고기집",
+      "친구 모임",
+      "북구 핫플",
+      "줄서는 식당",
+      "해산물 포차",
+      "맥주 한잔",
+      "밤 늦게까지",
+      "맛집 탐방",
+      "시끌벅적"
+    ],
+    "recommended_items_detail": [
+      "숙성 돼지고기",
+      "모듬회",
+      "하이볼",
+      "매운 닭발",
+      "해장 라면"
+    ]
+  },
+  {
+    "zone_id": "north-004",
+    "zone_name": "말바우시장 전통장터",
+    "address": "광주광역시 북구 동문대로 97",
+    "zone_type": "전통시장",
+    "zone_style_tags": ["시끌벅적", "장날", "할머니손맛", "저렴한"],
+    "latitude": 35.17209912911745,
+    "longitude": 126.92152838404503,
+    "allowed_categories": ["농수산물", "국수", "튀김", "잡화"],
+    "operating_hours_weekday": "07:00-19:00",
+    "operating_hours_weekend": "06:00-20:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.02,
+        "20s": 0.05,
+        "30s": 0.13,
+        "40s_plus": 0.8
+      },
+      "group_type_ratio": {
+        "couple": 0.1,
+        "family": 0.3,
+        "friends": 0.2,
+        "solo": 0.4
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["09:00-14:00"],
+      "weekend_peak_times": ["08:00-15:00"]
+    },
+    "long_description": "장날(2, 4, 7, 9일)이면 발 디딜 틈 없이 붐비는 광주의 대표적인 전통시장입니다. 주 고객층은 50대 이상의 장노년층이며, 신선한 농수산물과 저렴한 시장표 먹거리를 찾아옵니다. 가격 민감도가 매우 높지만, '덤' 문화와 같은 정서적 소구도 중요합니다. 시장 안 팥죽집이나 국밥집은 줄을 서서 먹을 정도로 인기가 많으며, 최근에는 레트로를 즐기는 젊은 층도 간혹 보입니다.",
+    "commercial_insight": {
+      "spending_power": "하 (철저한 가성비 중심)",
+      "traffic_type": "장보기 및 식사",
+      "atmosphere": "생동감 넘치고 토속적"
+    },
+    "search_keywords": [
+      "전통시장 장날",
+      "말바우 장터",
+      "시장 팥죽",
+      "저렴한 채소",
+      "할머니 장터",
+      "시장 통닭",
+      "국밥 맛집",
+      "생선 가게",
+      "북적이는",
+      "사람 냄새",
+      "막걸리 한잔",
+      "어르신 핫플",
+      "현금 결제",
+      "제철 음식",
+      "알뜰 장보기"
+    ],
+    "recommended_items_detail": [
+      "팥죽/칼국수",
+      "옛날 통닭",
+      "반찬류",
+      "과일",
+      "시장 튀김"
+    ]
+  },
+  {
+    "zone_id": "north-005",
+    "zone_name": "비엔날레 & 중외공원 문화벨트",
+    "address": "광주광역시 북구 비엔날레로 111",
+    "zone_type": "예술·공원",
+    "zone_style_tags": ["전시회", "나들이", "넓은광장", "예술적"],
+    "latitude": 35.185,
+    "longitude": 126.885,
+    "allowed_categories": ["미술관", "카페", "피크닉용품", "체험학습"],
+    "operating_hours_weekday": "09:00-18:00",
+    "operating_hours_weekend": "09:00-19:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.2,
+        "20s": 0.2,
+        "30s": 0.3,
+        "40s_plus": 0.3
+      },
+      "group_type_ratio": {
+        "couple": 0.25,
+        "family": 0.5,
+        "friends": 0.15,
+        "solo": 0.1
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["10:00-16:00"],
+      "weekend_peak_times": ["10:00-17:00"]
+    },
+    "long_description": "광주비엔날레 전시관과 시립미술관, 박물관이 모여 있는 거대한 문화 예술 공원입니다. 비엔날레 기간에는 전국 각지의 예술 애호가들이, 평소에는 아이를 동반한 가족들이 나들이 장소로 애용합니다. 넓은 야외 공간에서 아이들이 뛰어놀기 좋아, 어린이 대상 체험 프로그램이나 피크닉 대여, 혹은 전시 관람 후 즐길 수 있는 아트 상품 판매가 적합합니다.",
+    "commercial_insight": {
+      "spending_power": "중 (체험 및 간식 비용)",
+      "traffic_type": "관람 및 나들이",
+      "atmosphere": "광활하고 예술적 영감 가득"
+    },
+    "search_keywords": [
+      "광주 비엔날레",
+      "미술관 데이트",
+      "아이랑 가볼만한곳",
+      "주말 나들이",
+      "피크닉 명소",
+      "어린이 체험",
+      "야외 조각 공원",
+      "전시회 관람",
+      "예술적인",
+      "넓은 잔디밭",
+      "가족 소풍",
+      "놀이공원 옆",
+      "문화 산책",
+      "교육적인",
+      "힐링 파크"
+    ],
+    "recommended_items_detail": [
+      "미술 체험 키트",
+      "소프트 아이스크림",
+      "피크닉 매트",
+      "아트 엽서",
+      "어린이 음료"
+    ]
+  },
+  {
+    "zone_id": "gwangsan-001",
+    "zone_name": "송정역 KTX 광장",
+    "address": "광주광역시 광산구 상무대로 201",
+    "zone_type": "교통 허브",
+    "zone_style_tags": ["여행시작", "바쁜", "환승", "떡갈비"],
+    "latitude": 35.1348755583761,
+    "longitude": 126.79344279338221,
+    "allowed_categories": ["향토음식", "렌터카", "카페", "간편식"],
+    "operating_hours_weekday": "06:00-23:00",
+    "operating_hours_weekend": "06:00-23:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.05,
+        "20s": 0.3,
+        "30s": 0.3,
+        "40s_plus": 0.35
+      },
+      "group_type_ratio": {
+        "couple": 0.2,
+        "family": 0.2,
+        "friends": 0.2,
+        "solo": 0.4
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["08:00-10:00", "17:00-19:00"],
+      "weekend_peak_times": ["09:00-12:00", "16:00-20:00"]
+    },
+    "long_description": "KTX와 SRT가 정차하는 광주의 관문으로, 하루 종일 캐리어를 끄는 여행객과 비즈니스 출장객으로 붐빕니다. 기차 시간에 맞춰 급하게 식사를 해결하거나, 광주를 떠나기 전 기념품(특히 떡갈비, 지역 빵)을 사려는 수요가 매우 높습니다. 역 건너편 떡갈비 골목은 전국적으로 유명하며, 역 내부와 인근에는 회전율이 빠른 카페와 식당이 성업 중입니다.",
+    "commercial_insight": {
+      "spending_power": "중상 (여행 경비 지출)",
+      "traffic_type": "환승 및 대기, 선물 구매",
+      "atmosphere": "분주하고 떠나는 설렘"
+    },
+    "search_keywords": [
+      "광주송정역 맛집",
+      "KTX 기다릴 때",
+      "광주 기념품",
+      "떡갈비 골목",
+      "기차 여행",
+      "출장객 점심",
+      "선물 포장",
+      "역전 카페",
+      "렌터카 대여",
+      "빠른 식사",
+      "짐 보관",
+      "여행의 시작",
+      "전라도 음식",
+      "혼밥 하기 좋은",
+      "교통 요지"
+    ],
+    "recommended_items_detail": [
+      "송정리 떡갈비",
+      "광주 주먹밥",
+      "지역 특산물 선물세트",
+      "아메리카노",
+      "김밥/토스트"
+    ]
+  },
+  {
+    "zone_id": "gwangsan-002",
+    "zone_name": "1913 송정역시장",
+    "address": "광주광역시 광산구 송정로 8번길",
+    "zone_type": "뉴트로 관광",
+    "zone_style_tags": ["청년상인", "야시장", "사진찍기좋은", "디저트"],
+    "latitude": 35.13696374266141,
+    "longitude": 126.7970173341684,
+    "allowed_categories": ["수제양갱", "식빵", "국수", "맥주"],
+    "operating_hours_weekday": "11:00-21:00",
+    "operating_hours_weekend": "10:00-22:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.1,
+        "20s": 0.5,
+        "30s": 0.2,
+        "40s_plus": 0.2
+      },
+      "group_type_ratio": {
+        "couple": 0.5,
+        "family": 0.2,
+        "friends": 0.25,
+        "solo": 0.05
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["17:00-20:00"],
+      "weekend_peak_times": ["14:00-21:00"]
+    },
+    "long_description": "쇠퇴해가던 전통시장을 청년 상인들이 입점하여 '뉴트로' 컨셉으로 되살린 성공적인 도시재생 사례입니다. 송정역 바로 앞에 위치하여 기차를 기다리는 젊은 여행객들이 필수 코스로 방문합니다. 옛 간판 디자인을 살린 거리 분위기 덕분에 사진 촬영 명소로 인기이며, 양갱, 식빵, 고로케 등 선물하기 좋은 감각적인 디저트류와 가볍게 즐기는 맥주 안주가 주력 상품입니다.",
+    "commercial_insight": {
+      "spending_power": "중 (디저트 및 선물)",
+      "traffic_type": "관광 및 맛집 투어",
+      "atmosphere": "힙하고 복고풍"
+    },
+    "search_keywords": [
+      "송정역시장 먹거리",
+      "광주 빵지순례",
+      "레트로 거리",
+      "청년 창업",
+      "수제 간식",
+      "기차 시간 남을 때",
+      "야시장 데이트",
+      "인스타 핫플",
+      "선물용 디저트",
+      "수제 맥주",
+      "국수 맛집",
+      "옛날 교복",
+      "사진 찍기 좋은",
+      "아기자기한",
+      "뉴트로 감성"
+    ],
+    "recommended_items_detail": [
+      "과일 양갱",
+      "또아식빵",
+      "계란밥",
+      "수제 맥주",
+      "부각/스낵"
+    ]
+  },
+  {
+    "zone_id": "gwangsan-003",
+    "zone_name": "첨단1지구 시리단길",
+    "address": "광주광역시 광산구 임방울대로 826",
+    "zone_type": "트렌디 상권",
+    "zone_style_tags": ["MZ세대", "핫플", "대형카페", "팝업스토어"],
+    "latitude": 35.19537817239931,
+    "longitude": 126.8371292709972,
+    "allowed_categories": ["라운지바", "브랜드의류", "일식", "포토스튜디오"],
+    "operating_hours_weekday": "12:00-24:00",
+    "operating_hours_weekend": "12:00-02:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.05,
+        "20s": 0.6,
+        "30s": 0.25,
+        "40s_plus": 0.1
+      },
+      "group_type_ratio": {
+        "couple": 0.4,
+        "family": 0.1,
+        "friends": 0.45,
+        "solo": 0.05
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["18:00-23:00"],
+      "weekend_peak_times": ["14:00-01:00"]
+    },
+    "long_description": "최근 '시리단길'이라는 별칭이 붙으며 광주에서 가장 핫하게 떠오른 신흥 상권입니다. 서울의 성수동이나 압구정을 연상케 하는 대형 카페, 트렌디한 라운지 바, 팝업 스토어들이 밀집해 있습니다. 소비 트렌드를 주도하는 MZ세대가 주 고객이며, 이들은 '경험'과 '과시'를 위해 기꺼이 지갑을 엽니다. 세련된 인테리어와 독보적인 컨셉 없이는 생존하기 힘든 치열한 곳입니다.",
+    "commercial_insight": {
+      "spending_power": "상 (유행 소비 주도)",
+      "traffic_type": "핫플레이스 탐방",
+      "atmosphere": "화려하고 힙함"
+    },
+    "search_keywords": [
+      "첨단 핫플",
+      "시리단길",
+      "대형 베이커리 카페",
+      "라운지 바",
+      "MZ세대 놀이터",
+      "신상 맛집",
+      "분위기 깡패",
+      "데이트 명소",
+      "패션 피플",
+      "팝업 스토어",
+      "고급 일식",
+      "인생샷 성지",
+      "트렌디한 술집",
+      "웨이팅 필수",
+      "가장 핫한"
+    ],
+    "recommended_items_detail": [
+      "오마카세",
+      "시그니처 칵테일",
+      "도넛/베이글",
+      "디자이너 브랜드",
+      "셀프 스튜디오"
+    ]
+  },
+  {
+    "zone_id": "gwangsan-004",
+    "zone_name": "첨단 LC타워 & 먹자골목",
+    "address": "광주광역시 광산구 첨단중앙로 106",
+    "zone_type": "생활 밀착형",
+    "zone_style_tags": ["편리한", "쇼핑", "외식", "북적이는"],
+    "latitude": 35.191697474825936,
+    "longitude": 126.83812206958733,
+    "allowed_categories": ["패밀리레스토랑", "영화관", "화장품", "병원"],
+    "operating_hours_weekday": "10:00-22:00",
+    "operating_hours_weekend": "10:00-23:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.2,
+        "20s": 0.2,
+        "30s": 0.3,
+        "40s_plus": 0.3
+      },
+      "group_type_ratio": {
+        "couple": 0.2,
+        "family": 0.4,
+        "friends": 0.3,
+        "solo": 0.1
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["17:00-21:00"],
+      "weekend_peak_times": ["12:00-21:00"]
+    },
+    "long_description": "첨단지구의 구도심 역할을 하는 전통적인 중심 상권입니다. 영화관, 대형 마트, 병원, 식당이 한 건물 혹은 인근에 모여 있어 '원스톱 라이프'가 가능합니다. 인근 아파트 주민들과 과학기술원 학생들, 직장인들이 일상적으로 방문하며, 유행을 타기보다는 호불호 없는 프랜차이즈 식당이나 생활 편의 시설이 꾸준한 매출을 올립니다.",
+    "commercial_insight": {
+      "spending_power": "중 (일상 소비)",
+      "traffic_type": "생활 편의 이용",
+      "atmosphere": "안정적이고 편리함"
+    },
+    "search_keywords": [
+      "첨단 중심가",
+      "LC타워",
+      "영화 보고 밥 먹고",
+      "패밀리 레스토랑",
+      "화장품 쇼핑",
+      "병원 갔다가",
+      "학생들 많은",
+      "프랜차이즈 천국",
+      "만남의 장소",
+      "편리한 주차",
+      "가족 외식",
+      "주말 쇼핑",
+      "북적이는 거리",
+      "일상적인",
+      "없는 게 없는"
+    ],
+    "recommended_items_detail": [
+      "샤브샤브",
+      "치킨/피자",
+      "드럭스토어 제품",
+      "문구/팬시",
+      "분식 세트"
+    ]
+  },
+  {
+    "zone_id": "gwangsan-005",
+    "zone_name": "수완지구 호수공원 & 아울렛",
+    "address": "광주광역시 광산구 장신로 82",
+    "zone_type": "신도시 라이프",
+    "zone_style_tags": ["럭셔리", "가족나들이", "호수뷰", "쾌적한"],
+    "latitude": 35.190057753472566,
+    "longitude": 126.81651716749833,
+    "allowed_categories": ["아울렛", "키즈카페", "이탈리안", "산책"],
+    "operating_hours_weekday": "10:30-21:30",
+    "operating_hours_weekend": "10:30-22:00",
+    "visitor_profile": {
+      "age_group_ratio": {
+        "10s": 0.15,
+        "20s": 0.15,
+        "30s": 0.4,
+        "40s_plus": 0.3
+      },
+      "group_type_ratio": {
+        "couple": 0.2,
+        "family": 0.65,
+        "friends": 0.1,
+        "solo": 0.05
+      }
+    },
+    "time_pattern": {
+      "weekday_peak_times": ["11:30-14:00"],
+      "weekend_peak_times": ["11:00-20:00"]
+    },
+    "long_description": "계획된 신도시의 쾌적함을 가장 잘 보여주는 곳으로, 거대한 호수공원과 대형 아울렛이 마주 보고 있습니다. 어린 자녀를 둔 젊은 부부(3040)가 핵심 소비층이며, 유모차를 끌고 다니기 좋은 넓은 보도와 수유실 등 편의 시설이 중요합니다. 고급스러운 이탈리안 레스토랑, 키즈 카페, 유아동복 매장 등 가족 친화적이면서도 구매력이 높은 업종이 강세입니다.",
+    "commercial_insight": {
+      "spending_power": "상 (자녀 및 여가 생활 투자)",
+      "traffic_type": "가족 쇼핑 및 나들이",
+      "atmosphere": "여유롭고 럭셔리함"
+    },
+    "search_keywords": [
+      "수완 호수공원",
+      "아울렛 쇼핑",
+      "유모차 산책",
+      "키즈존 식당",
+      "가족 나들이",
+      "신도시 맘",
+      "럭셔리 다이닝",
+      "호수 뷰 카페",
+      "아이 옷 쇼핑",
+      "주말 갈만한 곳",
+      "쾌적한 거리",
+      "브런치 모임",
+      "젊은 부부",
+      "문화 센터",
+      "힐링 라이프"
+    ],
+    "recommended_items_detail": [
+      "파스타/피자",
+      "유아용품",
+      "프리미엄 커피",
+      "젤라또",
+      "키즈 체험 프로그램"
+    ]
+  }
+]

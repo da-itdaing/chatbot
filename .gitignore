@@ -1,0 +1,46 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Environment files
+.env
+.env.*
+chatbot.env
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Project artifacts
+chatbot/artifacts/graphs/*.png
+chatbot/artifacts/graphs/*.svg
+chatbot/artifacts/graphs/*.pdf
+
+# Home directory dotfiles (allowlisted below)
+.*
+!.gitignore
+
+
