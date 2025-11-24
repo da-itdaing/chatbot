@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any, AsyncGenerator, Dict, List, Optional
+from uuid import uuid4
 
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
@@ -22,6 +23,10 @@ class ChatConsumerRequest(BaseModel):
         default=None,
         description="명시적으로 사용할 LangGraph thread_id (옵션)",
     )
+    restart_thread: bool = Field(
+        default=False,
+        description="이전 대화 상태가 깨졌을 때 새 thread_id로 재시작",
+    )
 
 
 class ChatResponse(BaseModel):
@@ -42,6 +47,34 @@ def _extract_answer(messages: List[Any]) -> str:
     return content if isinstance(content, str) else str(content)
 
 
+def _build_thread_id(prefix: str, payload: ChatConsumerRequest) -> str:
+    """
+    Thread ID 생성 규칙:
+    - 기본: {prefix}:{user_id}:{session_id or default}
+    - restart_thread=True 이면 UUID suffix를 붙여 완전히 새 thread를 시작
+    - 사용자가 명시적으로 thread_id를 넘기면 그대로 사용 (단, restart_thread가 False일 때)
+    """
+
+    session_part = payload.session_id or "default"
+    core = f"{payload.user_id}:{session_part}"
+    if payload.restart_thread:
+        return f"{prefix}:{core}:{uuid4().hex}"
+    if payload.thread_id:
+        return payload.thread_id
+    return f"{prefix}:{core}"
+
+
+def _initial_state(message: str) -> Dict[str, Any]:
+    return {
+        "messages": [
+            {
+                "role": "user",
+                "content": message,
+            }
+        ]
+    }
+
+
 @router.post("", response_model=ChatResponse)
 async def chat_consumer(request: Request, payload: ChatConsumerRequest) -> ChatResponse:
     """
@@ -54,18 +87,9 @@ async def chat_consumer(request: Request, payload: ChatConsumerRequest) -> ChatR
     app = request.app
     graph = app.state.consumer_graph
 
-    thread_id = payload.thread_id or f"consumer:{payload.user_id}:{payload.session_id or 'default'}"
+    thread_id = _build_thread_id("consumer", payload)
     config: Dict[str, Any] = {"configurable": {"thread_id": thread_id}}
-
-    state = {
-        "messages": [
-            {
-                "role": "user",
-                "content": payload.message,
-            }
-        ]
-    }
-
+    state = _initial_state(payload.message)
     result = await graph.ainvoke(state, config=config)
     answer = _extract_answer(result.get("messages", []))
 
@@ -87,17 +111,9 @@ async def chat_consumer_stream(
     app = request.app
     graph = app.state.consumer_graph
 
-    thread_id = payload.thread_id or f"consumer:{payload.user_id}:{payload.session_id or 'default'}"
+    thread_id = _build_thread_id("consumer", payload)
     config: Dict[str, Any] = {"configurable": {"thread_id": thread_id}}
-
-    state = {
-        "messages": [
-            {
-                "role": "user",
-                "content": payload.message,
-            }
-        ]
-    }
+    state = _initial_state(payload.message)
 
     async def event_stream() -> AsyncGenerator[bytes, None]:
         import json
@@ -108,6 +124,73 @@ async def chat_consumer_stream(
         text = _extract_answer(result.get("messages", []))
         data = {"delta": text, "thread_id": thread_id}
         yield (json.dumps(data, ensure_ascii=False) + "\n").encode("utf-8")
+
+    return StreamingResponse(event_stream(), media_type="application/json")
+
+
+@router.post("/async", response_model=ChatResponse)
+async def chat_consumer_async(
+    request: Request,
+    payload: ChatConsumerRequest,
+) -> ChatResponse:
+    """
+    Async-first 버전의 소비자 챗봇 엔드포인트.
+
+    - LangGraph async 그래프를 사용해 LLM/RAG 호출을 모두 await 처리
+    - 향후 SSE/토큰 스트리밍과 궁합이 좋도록 분리
+    """
+
+    app = request.app
+    graph = app.state.consumer_graph_async
+
+    thread_id = _build_thread_id("consumer", payload)
+    config: Dict[str, Any] = {"configurable": {"thread_id": thread_id}}
+    state = _initial_state(payload.message)
+
+    result = await graph.ainvoke(state, config=config)
+    answer = _extract_answer(result.get("messages", []))
+    return ChatResponse(answer=answer, thread_id=thread_id)
+
+
+@router.post("/async/stream")
+async def chat_consumer_async_stream(
+    request: Request,
+    payload: ChatConsumerRequest,
+) -> StreamingResponse:
+    """
+    Async 그래프 + LangGraph `astream`을 사용한 SSE 스타일 스트리밍.
+
+    현재는 메시지 단위 diff를 흘려보내며, LangGraph `events` 기반 토큰 스트림으로
+    확장할 여지를 남겨둔다.
+    """
+
+    import json
+
+    app = request.app
+    graph = app.state.consumer_graph_async
+
+    thread_id = _build_thread_id("consumer", payload)
+    config: Dict[str, Any] = {"configurable": {"thread_id": thread_id}}
+    state = _initial_state(payload.message)
+
+    async def event_stream() -> AsyncGenerator[bytes, None]:
+        previous = ""
+        async for chunk in graph.astream(state, config=config, stream_mode="values"):
+            if not isinstance(chunk, dict):
+                continue
+            messages = chunk.get("messages", [])
+            delta_text = _extract_answer(messages)
+            if not delta_text:
+                continue
+            if previous and delta_text.startswith(previous):
+                new_part = delta_text[len(previous) :]
+            else:
+                new_part = delta_text
+            previous = delta_text
+            if not new_part.strip():
+                continue
+            payload_dict = {"delta": new_part, "thread_id": thread_id}
+            yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
 
     return StreamingResponse(event_stream(), media_type="application/json")
 

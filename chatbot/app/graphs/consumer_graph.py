@@ -9,6 +9,7 @@ message-truncation logic are preserved as-is, but the vector store and
 settings now come from `app.db.postgres` / `app.config`.
 """
 
+import asyncio
 from typing import Any, Dict, List, Literal, Sequence, cast
 
 from langchain_core.documents import Document
@@ -23,6 +24,7 @@ from langchain_openai import ChatOpenAI
 
 from app.config import get_settings
 from app.db.postgres import get_markets_vectorstore
+from app.utils.search import WebSearchClient
 
 
 settings = get_settings()
@@ -36,6 +38,7 @@ _retriever = _vectorstore.as_retriever(
     search_type="similarity",
     search_kwargs={"k": settings.rag_top_k},
 )
+_web_search_client = WebSearchClient(settings)
 
 
 def _llm(temperature: float = 0.0) -> ChatOpenAI:
@@ -129,6 +132,54 @@ def _get_answer_text(state: AgentState) -> str:
     if isinstance(answer, str) and answer.strip():
         return answer
     raise ValueError("응답이 비어있습니다.")
+
+
+def _maybe_extend_with_web_results(
+    docs: Sequence[Document],
+    query: str,
+) -> List[Document]:
+    """
+    벡터 검색 결과가 부족할 때 DuckDuckGo 검색 결과를 fallback 컨텍스트로 추가한다.
+    """
+
+    materialized = list(docs)
+    if materialized:
+        return materialized
+    if not _web_search_client.enabled:
+        return materialized
+    extra = _web_search_client.search_sync(query)
+    if extra:
+        materialized.extend(extra)
+    return materialized
+
+
+async def _maybe_extend_with_web_results_async(
+    docs: Sequence[Document],
+    query: str,
+) -> List[Document]:
+    """
+    async 그래프 전용 fallback: 벡터 스토어 결과가 없으면 DuckDuckGo 검색을 수행.
+    """
+
+    materialized = list(docs)
+    if materialized or not _web_search_client.enabled:
+        return materialized
+    extra = await _web_search_client.search_async(query)
+    if extra:
+        materialized.extend(extra)
+    return materialized
+
+
+async def _aretrieve_documents(query: str) -> List[Document]:
+    """
+    Retriever가 비동기 인터페이스를 지원하면 그대로 사용하고,
+    그렇지 않으면 thread executor로 감싸 async 컨텍스트에서도 재사용한다.
+    """
+
+    if hasattr(_retriever, "ainvoke"):
+        return await _retriever.ainvoke(query)  # type: ignore[attr-defined]
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(None, _retriever.invoke, query)
 
 
 # ---------------------------------------------------------------------------
@@ -228,6 +279,9 @@ generate_prompt = PromptTemplate.from_template(
 )
 
 
+rag_chain = generate_prompt | generate_llm
+
+
 hallucination_prompt = PromptTemplate.from_template(
     """
 You are a teacher tasked with evaluating whether a student's answer is based on
@@ -283,6 +337,9 @@ rewrite_prompt = PromptTemplate.from_template(
 )
 
 
+rewrite_chain = rewrite_prompt | rewrite_llm | StrOutputParser()
+
+
 basic_system_prompt = """
 당신은 소비자에게 플리마켓 안내 및 추천을 해주는 서비스의 간단한 응답용 챗봇입니다.
 
@@ -303,6 +360,9 @@ basic_prompt = ChatPromptTemplate.from_messages(
         ),
     ]
 )
+
+
+basic_chain = basic_prompt | basic_llm | StrOutputParser()
 
 
 # ---------------------------------------------------------------------------
@@ -358,6 +418,7 @@ def case_classification(state: AgentState) -> AgentState:
 def retrieve(state: AgentState) -> AgentState:
     query_for_search = _get_query_for_search(state)
     docs = _retriever.invoke(query_for_search)
+    docs = _maybe_extend_with_web_results(docs, query_for_search)
     return {
         **state,
         "context": docs,
@@ -368,7 +429,6 @@ def generate(state: AgentState) -> AgentState:
     context_docs = state.get("context", []) or []
     summary = state.get("summary", "").strip()
     query = _get_query_for_search(state)
-    rag_chain = generate_prompt | generate_llm
     response = rag_chain.invoke(
         {
             "question": query,
@@ -419,7 +479,6 @@ def hallucination_router(state: AgentState) -> Literal["hallucinated", "not hall
 def rewrite(state: AgentState) -> AgentState:
     summary = state.get("summary", "").strip() or "요약 없음"
     original_query = _get_query_for_reasoning(state)
-    rewrite_chain = rewrite_prompt | rewrite_llm | StrOutputParser()
     new_query = rewrite_chain.invoke(
         {
             "query": original_query,
@@ -437,10 +496,9 @@ def rewrite(state: AgentState) -> AgentState:
 
 def basic_generate(state: AgentState) -> AgentState:
     summary = state.get("summary", "").strip() or "요약 없음"
-    chain = basic_prompt | basic_llm | StrOutputParser()
     query = state.get("query", "")
     query_text = query if isinstance(query, str) else str(query)
-    answer = chain.invoke(
+    answer = basic_chain.invoke(
         {
             "query": query_text,
             "summary": summary,
@@ -499,6 +557,144 @@ def truncate_messages(state: AgentState) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Async graph nodes (LLM/RAG 호출을 await로 처리)
+# ---------------------------------------------------------------------------
+
+
+async def router_async(state: AgentState) -> Literal["rag_answer", "general_answer"]:
+    summary = state.get("summary", "").strip() or "요약 없음"
+    query = state.get("query", "")
+    query_text = query if isinstance(query, str) else str(query)
+    route = cast(
+        Route,
+        await router_chain.ainvoke({"query": query_text, "summary": summary}),
+    )
+    return route.target
+
+
+async def case_classification_async(state: AgentState) -> AgentState:
+    summary = state.get("summary", "").strip() or "요약 없음"
+    query = _get_query_for_reasoning(state)
+    result = cast(
+        CaseClassification,
+        await case_classification_chain.ainvoke(
+            {
+                "query": query,
+                "summary": summary,
+            }
+        ),
+    )
+    return {
+        **state,
+        "case": result.case,
+        "paraphrased_query": result.rewritten_query,
+    }
+
+
+async def retrieve_async(state: AgentState) -> AgentState:
+    query_for_search = _get_query_for_search(state)
+    docs = await _aretrieve_documents(query_for_search)
+    docs = await _maybe_extend_with_web_results_async(docs, query_for_search)
+    return {
+        **state,
+        "context": docs,
+    }
+
+
+async def generate_async(state: AgentState) -> AgentState:
+    context_docs = state.get("context", []) or []
+    summary = state.get("summary", "").strip()
+    query = _get_query_for_search(state)
+    response = await rag_chain.ainvoke(
+        {
+            "question": query,
+            "context": _format_context(context_docs),
+            "summary": summary or "요약 없음",
+        }
+    )
+    answer_text = response.content if isinstance(response.content, str) else str(response.content)
+    return {
+        **state,
+        "answer": answer_text,
+    }
+
+
+async def check_hallucination_async(state: AgentState) -> AgentState:
+    docs = state.get("context", []) or []
+    documents = _format_context(docs)
+    answer = _get_answer_text(state)
+    result = cast(
+        Hallucination,
+        await hallucination_chain.ainvoke(
+            {
+                "student_answer": answer,
+                "documents": documents,
+            }
+        ),
+    )
+    return {
+        **state,
+        "hallucination_label": result.label,
+        "hallucination_reason": result.reason,
+    }
+
+
+async def rewrite_async(state: AgentState) -> AgentState:
+    summary = state.get("summary", "").strip() or "요약 없음"
+    original_query = _get_query_for_reasoning(state)
+    new_query = await rewrite_chain.ainvoke(
+        {
+            "query": original_query,
+            "summary": summary,
+            "hallucination_label": state.get("hallucination_label", "not hallucinated"),
+            "hallucination_reason": state.get("hallucination_reason", ""),
+        }
+    )
+    return {
+        **state,
+        "query": new_query,
+        "paraphrased_query": new_query,
+    }
+
+
+async def basic_generate_async(state: AgentState) -> AgentState:
+    summary = state.get("summary", "").strip() or "요약 없음"
+    query = state.get("query", "")
+    query_text = query if isinstance(query, str) else str(query)
+    answer = await basic_chain.ainvoke(
+        {
+            "query": query_text,
+            "summary": summary,
+        }
+    )
+    return {
+        **state,
+        "answer": answer,
+    }
+
+
+async def summarize_messages_async(state: AgentState) -> AgentState:
+    messages = state.get("messages", [])
+    summary = state.get("summary", "")
+    if not messages:
+        return state
+
+    prompt = (
+        "summarize this chat history below"
+        if not summary
+        else "summarize this chat history while incorporating the previous summary"
+    )
+    summary_text = await summary_llm.ainvoke(
+        f"{prompt}\n\nchat_history:\n{_format_messages(messages)}\n\nsummary:{summary}"
+    )
+    new_summary = summary_text.content if isinstance(summary_text.content, str) else str(summary_text.content)
+    return {
+        **state,
+        "summary": new_summary,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Graph assembly
 # ---------------------------------------------------------------------------
 
@@ -552,5 +748,55 @@ def build_consumer_graph(checkpointer=None):
     return graph_builder.compile(checkpointer=checkpointer)
 
 
-__all__ = ["build_consumer_graph", "AgentState"]
+def build_consumer_graph_async(checkpointer=None):
+    """
+    Async-first LangGraph 빌더.
+
+    - LLM/벡터 스토어/웹검색 호출을 모두 await 기반으로 처리
+    - LangGraph `astream`/`astream_events` 시나리오에 적합
+    """
+
+    graph_builder = StateGraph(AgentState)
+
+    graph_builder.add_node("extract_query", extract_user_query)
+    graph_builder.add_node("case_classification", case_classification_async)
+    graph_builder.add_node("retrieve", retrieve_async)
+    graph_builder.add_node("generate", generate_async)
+    graph_builder.add_node("check_hallucination", check_hallucination_async)
+    graph_builder.add_node("rewrite", rewrite_async)
+    graph_builder.add_node("basic_generate", basic_generate_async)
+    graph_builder.add_node("format_answer", format_answer_message)
+    graph_builder.add_node("summarize_messages", summarize_messages_async)
+    graph_builder.add_node("truncate_messages", truncate_messages)
+
+    graph_builder.add_edge(START, "extract_query")
+    graph_builder.add_conditional_edges(
+        "extract_query",
+        router_async,
+        {
+            "rag_answer": "case_classification",
+            "general_answer": "basic_generate",
+        },
+    )
+    graph_builder.add_edge("case_classification", "retrieve")
+    graph_builder.add_edge("retrieve", "generate")
+    graph_builder.add_edge("generate", "check_hallucination")
+    graph_builder.add_conditional_edges(
+        "check_hallucination",
+        hallucination_router,
+        {
+            "not hallucinated": "format_answer",
+            "hallucinated": "rewrite",
+        },
+    )
+    graph_builder.add_edge("rewrite", "retrieve")
+    graph_builder.add_edge("basic_generate", "format_answer")
+    graph_builder.add_edge("format_answer", "summarize_messages")
+    graph_builder.add_edge("summarize_messages", "truncate_messages")
+    graph_builder.add_edge("truncate_messages", END)
+
+    return graph_builder.compile(checkpointer=checkpointer)
+
+
+__all__ = ["build_consumer_graph", "build_consumer_graph_async", "AgentState"]
 

@@ -6,8 +6,8 @@ from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.checkpoint.serde.encrypted import EncryptedSerializer
 
 from app.config import ROOT_DIR, get_settings
-from app.graphs.consumer_graph import build_consumer_graph
-from app.graphs.seller_graph import build_seller_graph
+from app.graphs.consumer_graph import build_consumer_graph, build_consumer_graph_async
+from app.graphs.seller_graph import build_seller_graph, build_seller_graph_async
 from app.routers import chat_consumer, chat_seller
 
 
@@ -37,7 +37,9 @@ def create_app() -> FastAPI:
         app.state.checkpointer_cm = checkpointer_cm
         app.state.checkpointer = checkpointer
         app.state.consumer_graph = build_consumer_graph(checkpointer=checkpointer)
+        app.state.consumer_graph_async = build_consumer_graph_async(checkpointer=checkpointer)
         app.state.seller_graph = build_seller_graph(checkpointer=checkpointer)
+        app.state.seller_graph_async = build_seller_graph_async(checkpointer=checkpointer)
 
     @app.on_event("shutdown")
     async def _shutdown() -> None:

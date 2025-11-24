@@ -65,6 +65,12 @@ class Settings(BaseSettings):
     langsmith_tracing: bool = Field(True, alias="LANGSMITH_TRACING")
     langsmith_endpoint: Optional[str] = Field(None, alias="LANGCHAIN_ENDPOINT")
 
+    # --- Web search / external info ---
+    websearch_enabled: bool = Field(False, alias="WEBSEARCH_ENABLED")
+    websearch_provider: str = Field("duckduckgo", alias="WEBSEARCH_PROVIDER")
+    websearch_top_k: int = Field(3, alias="WEBSEARCH_TOP_K")
+    tavily_api_key: Optional[str] = Field(None, alias="TAVILY_API_KEY")
+
     model_config = SettingsConfigDict(
         env_file=str(ROOT_DIR / "chatbot.env"),
         env_file_encoding="utf-8",

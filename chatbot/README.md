@@ -39,6 +39,10 @@
 - RAG / 메모리:
   - `RAG_TOP_K`, `ZONE_RAG_TOP_K`
   - `MAX_MESSAGE_HISTORY`, `ZONE_MAX_MESSAGE_HISTORY`
+- 웹 검색 / 외부 정보:
+  - `WEBSEARCH_ENABLED` (DuckDuckGo fallback on/off)
+  - `WEBSEARCH_PROVIDER` (현재 `duckduckgo` 고정), `WEBSEARCH_TOP_K`
+  - `TAVILY_API_KEY` 등 추후 확장용 키
 - LangGraph checkpoint:
   - `CHECKPOINT_DB_URL` (없으면 POSTGRES_* 기반 DSN 사용)
   - `LANGGRAPH_AES_KEY` (16/24/32바이트 문자열 – 이미 샘플 값 세팅됨)
@@ -56,6 +60,9 @@
   - `user_id` → 회원 ID (또는 비회원 세션 키)
   - `session_id` → 프론트의 대화 세션/탭 ID
   - 같은 `(user_id, session_id)` 조합으로 요청하면 LangGraph가 **같은 대화 히스토리**를 이어 받습니다.
+- 오류/타임아웃 후 재시작:
+  - Request body에 `restart_thread=true`를 추가하면 서버가 `consumer|seller:{user}:{session}:{uuid}` 형태의 **새 thread_id**를 발급
+  - Response에는 항상 `thread_id`가 포함되므로, 정상 케이스에서는 그대로 재사용하면 됩니다.
 
 ### RAG 시드 로딩 (1회 작업)
 
@@ -94,7 +101,8 @@ curl -s http://127.0.0.1:9000/health
       "user_id": "springUserId",
       "session_id": "conversationId-or-null",
       "message": "광주 야경 예쁜 플리마켓 추천해줘",
-      "thread_id": null
+      "thread_id": null,
+      "restart_thread": false
     }
     ```
 
@@ -112,19 +120,31 @@ curl -s http://127.0.0.1:9000/health
   - `POST /ai/api/chat/seller`
   - Request/Response 스키마는 소비자와 동일하며 `thread_id` prefix만 `seller:`로 구분됩니다.
 
-### 스트리밍 엔드포인트 (한 청크 스트림)
+- **소비자 Async / Streaming 전용**
 
-- 소비자: `POST /ai/api/chat/consumer/stream`
-- 판매자: `POST /ai/api/chat/seller/stream`
+  - `POST /ai/api/chat/consumer/async`
+  - `POST /ai/api/chat/consumer/async/stream`
+  - Request 스키마 동일 (`restart_thread` 지원), `/async/stream` 은 LangGraph `astream`을 통해 메시지 diff를 지속 전송
+
+- **판매자 Async / Streaming 전용**
+
+  - `POST /ai/api/chat/seller/async`
+  - `POST /ai/api/chat/seller/async/stream`
+  - 소비자 async 엔드포인트와 동일한 패턴
+
+### 스트리밍 엔드포인트
+
+- 1회 청크 (기존 버전): `POST /ai/api/chat/(consumer|seller)/stream`
+- Async diff 스트림: `POST /ai/api/chat/(consumer|seller)/async/stream`
 - Request 스키마는 동기 버전과 동일.
-- Response는 **JSON 라인 한 줄**:
+- Response는 기본적으로 **JSON 라인** (chunked):
 
 ```json
 {"delta": "LLM이 생성한 최종 답변", "thread_id": "consumer:..."}
 ```
 
-- 현재는 LangGraph 전체 실행이 끝난 뒤 한 번에 내려보내는 구조이며,
-  향후 LangGraph `astream_events` 기반으로 토큰 단위 스트리밍으로 확장할 수 있습니다.
+- `/async/stream` 은 LangGraph `stream_mode="values"` 이벤트를 그대로 전달해,  
+  동일 메시지에 변경이 발생할 때마다 diff를 흘려보냅니다. (토큰 단위 SSE는 이후 `astream_events`로 확장 예정)
 
 ### EC2 / Nginx 연동 요약
 

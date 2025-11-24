@@ -231,3 +231,47 @@ Table message_attachment {
   file_url varchar(500) [not null]
   created_at timestamp [not null]
 }
+
+Table checkpoint_migrations {
+  v integer [pk]
+}
+
+Table checkpoints {
+  thread_id text [pk]
+  checkpoint_ns text [pk, default: '']
+  type text
+  checkpoint jsonb [not null]
+  metadata jsonb [not null, default: '{}']
+
+  indexes {
+    (thread_id) [name: 'checkpoints_thread_id_idx']
+  }
+}
+
+Table checkpoint_blobs {
+  thread_id text [pk]
+  checkpoint_ns text [pk, default: '']
+  channel text [pk]
+  type text [not null]
+  blob bytea
+
+  indexes {
+    (thread_id) [name: 'checkpoint_blobs_thread_id_idx']
+  }
+}
+
+Table checkpoint_writes {
+  thread_id text [pk]
+  checkpoint_ns text [pk, default: '']
+  checkpoint_id text [pk]
+  task_id text [pk]
+  task_path text [not null, default: '']
+  idx integer [pk]
+  channel text [not null]
+  type text
+  blob bytea [not null]
+
+  indexes {
+    (thread_id) [name: 'checkpoint_writes_thread_id_idx']
+  }
+}

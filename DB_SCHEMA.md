@@ -291,5 +291,25 @@ Tracks recommendations dismissed by users.
 ### `langchain_pg_*`
 LangChain vector store tables.
 
+### LangGraph Checkpoint Tables
+LangGraph `AsyncPostgresSaver`가 자동으로 생성/관리하는 상태 테이블.
+
+| Table | Purpose | 핵심 컬럼 |
+| :--- | :--- | :--- |
+| `checkpoint_migrations` | LangGraph 마이그레이션 버전 추적 | `v` (현재 적용된 migration version) |
+| `checkpoints` | thread별 최신 체크포인트(`EncryptedSerializer` JSON) | `thread_id`, `checkpoint_ns`, `type`, `checkpoint`, `metadata` (`JSONB`) |
+| `checkpoint_blobs` | 채널별 large payload blob | `thread_id`, `checkpoint_ns`, `channel`, `type`, `blob` |
+| `checkpoint_writes` | 실행 중 task writes / pending events | `thread_id`, `checkpoint_ns`, `checkpoint_id`, `task_id`, `task_path`, `idx`, `channel`, `type`, `blob` |
+
+- `thread_id`: `consumer:{user_id}:{session}` 또는 `seller:{user_id}:{session}` 형식 (오류 복구 시 UUID suffix 포함)
+- `checkpoint_ns`: 기본값 `''` (필요 시 멀티 네임스페이스)
+- 주요 인덱스
+  - `checkpoints_thread_id_idx`
+  - `checkpoint_blobs_thread_id_idx`
+  - `checkpoint_writes_thread_id_idx`
+- `checkpoint_writes.task_path`는 LangGraph v0.2+에서 task 트리를 복원하는데 사용
+
+백업/이관 시 이 4개 테이블을 함께 덤프하면 LangGraph 대화 상태를 복원할 수 있다. 운영 중에는 애플리케이션이 자동으로 `INSERT/UPSERT`를 수행하므로 직접 수정하지 않는 것을 권장한다.
+
 ### `guardrail_policy`
 Safety policies for AI generation.
