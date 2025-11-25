@@ -24,8 +24,8 @@ def main() -> None:
 
     # Import graphs lazily after env is loaded, so that any OpenAIEmbeddings
     # or model clients that initialise at import time see the correct env.
-    from app.graphs.consumer_graph import build_consumer_graph
-    from app.graphs.seller_graph import build_seller_graph
+    from app.graphs.consumer import build_consumer_graph
+    from app.graphs.seller import build_seller_graph
 
     # Build graphs without a checkpointer; structure is independent of storage.
     consumer = build_consumer_graph(checkpointer=None)

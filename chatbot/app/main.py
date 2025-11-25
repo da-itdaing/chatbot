@@ -6,8 +6,8 @@ from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.checkpoint.serde.encrypted import EncryptedSerializer
 
 from app.config import ROOT_DIR, get_settings
-from app.graphs.consumer_graph import build_consumer_graph, build_consumer_graph_async
-from app.graphs.seller_graph import build_seller_graph, build_seller_graph_async
+from app.graphs.consumer import build_consumer_graph, build_consumer_graph_async
+from app.graphs.seller import build_seller_graph, build_seller_graph_async
 from app.routers import chat_consumer, chat_seller
 
 

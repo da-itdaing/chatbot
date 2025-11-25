@@ -1,30 +1,34 @@
 from __future__ import annotations
 
 """
-Seller-facing multi-turn LangGraph graph.
+Seller-facing LangGraph nodes and helpers.
 
-This is a refactoring of `bot4s.py` into the new package layout.
-Zone RAG, routing, hallucination checking, rewrite, summarization, and
-message truncation logic are preserved, while vector store/settings are
-provided by `app.db.postgres` / `app.config`.
+`seller_graph.py`에서 정의하던 상태/노드/프롬프트를 모듈화했고,
+실제 로직은 기존 설계와 동일하게 유지된다.
 """
 
 import asyncio
-from pathlib import Path
 from typing import Any, Dict, List, Literal, Sequence, cast
 
 from langchain_core.documents import Document
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, RemoveMessage
+from langchain_core.messages import AIMessage, BaseMessage, RemoveMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
-from langgraph.graph import END, START, MessagesState, StateGraph
+from langgraph.graph import MessagesState
 from pydantic import BaseModel, Field
 from typing_extensions import NotRequired
 
 from langchain_openai import ChatOpenAI
 
+from app.chains.seller import build_seller_rag_chain
 from app.config import get_settings
 from app.db.postgres import get_zones_vectorstore
+from app.graphs.shared import (
+    extend_with_web_results,
+    extend_with_web_results_async,
+    format_messages,
+    latest_user_message,
+)
 from app.utils.search import WebSearchClient
 
 
@@ -55,11 +59,11 @@ def _llm(temperature: float = 0.0) -> ChatOpenAI:
 
 router_llm = _llm(temperature=0)
 case_classification_llm = _llm(temperature=0)
-generate_llm = _llm(temperature=0)
 hallucination_llm = _llm(temperature=0)
 rewrite_llm = _llm(temperature=0)
 basic_llm = _llm(temperature=0.3)
 summary_llm = _llm(temperature=0)
+rag_chain = build_seller_rag_chain(settings)
 
 
 # ---------------------------------------------------------------------------
@@ -78,22 +82,6 @@ class AgentState(MessagesState):
     answer: NotRequired[str]
     hallucination_label: NotRequired[str]
     hallucination_reason: NotRequired[str]
-
-
-def _latest_user_message(messages: Sequence[BaseMessage]) -> HumanMessage:
-    for message in reversed(messages):
-        if isinstance(message, HumanMessage):
-            return message
-    raise ValueError("대화 내에 사용자 메시지가 존재하지 않습니다.")
-
-
-def _format_messages(messages: Sequence[BaseMessage]) -> str:
-    lines: List[str] = []
-    for msg in messages:
-        role = msg.type.upper()
-        content = msg.content if isinstance(msg.content, str) else str(msg.content)
-        lines.append(f"[{role}] {content}")
-    return "\n".join(lines)
 
 
 def _format_context(docs: Sequence[Document]) -> str:
@@ -125,36 +113,6 @@ def _get_answer_text(state: AgentState) -> str:
     if isinstance(answer, str) and answer.strip():
         return answer.strip()
     raise ValueError("응답이 비어있습니다.")
-
-
-def _maybe_extend_with_web_results(
-    docs: Sequence[Document],
-    query: str,
-) -> List[Document]:
-    """존 RAG 결과가 비어있을 때 DuckDuckGo 검색 결과를 fallback으로 사용."""
-
-    materialized = list(docs)
-    if materialized:
-        return materialized
-    if not _web_search_client.enabled:
-        return materialized
-    extras = _web_search_client.search_sync(query)
-    if extras:
-        materialized.extend(extras)
-    return materialized
-
-
-async def _maybe_extend_with_web_results_async(
-    docs: Sequence[Document],
-    query: str,
-) -> List[Document]:
-    materialized = list(docs)
-    if materialized or not _web_search_client.enabled:
-        return materialized
-    extras = await _web_search_client.search_async(query)
-    if extras:
-        materialized.extend(extras)
-    return materialized
 
 
 async def _aretrieve_zone_documents(query: str) -> List[Document]:
@@ -228,24 +186,6 @@ case_classification_chain = case_classification_prompt | case_classification_llm
 )
 
 
-generate_prompt = PromptTemplate.from_template(
-    """
-당신은 광주 플리마켓 존 추천 도우미입니다.
-검색된 문서를 바탕으로 사용자의 질문에 친근하고 위트있게 최대 3문장으로 답하세요.
-답을 모를 때는 솔직히 모른다고 말하세요.
-
-이전 대화 요약:
-{summary}
-
-질문:
-{question}
-
-문서:
-{context}
-""".strip()
-)
-
-
 hallucination_prompt = PromptTemplate.from_template(
     """
 You are a teacher checking if the assistant's answer is grounded in the zone documents.
@@ -313,7 +253,6 @@ structured_hallucination_llm = hallucination_llm.with_structured_output(Hallucin
 hallucination_chain = hallucination_prompt | structured_hallucination_llm
 rewrite_chain = rewrite_prompt | rewrite_llm | StrOutputParser()
 basic_chain = basic_prompt | basic_llm | StrOutputParser()
-rag_chain = generate_prompt | generate_llm
 
 
 # ---------------------------------------------------------------------------
@@ -322,7 +261,7 @@ rag_chain = generate_prompt | generate_llm
 
 
 def extract_user_query(state: AgentState) -> AgentState:
-    latest = _latest_user_message(state.get("messages", []))
+    latest = latest_user_message(state.get("messages", []))
     latest_text = latest.content if isinstance(latest.content, str) else str(latest.content)
     return {**state, "query": latest_text.strip()}
 
@@ -355,7 +294,7 @@ def case_classification(state: AgentState) -> AgentState:
 def retrieve(state: AgentState) -> AgentState:
     query_for_search = _get_query_for_search(state)
     docs = _zone_retriever.invoke(query_for_search)
-    docs = _maybe_extend_with_web_results(docs, query_for_search)
+    docs = extend_with_web_results(docs, query_for_search, _web_search_client)
     return {**state, "context": docs}
 
 
@@ -429,7 +368,7 @@ def summarize_messages(state: AgentState) -> AgentState:
         else "summarize this chat history while incorporating the previous summary"
     )
     summary_text = summary_llm.invoke(
-        f"{prompt}\n\nchat_history:\n{_format_messages(messages)}\n\nsummary:{summary}"
+        f"{prompt}\n\nchat_history:\n{format_messages(messages)}\n\nsummary:{summary}"
     )
     new_summary = summary_text.content if isinstance(summary_text.content, str) else str(summary_text.content)
     return {**state, "summary": new_summary}
@@ -483,7 +422,7 @@ async def case_classification_async(state: AgentState) -> AgentState:
 async def retrieve_async(state: AgentState) -> AgentState:
     query_for_search = _get_query_for_search(state)
     docs = await _aretrieve_zone_documents(query_for_search)
-    docs = await _maybe_extend_with_web_results_async(docs, query_for_search)
+    docs = await extend_with_web_results_async(docs, query_for_search, _web_search_client)
     return {**state, "context": docs}
 
 
@@ -547,113 +486,33 @@ async def summarize_messages_async(state: AgentState) -> AgentState:
         else "summarize this chat history while incorporating the previous summary"
     )
     summary_text = await summary_llm.ainvoke(
-        f"{prompt}\n\nchat_history:\n{_format_messages(messages)}\n\nsummary:{summary}"
+        f"{prompt}\n\nchat_history:\n{format_messages(messages)}\n\nsummary:{summary}"
     )
     new_summary = summary_text.content if isinstance(summary_text.content, str) else str(summary_text.content)
     return {**state, "summary": new_summary}
 
 
-# ---------------------------------------------------------------------------
-# Graph assembly
-# ---------------------------------------------------------------------------
-
-
-def build_seller_graph(checkpointer=None):
-    """
-    Build a LangGraph StateGraph for the seller chatbot, preserving the
-    original bot4s flow while allowing an external checkpointer
-    (e.g. AsyncPostgresSaver) to be injected.
-    """
-
-    graph_builder = StateGraph(AgentState)
-
-    graph_builder.add_node("extract_query", extract_user_query)
-    graph_builder.add_node("case_classification", case_classification)
-    graph_builder.add_node("retrieve", retrieve)
-    graph_builder.add_node("generate", generate)
-    graph_builder.add_node("check_hallucination", check_hallucination)
-    graph_builder.add_node("rewrite", rewrite)
-    graph_builder.add_node("basic_generate", basic_generate)
-    graph_builder.add_node("format_answer", format_answer_message)
-    graph_builder.add_node("summarize_messages", summarize_messages)
-    graph_builder.add_node("truncate_messages", truncate_messages)
-
-    graph_builder.add_edge(START, "extract_query")
-    graph_builder.add_conditional_edges(
-        "extract_query",
-        router,
-        {
-            "rag_answer": "case_classification",
-            "general_answer": "basic_generate",
-        },
-    )
-    graph_builder.add_edge("case_classification", "retrieve")
-    graph_builder.add_edge("retrieve", "generate")
-    graph_builder.add_edge("generate", "check_hallucination")
-    graph_builder.add_conditional_edges(
-        "check_hallucination",
-        hallucination_router,
-        {
-            "not hallucinated": "format_answer",
-            "hallucinated": "rewrite",
-        },
-    )
-    graph_builder.add_edge("rewrite", "retrieve")
-    graph_builder.add_edge("basic_generate", "format_answer")
-    graph_builder.add_edge("format_answer", "summarize_messages")
-    graph_builder.add_edge("summarize_messages", "truncate_messages")
-    graph_builder.add_edge("truncate_messages", END)
-
-    return graph_builder.compile(checkpointer=checkpointer)
-
-
-def build_seller_graph_async(checkpointer=None):
-    """
-    Async-first seller graph (LLM/RAG/검색 노드를 await 기반으로 실행).
-    """
-
-    graph_builder = StateGraph(AgentState)
-
-    graph_builder.add_node("extract_query", extract_user_query)
-    graph_builder.add_node("case_classification", case_classification_async)
-    graph_builder.add_node("retrieve", retrieve_async)
-    graph_builder.add_node("generate", generate_async)
-    graph_builder.add_node("check_hallucination", check_hallucination_async)
-    graph_builder.add_node("rewrite", rewrite_async)
-    graph_builder.add_node("basic_generate", basic_generate_async)
-    graph_builder.add_node("format_answer", format_answer_message)
-    graph_builder.add_node("summarize_messages", summarize_messages_async)
-    graph_builder.add_node("truncate_messages", truncate_messages)
-
-    graph_builder.add_edge(START, "extract_query")
-    graph_builder.add_conditional_edges(
-        "extract_query",
-        router_async,
-        {
-            "rag_answer": "case_classification",
-            "general_answer": "basic_generate",
-        },
-    )
-    graph_builder.add_edge("case_classification", "retrieve")
-    graph_builder.add_edge("retrieve", "generate")
-    graph_builder.add_edge("generate", "check_hallucination")
-    graph_builder.add_conditional_edges(
-        "check_hallucination",
-        hallucination_router,
-        {
-            "not hallucinated": "format_answer",
-            "hallucinated": "rewrite",
-        },
-    )
-    graph_builder.add_edge("rewrite", "retrieve")
-    graph_builder.add_edge("basic_generate", "format_answer")
-    graph_builder.add_edge("format_answer", "summarize_messages")
-    graph_builder.add_edge("summarize_messages", "truncate_messages")
-    graph_builder.add_edge("truncate_messages", END)
-
-    return graph_builder.compile(checkpointer=checkpointer)
-
-
-__all__ = ["build_seller_graph", "build_seller_graph_async", "AgentState"]
+__all__ = [
+    "AgentState",
+    "extract_user_query",
+    "router",
+    "router_async",
+    "case_classification",
+    "case_classification_async",
+    "retrieve",
+    "retrieve_async",
+    "generate",
+    "generate_async",
+    "check_hallucination",
+    "check_hallucination_async",
+    "rewrite",
+    "rewrite_async",
+    "basic_generate",
+    "basic_generate_async",
+    "format_answer_message",
+    "summarize_messages",
+    "summarize_messages_async",
+    "truncate_messages",
+]
 
 
