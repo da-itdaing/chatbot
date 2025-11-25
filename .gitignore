@@ -42,5 +42,5 @@ chatbot/artifacts/graphs/*.pdf
 # Home directory dotfiles (allowlisted below)
 .*
 !.gitignore
-
+current_schema.sql
 

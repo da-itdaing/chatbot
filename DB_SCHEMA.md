@@ -1,315 +1,295 @@
 # Database Schema Documentation
 
-> Source of Truth for the PostgreSQL Database (`itdaing-db`) schema.
-> Generated from active database inspection on 2025-11-24.
-
----
+> Source of Truth for the PostgreSQL Database (`itdaing-db`) schema.  
+> Generated from live database inspection on **2025-11-25**.
 
 ## 1. Overview
 
-- **Database**: PostgreSQL 15
+- **Database**: PostgreSQL 15 (AWS RDS `itdaing-db`)
 - **Schema**: `public`
-- **Key Tables**: `users`, `popup`, `wishlist`, `review`, `zone_cell`
-- **Naming Convention**: `snake_case` for tables and columns
+- **Primary Domains**: identity (`users`), popup catalog (`popup` + tagging), geo leasing (`zone_*`), messaging, analytics/recommendations, LangChain vector stores, LangGraph checkpoints.
+- **Naming Convention**: `snake_case` tables/columns with bigint surrogate PKs via sequences (unless noted).
 
-### 운영 규칙 (2025-11-24 업데이트)
+### 운영 규칙 (2025-11-25 업데이트)
 
 - `GET /api/popups`는 기본적으로 `end_date`가 오늘 이전인 팝업을 제외하며, 과거 데이터가 필요한 경우 `includeEnded=true` 쿼리 파라미터로 명시적으로 요청해야 한다.
 - `/api/uploads/images` 엔드포인트는 JPEG/PNG/GIF/WebP만 허용하고, **파일당 10MB / 요청당 최대 10개**까지 저장한다. 비로그인 사용자는 `userId=0` 경로로 저장된다.
 - 위시리스트 API는 Spring Security 컨텍스트에서 `Long` 타입 사용자 ID를 직접 주입하여 SpEL 오류를 방지한다.
 
+### Cross-cutting Automation & Conventions
+
+- `update_updated_at_column()` trigger refreshes `updated_at` on: `users`, `popup`, `seller_profile`, `category`, `style`, `region`, `feature`, 모든 `user_pref_*`, `daily_*_recommendation`, `zone_area`, `zone_cell`, `zone_availability`.
+- All timestamps use `timestamp(6) without time zone` (UTC). Client/UI code handles localization.
+- Every FK is enforced with explicit `ON DELETE` semantics (mostly `CASCADE` for relation tables, `SET NULL` for logs & announcements).
+
 ---
 
 ## 2. Core Domain Tables
 
-### `users` (Users)
-Stores all user accounts (CONSUMER, SELLER, ADMIN).
-
+### `users`
 | Column | Type | Nullable | Default | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| `id` | `bigint` | NO | PK | Auto-increment |
-| `login_id` | `varchar(100)` | NO | | Unique login ID |
-| `password` | `varchar(255)` | NO | | BCrypt hash |
-| `name` | `varchar(100)` | YES | | Real name |
-| `nickname` | `varchar(100)` | YES | | Display name |
-| `email` | `varchar(255)` | NO | | Unique email |
-| `role` | `varchar(20)` | NO | | `CONSUMER`, `SELLER`, `ADMIN` |
-| `age_group` | `integer` | YES | | 10, 20, 30, 40, 50, 60... |
-| `mbti` | `varchar(20)` | YES | | Optional |
-| `profile_image_url` | `varchar(500)` | YES | | S3 URL |
-| `profile_image_key` | `varchar(255)` | YES | | S3 Key |
-| `status` | `varchar(20)` | NO | `'ACTIVE'` | User status |
-| `created_at` | `timestamp` | NO | `NOW()` | |
-| `updated_at` | `timestamp` | NO | `NOW()` | |
+| `id` | bigint | NO | `nextval('users_id_seq')` | PK |
+| `login_id` | varchar(100) | NO | | Unique username |
+| `password` | varchar(255) | NO | | BCrypt hash |
+| `name` | varchar(100) | YES | | |
+| `nickname` | varchar(100) | YES | | |
+| `email` | varchar(255) | NO | | Unique email |
+| `age_group` | integer | YES | | 10/20/30... |
+| `mbti` | varchar(20) | YES | | Optional tag |
+| `role` | varchar(20) | NO | | `CONSUMER/SELLER/ADMIN` |
+| `profile_image_url` | varchar(500) | YES | | |
+| `profile_image_key` | varchar(255) | YES | | |
+| `status` | varchar(20) | NO | `'ACTIVE'` | Lifecycle flag |
+| `created_at` | timestamp(6) | NO | `CURRENT_TIMESTAMP(6)` | |
+| `updated_at` | timestamp(6) | NO | `CURRENT_TIMESTAMP(6)` | |
 
-**Constraints:**
-- `uq_users_email`: Unique email
-- `uq_users_login`: Unique login_id
-- `chk_users_role`: Role must be one of 'CONSUMER', 'SELLER', 'ADMIN'
+**Constraints & Indexes**
 
-### `popup` (Popup Stores)
-Stores popup store information.
+- `users_pkey`, `uq_users_email`, `uq_users_login`, `chk_users_role`.
+- `idx_users_role` optimizes admin/seller filtering.
+- Trigger `update_users_updated_at`.
 
+### `popup`
 | Column | Type | Nullable | Default | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | `bigint` | NO | PK | Auto-increment |
-| `seller_id` | `bigint` | NO | | FK -> `users.id` |
-| `zone_cell_id` | `bigint` | NO | | FK -> `zone_cell.id` |
-| `name` | `varchar(200)` | NO | | Popup title |
-| `description` | `text` | YES | | Detailed description |
-| `start_date` | `date` | YES | | Operation start date |
-| `end_date` | `date` | YES | | Operation end date |
-| `operating_time` | `varchar(50)` | YES | | e.g. "10:00-22:00" |
-| `approval_status` | `varchar(20)` | NO | `'PENDING'` | `PENDING`, `APPROVED`, `REJECTED` |
-| `rejection_reason` | `varchar(500)` | YES | | |
-| `view_count` | `bigint` | NO | `0` | |
-| `favorite_count` | `bigint` | NO | `0` | Denormalized count |
-| `created_at` | `timestamp` | NO | `NOW()` | |
-| `updated_at` | `timestamp` | NO | `NOW()` | |
+|---|---|---|---|---|
+| `id` | bigint | NO | sequence | PK |
+| `seller_id` | bigint | NO | | FK -> `users.id` |
+| `zone_cell_id` | bigint | NO | | FK -> `zone_cell.id` |
+| `name` | varchar(200) | NO | | Display name |
+| `description` | text | YES | | |
+| `start_date` | date | YES | | |
+| `end_date` | date | YES | | |
+| `operating_time` | varchar(50) | YES | | |
+| `approval_status` | varchar(20) | NO | `'PENDING'` | `chk_popup_status` ensures `PENDING/APPROVED/REJECTED` |
+| `rejection_reason` | varchar(500) | YES | | |
+| `view_count` | bigint | NO | `0` | |
+| `favorite_count` | bigint | NO | `0` | denormalized likes |
+| `created_at` | timestamp(6) | NO | now | |
+| `updated_at` | timestamp(6) | NO | now | |
 
-**Indexes:**
-- `idx_popup_seller`, `idx_popup_cell`, `idx_popup_status`, `idx_popup_period`
+**Indexes & Triggers**
 
-### `wishlist` (Favorites)
-Many-to-Many relationship between Users and Popups.
+- `idx_popup_seller`, `idx_popup_cell`, `idx_popup_status`, `idx_popup_period (start_date, end_date)`.
+- Trigger `update_popup_updated_at`.
 
+### `popup_image`
 | Column | Type | Nullable | Default | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | `bigint` | NO | PK | Auto-increment |
-| `user_id` | `bigint` | NO | | FK -> `users.id` (Cascade) |
-| `popup_id` | `bigint` | NO | | FK -> `popup.id` (Cascade) |
-| `created_at` | `timestamp` | NO | `NOW()` | |
+|---|---|---|---|---|
+| `id` | bigint | NO | sequence | PK |
+| `popup_id` | bigint | NO | | FK -> `popup.id` (`ON DELETE CASCADE`) |
+| `image_url` | varchar(500) | NO | | |
+| `is_thumbnail` | boolean | NO | `false` | marks hero image |
+| `created_at` | timestamp(6) | NO | now | |
+| `image_key` | varchar(255) | YES | | |
 
-**Constraints:**
-- `uk_wishlist`: Unique (`user_id`, `popup_id`) - prevents duplicate likes
+Index `idx_popup_img_thumb (popup_id, is_thumbnail)`.
 
-### `review` (Reviews)
-Consumer reviews for popups.
+### `wishlist`
+| Column | Type | Nullable | Default |
+|---|---|---|---|
+| `id` bigint PK | NO | sequence |
+| `user_id` bigint | NO | FK -> `users.id` (`CASCADE`) |
+| `popup_id` bigint | NO | FK -> `popup.id` (`CASCADE`) |
+| `created_at` timestamp(6) | NO | now |
 
-| Column | Type | Nullable | Default | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | `bigint` | NO | PK | Auto-increment |
-| `consumer_id` | `bigint` | NO | | FK -> `users.id` (Cascade) |
-| `popup_id` | `bigint` | NO | | FK -> `popup.id` (Cascade) |
-| `rating` | `smallint` | NO | | 1-5 stars |
-| `content` | `varchar(150)` | YES | | Review text |
-| `created_at` | `timestamp` | NO | `NOW()` | |
+Constraint `uk_wishlist (user_id, popup_id)`.
 
-**Constraints:**
-- `uk_review_once`: Unique (`consumer_id`, `popup_id`) - 1 review per popup per user
+### `review`
+| Column | Type | Nullable | Default |
+|---|---|---|---|
+| `id` bigint PK | NO | sequence |
+| `consumer_id` bigint | NO | FK -> `users.id` |
+| `popup_id` bigint | NO | FK -> `popup.id` |
+| `rating` smallint | NO | | 1–5 |
+| `content` varchar(150) | YES | | |
+| `created_at` timestamp(6) | NO | now |
+
+Constraints/indexes: `uk_review_once`, `idx_review_consumer`, `idx_review_popup`, `idx_review_sort`.
 
 ### `review_image`
-Images attached to reviews.
-
-| Column | Type | Nullable | Default | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| `id` | `bigint` | NO | PK | |
-| `review_id` | `bigint` | NO | | FK -> `review.id` (Cascade) |
-| `image_url` | `varchar(500)` | NO | | |
-| `image_key` | `varchar(255)` | YES | | |
-| `created_at` | `timestamp` | NO | `NOW()` | |
+Columns: `id`, `review_id` FK -> `review.id`, `image_url`, `image_key`, `created_at`. Index `idx_review_img_review`.
 
 ---
 
 ## 3. Seller & Auth Tables
 
 ### `seller_profile`
-Additional profile info for sellers.
+| Column | Type | Nullable | Default |
+|---|---|---|---|
+| `user_id` | bigint | NO | PK / FK -> `users.id` |
+| `profile_image_url` | varchar(500) | YES | |
+| `profile_image_key` | varchar(255) | YES | |
+| `introduction` | varchar(500) | YES | |
+| `activity_region` | varchar(100) | YES | |
+| `category` | varchar(100) | YES | |
+| `contact_phone` | varchar(50) | YES | |
+| `sns_url` | varchar(200) | YES | |
+| `created_at` / `updated_at` | timestamp(6) | NO | now |
 
-| Column | Type | Nullable | Notes |
-| :--- | :--- | :--- | :--- |
-| `user_id` | `bigint` | NO | PK, FK -> `users.id` (Cascade) |
-| `profile_image_url` | `varchar(500)` | YES | |
-| `introduction` | `varchar(500)` | YES | |
-| `activity_region` | `varchar(100)` | YES | |
-| `category` | `varchar(100)` | YES | |
-| `contact_phone` | `varchar(50)` | YES | |
-| `sns_url` | `varchar(200)` | YES | |
+Trigger `update_seller_profile_updated_at`.
 
 ### `refresh_tokens`
-JWT refresh tokens.
+| Column | Type | Nullable | Default | Notes |
+|---|---|---|---|---|
+| `id` bigint PK | NO | sequence | |
+| `user_id` | bigint | NO | | FK |
+| `token_hash` | varchar(128) | NO | | unique |
+| `issued_at` | timestamp(6) | NO | | |
+| `expires_at` | timestamp(6) | NO | | |
+| `revoked` | boolean | NO | `false` | |
+| `replaced_by` | varchar(128) | YES | | Chained token id |
+| `device_id` | varchar(255) | YES | | |
+| `user_agent` | varchar(512) | YES | | |
+| `ip` | varchar(45) | YES | | |
 
-| Column | Type | Nullable | Notes |
-| :--- | :--- | :--- | :--- |
-| `id` | `bigint` | NO | PK |
-| `user_id` | `bigint` | NO | FK -> `users.id` |
-| `token_hash` | `varchar(128)` | NO | Unique hash |
-| `issued_at` | `timestamp` | NO | |
-| `expires_at` | `timestamp` | NO | |
-| `revoked` | `boolean` | NO | Default `false` |
+Index `idx_rt_user_revoked (user_id, revoked)`.
 
 ### `announcement`
-System announcements.
-
-| Column | Type | Nullable | Notes |
-| :--- | :--- | :--- | :--- |
-| `id` | `bigint` | NO | PK |
-| `author_id` | `bigint` | NO | FK -> `users.id` |
-| `audience` | `varchar(20)` | NO | `ALL`, `SELLER`, `CONSUMER` |
-| `popup_id` | `bigint` | YES | Optional FK -> `popup.id` |
-| `title` | `varchar(200)` | NO | |
-| `content` | `text` | YES | |
+Columns: `id`, `author_id` FK -> `users.id`, `audience` (`ALL/SELLER/CONSUMER` via `chk_announcement_audience`), `popup_id` FK -> `popup.id` (`ON DELETE SET NULL`), `title`, `content`, `created_at`. Index `idx_announce_scope (audience, popup_id, created_at)`.
 
 ---
 
-## 4. Master Data & Relations
+## 4. Master Data & Preference Tables
 
 ### `category`
+Columns: `id`, `name`, `type`, `created_at`, `updated_at`. Constraint `uk_category_type_name`. Trigger `update_category_updated_at`.
+
+### `style`, `region`, `feature`
+Each table includes `id`, `name`, `created_at`, `updated_at`, unique constraint on `name`, and its own `update_*_updated_at` trigger.
+
+### `popup_category`
 | Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | `bigint` | PK |
-| `name` | `varchar(100)` | |
-| `type` | `varchar(20)` | `POPUP` or `CONSUMER` |
+|---|---|---|
+| `id` bigint PK | |
+| `popup_id` bigint | FK -> `popup.id` (`CASCADE`) |
+| `category_id` bigint | FK -> `category.id` (`CASCADE`) |
+| `category_role` varchar(20) | `POPUP` / `TARGET` enforced via `chk_popup_category_role` |
 
-### `style`
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | `bigint` | PK |
-| `name` | `varchar(100)` | |
+Constraint `uk_popup_category (popup_id, category_id, category_role)`. Indexes: `idx_popup_category_popup`, `idx_popup_category_category`.
 
-### `region`
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | `bigint` | PK |
-| `name` | `varchar(100)` | |
+### `popup_style` / `popup_feature`
+Columns: `id`, `popup_id`, `style_id` or `feature_id`. Constraints `uk_popup_style`, `uk_popup_feature`. Indexes on both FK columns.
 
-### `feature`
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | `bigint` | PK |
-| `name` | `varchar(100)` | |
-
-### `popup_*` Relation Tables
-- `popup_category`: Links popup to category (`category_role`: `POPUP` or `TARGET`)
-- `popup_style`: Links popup to style
-- `popup_feature`: Links popup to feature
-- `popup_image`: Stores popup images (`is_thumbnail` boolean)
-
-### `user_pref_*` Relation Tables
-- `user_pref_category`
-- `user_pref_style`
-- `user_pref_region`
-- `user_pref_feature`
+### `user_pref_category`, `user_pref_style`, `user_pref_region`, `user_pref_feature`
+Columns: `id`, `user_id` FK -> `users.id`, FK to the corresponding master table, `created_at`, `updated_at`. Unique constraints (`uk_user_category`, `uk_user_style`, `uk_user_region`, `uk_user_feature`). Triggers `update_user_pref_*_updated_at`.
 
 ---
 
 ## 5. Geo & Zone Tables
 
 ### `zone_area`
-Larger areas (e.g., parks, districts).
+| Column | Type | Nullable | Default | Notes |
+|---|---|---|---|---|
+| `id` bigint PK | NO | sequence | |
+| `region_id` | bigint | NO | | FK -> `region.id` |
+| `name` | varchar(100) | NO | | |
+| `geometry_data` | text | YES | | GeoJSON/WKT |
+| `status` | varchar(20) | NO | | `AVAILABLE/UNAVAILABLE/HIDDEN` (`chk_zone_area_status`) |
+| `max_capacity` | integer | YES | | Optional cap |
+| `notice` | varchar(1000) | YES | | |
+| `created_at` / `updated_at` | timestamp(6) | NO | now |
 
-| Column | Type | Nullable | Notes |
-| :--- | :--- | :--- | :--- |
-| `id` | `bigint` | NO | PK |
-| `region_id` | `bigint` | NO | FK -> `region.id` |
-| `name` | `varchar(100)` | NO | |
-| `geometry_data` | `text` | YES | GeoJSON/WKT |
-| `status` | `varchar(20)` | NO | `AVAILABLE`, `UNAVAILABLE`, `HIDDEN` |
+Index `idx_zone_area_region`; trigger `update_zone_area_updated_at`.
 
 ### `zone_cell`
-Specific slots within an area.
+| Column | Type | Notes |
+|---|---|---|
+| `id` bigint PK | |
+| `zone_area_id` bigint | FK -> `zone_area.id` |
+| `owner_id` bigint | FK -> `users.id` |
+| `label` varchar(100) | Optional slot label |
+| `detailed_address` varchar(255) | Optional |
+| `lat` / `lng` | double precision | Coordinates |
+| `status` | varchar(20) | `PENDING/APPROVED/REJECTED/HIDDEN` (`chk_zone_cell_status`) |
+| `max_capacity` | integer | Optional |
+| `notice` | varchar(1000) | Optional |
+| `created_at` / `updated_at` | timestamp(6) | now |
 
-| Column | Type | Nullable | Notes |
-| :--- | :--- | :--- | :--- |
-| `id` | `bigint` | NO | PK |
-| `zone_area_id` | `bigint` | NO | FK -> `zone_area.id` |
-| `owner_id` | `bigint` | NO | FK -> `users.id` |
-| `label` | `varchar(100)` | YES | e.g. "A-1" |
-| `lat`, `lng` | `double` | NO | |
-| `status` | `varchar(20)` | NO | `PENDING`, `APPROVED`... |
+Indexes: `idx_zone_cell_area`, `idx_zone_cell_owner`. Trigger `update_zone_cell_updated_at`.
 
 ### `zone_availability`
-Availability and pricing for cells.
+| Column | Type | Nullable | Default | Notes |
+|---|---|---|---|---|
+| `id` bigint PK | NO | sequence | |
+| `zone_cell_id` | bigint | NO | | FK -> `zone_cell.id` |
+| `start_date` / `end_date` | date | NO | | `chk_zone_availability_dates` ensures `start_date <= end_date` |
+| `daily_price` | numeric(14,2) | NO | | |
+| `max_concurrent_slots` | integer | NO | `1` | Overbooking guardrail |
+| `status` | varchar(20) | NO | `'ACTIVE'` | |
+| `created_at` / `updated_at` | timestamp(6) | NO | now |
 
-| Column | Type | Nullable | Notes |
-| :--- | :--- | :--- | :--- |
-| `id` | `bigint` | NO | PK |
-| `zone_cell_id` | `bigint` | NO | FK -> `zone_cell.id` |
-| `start_date` | `date` | NO | |
-| `end_date` | `date` | NO | |
-| `daily_price` | `numeric` | NO | |
+Index `idx_zone_avail_range (zone_cell_id, start_date, end_date)`; trigger `update_zone_availability_updated_at`.
 
 ### `approval_record`
-Admin approval history.
-
-| Column | Type | Nullable | Notes |
-| :--- | :--- | :--- | :--- |
-| `id` | `bigint` | NO | PK |
-| `target_type` | `varchar(20)` | NO | `POPUP` |
-| `target_id` | `bigint` | NO | |
-| `decision` | `varchar(20)` | NO | `APPROVE`, `REJECT` |
-| `reason` | `varchar(1000)` | YES | |
-| `admin_id` | `bigint` | NO | FK -> `users.id` |
+Columns: `id`, `target_type` (`POPUP` enforced via `chk_approval_target`), `target_id`, `decision` (`APPROVE/REJECT` via `chk_approval_decision`), `reason`, `admin_id` FK -> `users.id`, `created_at`. Index `idx_approval_target`.
 
 ---
 
 ## 6. Message System
 
 ### `message_thread`
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | `bigint` | PK |
-| `seller_id` | `bigint` | FK -> `users` |
-| `admin_id` | `bigint` | FK -> `users` (Nullable) |
-| `subject` | `varchar` | |
+Columns: `id`, `seller_id` FK -> `users.id`, `admin_id` FK -> `users.id` (`ON DELETE SET NULL`), `subject`, `unread_for_seller`, `unread_for_admin`, `created_at`, `updated_at`.
+
+Indexes: `idx_thread_seller`, `idx_thread_admin`.
 
 ### `message`
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | `bigint` | PK |
-| `thread_id` | `bigint` | FK -> `message_thread` |
-| `sender_id` | `bigint` | FK -> `users` |
-| `receiver_id` | `bigint` | FK -> `users` |
-| `content` | `text` | |
+Columns: `id`, `thread_id` FK -> `message_thread.id` (`ON DELETE CASCADE`), `sender_id` FK -> `users.id`, `receiver_id` FK -> `users.id`, `title`, `content`, `sent_at`, `read_at`, `sender_deleted_at`, `receiver_deleted_at`.
+
+Indexes: `idx_msg_thread (thread_id, sent_at DESC)`, `idx_msg_inbox (receiver_id, read_at)`.
 
 ### `message_attachment`
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | `bigint` | PK |
-| `message_id` | `bigint` | FK -> `message` |
-| `file_url` | `varchar` | |
+Columns: `id`, `message_id` FK -> `message.id` (`ON DELETE CASCADE`), `file_url`, `mime_type`, `file_key`, `original_name`, `size_bytes`.
 
 ---
 
-## 7. AI & Logs
+## 7. Analytics, Recommendations & AI
 
-### `chatbot_prompt` & `chatbot_prompt_embedding`
-Stores prompts and their vector embeddings for RAG.
+### Engagement Logging
 
-### `event_log` & `event_log_category`
-User activity logs (`VIEW`, `CLICK`, `FAVORITE`, `REVIEW`) for analytics.
+#### `event_log`
+| Column | Type | Notes |
+|---|---|---|
+| `id` bigint PK | |
+| `user_id` bigint | FK -> `users.id` (`SET NULL`) |
+| `popup_id` bigint | FK -> `popup.id` (`SET NULL`) |
+| `zone_cell_id` bigint | FK -> `zone_cell.id` (`SET NULL`) |
+| `action_type` varchar(20) | `VIEW/FAVORITE/REVIEW/CLICK` (`chk_event_log_action`) |
+| `created_at` timestamp(6) | now |
+| `session_id` varchar(255) | dedup key |
+| `source` varchar(100) | acquisition channel |
 
-### `metric_daily_*`
-Aggregated daily metrics for categories (`metric_daily_category`) and popups (`metric_daily_popup`).
+Indexes: `idx_evt_user_time`, `idx_evt_popup_time`, `idx_evt_zone_time`, `idx_event_log_session_id`, `idx_event_log_source`.
 
-### `daily_*_recommendation`
-Pre-calculated recommendations for consumers and sellers.
+#### `event_log_category`
+Columns: `id`, `user_id` FK -> `users.id` (`SET NULL`), `category_id` FK -> `category.id` (`CASCADE`), `action_type`, `created_at`. Index `idx_evt_cat_time (category_id, created_at)`.
 
-### `user_reco_dismissal`
-Tracks recommendations dismissed by users.
+### Metrics & Recommendations
 
-### `langchain_pg_*`
-LangChain vector store tables.
+- `metric_daily_category`: (`id`, `category_id`, `date`, `clicks` default 0). Unique `uk_mdc_cat_date`. FK `fk_mdc_category`.
+- `metric_daily_popup`: (`id`, `popup_id`, `date`, `views`, `unique_users`, `favorites`, `reviews` default 0). Unique `uk_mdp_popup_date`. FK `fk_mdp_popup`.
+- `daily_consumer_recommendation`: `id`, `consumer_id` FK -> `users.id` (`CASCADE`), `popup_id` FK -> `popup.id` (`CASCADE`), `recommendation_date`, `score numeric(6,3)` default 0, `model_version`, `reason_json`, `created_at`, `updated_at`. Unique constraint `uk_dcr_dedup`. Trigger `update_daily_consumer_recommendation_updated_at`.
+- `daily_seller_recommendation`: `seller_id` FK -> `users.id`, `zone_area_id` FK -> `zone_area.id`, identical metadata. Unique `uk_dsr_dedup`. Trigger `update_daily_seller_recommendation_updated_at`.
+- `user_reco_dismissal`: `id`, `consumer_id` FK -> `users.id` (`CASCADE`), `popup_id` FK -> `popup.id` (`CASCADE`), `date`, `dismissed_at`. Unique `uk_reco_dismiss (consumer_id, date, popup_id)`.
+
+### RAG Assets & Guardrails
+
+- `chatbot_prompt`: `id`, `prompt_id` (unique natural key), `title`, `source_context`, `category`, `created_at`, `updated_at`.
+- `chatbot_prompt_embedding`: `id`, `prompt_id` FK -> `chatbot_prompt.id`, `chunk_index`, `chunk_text`, `embedding vector(1536)`, `metadata jsonb`, `created_at`. Indexes `idx_chatbot_prompt_embedding_prompt`, `idx_chatbot_prompt_embedding_vector` (IVFFlat cosine).
+- `langchain_pg_collection`: `uuid` PK, `name` (unique), `cmetadata json`.
+- `langchain_pg_embedding`: `id` (varchar PK), `collection_id` FK -> `langchain_pg_collection.uuid`, `embedding vector`, `document varchar`, `cmetadata jsonb`. GIN index `ix_cmetadata_gin` on metadata.
+- `guardrail_policy`: `id` integer PK, `service_area` unique, `forbidden_keywords text[]`, `disallowed_topics text[]`, `updated_at`.
 
 ### LangGraph Checkpoint Tables
-LangGraph `AsyncPostgresSaver`가 자동으로 생성/관리하는 상태 테이블.
+| Table | Purpose | Key Columns |
+|---|---|---|
+| `checkpoint_migrations` | Tracks LangGraph migration version | `v` |
+| `checkpoints` | Latest serialized state per thread | PK (`thread_id`,`checkpoint_ns`,`checkpoint_id`), columns `parent_checkpoint_id`, `type`, `checkpoint jsonb`, `metadata jsonb`. Index `checkpoints_thread_id_idx`. |
+| `checkpoint_blobs` | Stores large payload blobs per channel | PK (`thread_id`,`checkpoint_ns`,`channel`,`version`), columns `version`, `type`, `blob`. Index `checkpoint_blobs_thread_id_idx`. |
+| `checkpoint_writes` | Pending task writes/events | PK (`thread_id`,`checkpoint_ns`,`checkpoint_id`,`task_id`,`idx`), columns `task_path`, `channel`, `type`, `blob`. Index `checkpoint_writes_thread_id_idx`. |
 
-| Table | Purpose | 핵심 컬럼 |
-| :--- | :--- | :--- |
-| `checkpoint_migrations` | LangGraph 마이그레이션 버전 추적 | `v` (현재 적용된 migration version) |
-| `checkpoints` | thread별 최신 체크포인트(`EncryptedSerializer` JSON) | `thread_id`, `checkpoint_ns`, `type`, `checkpoint`, `metadata` (`JSONB`) |
-| `checkpoint_blobs` | 채널별 large payload blob | `thread_id`, `checkpoint_ns`, `channel`, `type`, `blob` |
-| `checkpoint_writes` | 실행 중 task writes / pending events | `thread_id`, `checkpoint_ns`, `checkpoint_id`, `task_id`, `task_path`, `idx`, `channel`, `type`, `blob` |
+`thread_id` follows `consumer:{user_id}:{session}` / `seller:{user_id}:{session}` (UUID suffix for recovery). `checkpoint_ns` defaults to `''`.
 
-- `thread_id`: `consumer:{user_id}:{session}` 또는 `seller:{user_id}:{session}` 형식 (오류 복구 시 UUID suffix 포함)
-- `checkpoint_ns`: 기본값 `''` (필요 시 멀티 네임스페이스)
-- 주요 인덱스
-  - `checkpoints_thread_id_idx`
-  - `checkpoint_blobs_thread_id_idx`
-  - `checkpoint_writes_thread_id_idx`
-- `checkpoint_writes.task_path`는 LangGraph v0.2+에서 task 트리를 복원하는데 사용
+---
 
-백업/이관 시 이 4개 테이블을 함께 덤프하면 LangGraph 대화 상태를 복원할 수 있다. 운영 중에는 애플리케이션이 자동으로 `INSERT/UPSERT`를 수행하므로 직접 수정하지 않는 것을 권장한다.
-
-### `guardrail_policy`
-Safety policies for AI generation.
+This document mirrors the live schema exported on **2025-11-25**.

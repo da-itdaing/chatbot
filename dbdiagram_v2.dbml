@@ -1,5 +1,5 @@
 // Database Schema Diagram
-// Last Updated: 2025-11-24
+// Last Updated: 2025-11-25
 
 Table users {
   id bigint [pk]
@@ -16,16 +16,23 @@ Table users {
   status varchar(20) [not null, default: 'ACTIVE']
   created_at timestamp [not null]
   updated_at timestamp [not null]
+
+  indexes {
+    role [name: 'idx_users_role']
+  }
 }
 
 Table seller_profile {
   user_id bigint [pk, ref: > users.id]
   profile_image_url varchar(500)
+  profile_image_key varchar(255)
   introduction varchar(500)
   activity_region varchar(100)
   category varchar(100)
   contact_phone varchar(50)
   sns_url varchar(200)
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
 }
 
 Table popup {
@@ -43,35 +50,63 @@ Table popup {
   favorite_count bigint [not null, default: 0]
   created_at timestamp [not null]
   updated_at timestamp [not null]
+
+  indexes {
+    seller_id [name: 'idx_popup_seller']
+    zone_cell_id [name: 'idx_popup_cell']
+    approval_status [name: 'idx_popup_status']
+    (start_date, end_date) [name: 'idx_popup_period']
+  }
 }
 
 Table popup_image {
   id bigint [pk]
   popup_id bigint [not null, ref: > popup.id]
   image_url varchar(500) [not null]
-  image_key varchar(255)
-  is_thumbnail boolean
-  ordering int
+  is_thumbnail boolean [not null, default: false]
   created_at timestamp [not null]
+  image_key varchar(255)
+
+  indexes {
+    (popup_id, is_thumbnail) [name: 'idx_popup_img_thumb']
+  }
 }
 
 Table popup_category {
   id bigint [pk]
   popup_id bigint [not null, ref: > popup.id]
   category_id bigint [not null, ref: > category.id]
-  category_role varchar(20) // POPUP or TARGET
+  category_role varchar(20) [not null] // POPUP or TARGET
+
+  indexes {
+    (popup_id, category_id, category_role) [unique, name: 'uk_popup_category']
+    popup_id [name: 'idx_popup_category_popup']
+    category_id [name: 'idx_popup_category_category']
+  }
 }
 
 Table popup_style {
   id bigint [pk]
   popup_id bigint [not null, ref: > popup.id]
   style_id bigint [not null, ref: > style.id]
+
+  indexes {
+    (popup_id, style_id) [unique, name: 'uk_popup_style']
+    popup_id [name: 'idx_popup_style_popup']
+    style_id [name: 'idx_popup_style_style']
+  }
 }
 
 Table popup_feature {
   id bigint [pk]
   popup_id bigint [not null, ref: > popup.id]
   feature_id bigint [not null, ref: > feature.id]
+
+  indexes {
+    (popup_id, feature_id) [unique, name: 'uk_popup_feature']
+    popup_id [name: 'idx_popup_feature_popup']
+    feature_id [name: 'idx_popup_feature_feature']
+  }
 }
 
 Table wishlist {
@@ -79,7 +114,7 @@ Table wishlist {
   user_id bigint [not null, ref: > users.id]
   popup_id bigint [not null, ref: > popup.id]
   created_at timestamp [not null]
-  
+
   indexes {
     (user_id, popup_id) [unique, name: 'uk_wishlist']
   }
@@ -92,9 +127,12 @@ Table review {
   rating smallint [not null] // 1-5 stars
   content varchar(150)
   created_at timestamp [not null]
-  
+
   indexes {
     (consumer_id, popup_id) [unique, name: 'uk_review_once']
+    consumer_id [name: 'idx_review_consumer']
+    popup_id [name: 'idx_review_popup']
+    (popup_id, rating, created_at) [name: 'idx_review_sort']
   }
 }
 
@@ -104,6 +142,10 @@ Table review_image {
   image_url varchar(500) [not null]
   image_key varchar(255)
   created_at timestamp [not null]
+
+  indexes {
+    review_id [name: 'idx_review_img_review']
+  }
 }
 
 Table refresh_tokens {
@@ -113,6 +155,14 @@ Table refresh_tokens {
   issued_at timestamp [not null]
   expires_at timestamp [not null]
   revoked boolean [not null, default: false]
+  replaced_by varchar(128)
+  device_id varchar(255)
+  user_agent varchar(512)
+  ip varchar(45)
+
+  indexes {
+    (user_id, revoked) [name: 'idx_rt_user_revoked']
+  }
 }
 
 Table announcement {
@@ -123,51 +173,103 @@ Table announcement {
   title varchar(200) [not null]
   content text
   created_at timestamp [not null]
+
+  indexes {
+    (audience, popup_id, created_at) [name: 'idx_announce_scope']
+  }
 }
 
 Table category {
   id bigint [pk]
   name varchar(100) [not null]
-  type varchar(20) // POPUP or CONSUMER
+  type varchar(20) [not null] // POPUP or CONSUMER
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (type, name) [unique, name: 'uk_category_type_name']
+  }
 }
 
 Table style {
   id bigint [pk]
   name varchar(100) [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    name [unique, name: 'uk_style_name']
+  }
 }
 
 Table region {
   id bigint [pk]
   name varchar(100) [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    name [unique, name: 'uk_region_name']
+  }
 }
 
 Table feature {
   id bigint [pk]
   name varchar(100) [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    name [unique, name: 'uk_feature_name']
+  }
 }
 
 Table user_pref_category {
   id bigint [pk]
   user_id bigint [not null, ref: > users.id]
   category_id bigint [not null, ref: > category.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (user_id, category_id) [unique, name: 'uk_user_category']
+  }
 }
 
 Table user_pref_style {
   id bigint [pk]
   user_id bigint [not null, ref: > users.id]
   style_id bigint [not null, ref: > style.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (user_id, style_id) [unique, name: 'uk_user_style']
+  }
 }
 
 Table user_pref_region {
   id bigint [pk]
   user_id bigint [not null, ref: > users.id]
   region_id bigint [not null, ref: > region.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (user_id, region_id) [unique, name: 'uk_user_region']
+  }
 }
 
 Table user_pref_feature {
   id bigint [pk]
   user_id bigint [not null, ref: > users.id]
   feature_id bigint [not null, ref: > feature.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (user_id, feature_id) [unique, name: 'uk_user_feature']
+  }
 }
 
 Table zone_area {
@@ -176,7 +278,14 @@ Table zone_area {
   name varchar(100) [not null]
   geometry_data text // GeoJSON/WKT
   status varchar(20) [not null] // AVAILABLE, UNAVAILABLE, HIDDEN
+  max_capacity integer
+  notice varchar(1000)
   created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    region_id [name: 'idx_zone_area_region']
+  }
 }
 
 Table zone_cell {
@@ -184,10 +293,19 @@ Table zone_cell {
   zone_area_id bigint [not null, ref: > zone_area.id]
   owner_id bigint [not null, ref: > users.id]
   label varchar(100)
+  detailed_address varchar(255)
   lat double [not null]
   lng double [not null]
-  status varchar(20) [not null] // PENDING, APPROVED...
+  status varchar(20) [not null] // PENDING, APPROVED, REJECTED, HIDDEN
+  max_capacity integer
+  notice varchar(1000)
   created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    zone_area_id [name: 'idx_zone_cell_area']
+    owner_id [name: 'idx_zone_cell_owner']
+  }
 }
 
 Table zone_availability {
@@ -195,12 +313,20 @@ Table zone_availability {
   zone_cell_id bigint [not null, ref: > zone_cell.id]
   start_date date [not null]
   end_date date [not null]
-  daily_price numeric [not null]
+  daily_price numeric(14,2) [not null]
+  max_concurrent_slots integer [not null, default: 1]
+  status varchar(20) [not null, default: 'ACTIVE']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (zone_cell_id, start_date, end_date) [name: 'idx_zone_avail_range']
+  }
 }
 
 Table approval_record {
   id bigint [pk]
-  target_type varchar(20) [not null] // POPUP
+  target_type varchar(20) [not null, default: 'POPUP']
   target_id bigint [not null]
   decision varchar(20) [not null] // APPROVE, REJECT
   reason varchar(1000)
@@ -212,8 +338,16 @@ Table message_thread {
   id bigint [pk]
   seller_id bigint [not null, ref: > users.id]
   admin_id bigint [ref: > users.id]
-  subject varchar(200)
+  subject varchar(200) [not null]
+  unread_for_seller integer [not null, default: 0]
+  unread_for_admin integer [not null, default: 0]
   created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    seller_id [name: 'idx_thread_seller']
+    admin_id [name: 'idx_thread_admin']
+  }
 }
 
 Table message {
@@ -221,15 +355,166 @@ Table message {
   thread_id bigint [not null, ref: > message_thread.id]
   sender_id bigint [not null, ref: > users.id]
   receiver_id bigint [not null, ref: > users.id]
+  title varchar(200) [not null]
   content text
-  created_at timestamp [not null]
+  sent_at timestamp [not null]
+  read_at timestamp
+  sender_deleted_at timestamp
+  receiver_deleted_at timestamp
+
+  indexes {
+    (thread_id, sent_at) [name: 'idx_msg_thread']
+    (receiver_id, read_at) [name: 'idx_msg_inbox']
+  }
 }
 
 Table message_attachment {
   id bigint [pk]
   message_id bigint [not null, ref: > message.id]
   file_url varchar(500) [not null]
+  mime_type varchar(100)
+  file_key varchar(500)
+  original_name varchar(255)
+  size_bytes bigint
+}
+
+Table event_log {
+  id bigint [pk]
+  user_id bigint [ref: > users.id]
+  popup_id bigint [ref: > popup.id]
+  zone_cell_id bigint [ref: > zone_cell.id]
+  action_type varchar(20) [not null] // VIEW, FAVORITE, REVIEW, CLICK
   created_at timestamp [not null]
+  session_id varchar(255)
+  source varchar(100)
+}
+
+Table event_log_category {
+  id bigint [pk]
+  user_id bigint [ref: > users.id]
+  category_id bigint [not null, ref: > category.id]
+  action_type varchar(20) [not null]
+  created_at timestamp [not null]
+}
+
+Table metric_daily_category {
+  id bigint [pk]
+  category_id bigint [not null, ref: > category.id]
+  date date [not null]
+  clicks integer [not null, default: 0]
+
+  indexes {
+    (category_id, date) [unique, name: 'uk_mdc_cat_date']
+  }
+}
+
+Table metric_daily_popup {
+  id bigint [pk]
+  popup_id bigint [not null, ref: > popup.id]
+  date date [not null]
+  views integer [not null, default: 0]
+  unique_users integer [not null, default: 0]
+  favorites integer [not null, default: 0]
+  reviews integer [not null, default: 0]
+
+  indexes {
+    (popup_id, date) [unique, name: 'uk_mdp_popup_date']
+  }
+}
+
+Table daily_consumer_recommendation {
+  id bigint [pk]
+  consumer_id bigint [not null, ref: > users.id]
+  popup_id bigint [not null, ref: > popup.id]
+  recommendation_date date [not null]
+  score numeric(6,3) [not null, default: 0]
+  model_version varchar(50)
+  reason_json text
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (consumer_id, recommendation_date, popup_id) [unique, name: 'uk_dcr_dedup']
+  }
+}
+
+Table daily_seller_recommendation {
+  id bigint [pk]
+  seller_id bigint [not null, ref: > users.id]
+  zone_area_id bigint [not null, ref: > zone_area.id]
+  recommendation_date date [not null]
+  score numeric(6,3) [not null, default: 0]
+  model_version varchar(50)
+  reason_json text
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+
+  indexes {
+    (seller_id, recommendation_date, zone_area_id) [unique, name: 'uk_dsr_dedup']
+  }
+}
+
+Table user_reco_dismissal {
+  id bigint [pk]
+  consumer_id bigint [not null, ref: > users.id]
+  popup_id bigint [not null, ref: > popup.id]
+  date date [not null]
+  dismissed_at timestamp [not null]
+
+  indexes {
+    (consumer_id, date, popup_id) [unique, name: 'uk_reco_dismiss']
+  }
+}
+
+Table chatbot_prompt {
+  id bigint [pk]
+  prompt_id text [not null, unique]
+  title text
+  source_context text
+  category text
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table chatbot_prompt_embedding {
+  id bigint [pk]
+  prompt_id bigint [ref: > chatbot_prompt.id]
+  chunk_index integer [not null]
+  chunk_text text [not null]
+  embedding vector(1536) [not null]
+  metadata jsonb
+  created_at timestamp
+
+  indexes {
+    prompt_id [name: 'idx_chatbot_prompt_embedding_prompt']
+    embedding [name: 'idx_chatbot_prompt_embedding_vector'] // IVFFlat (cosine)
+  }
+}
+
+Table langchain_pg_collection {
+  uuid uuid [pk]
+  name varchar [not null, unique]
+  cmetadata json
+}
+
+Table langchain_pg_embedding {
+  id varchar [pk]
+  collection_id uuid [ref: > langchain_pg_collection.uuid]
+  embedding vector
+  document varchar
+  cmetadata jsonb
+
+  indexes {
+    cmetadata [name: 'ix_cmetadata_gin'] // GIN jsonb_path_ops
+  }
+}
+
+Table guardrail_policy {
+  id integer [pk]
+  service_area varchar(255) [not null, unique]
+  forbidden_keywords text[]
+  disallowed_topics text[]
+  updated_at timestamp [not null]
 }
 
 Table checkpoint_migrations {
@@ -239,12 +524,14 @@ Table checkpoint_migrations {
 Table checkpoints {
   thread_id text [pk]
   checkpoint_ns text [pk, default: '']
+  checkpoint_id text [pk]
+  parent_checkpoint_id text
   type text
   checkpoint jsonb [not null]
   metadata jsonb [not null, default: '{}']
 
   indexes {
-    (thread_id) [name: 'checkpoints_thread_id_idx']
+    thread_id [name: 'checkpoints_thread_id_idx']
   }
 }
 
@@ -252,11 +539,12 @@ Table checkpoint_blobs {
   thread_id text [pk]
   checkpoint_ns text [pk, default: '']
   channel text [pk]
+  version text [pk]
   type text [not null]
   blob bytea
 
   indexes {
-    (thread_id) [name: 'checkpoint_blobs_thread_id_idx']
+    thread_id [name: 'checkpoint_blobs_thread_id_idx']
   }
 }
 
@@ -272,6 +560,6 @@ Table checkpoint_writes {
   blob bytea [not null]
 
   indexes {
-    (thread_id) [name: 'checkpoint_writes_thread_id_idx']
+    thread_id [name: 'checkpoint_writes_thread_id_idx']
   }
 }
