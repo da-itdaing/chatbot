@@ -22,19 +22,27 @@ pip install -r requirements.txt
 ```
 
 ### 1.3 환경 변수 생성
-1. AWS 권한이 있는 EC2에서 아래 스크립트를 실행하면 `/home/ubuntu/chatbot/chatbot.env`가 자동 생성됩니다.
-   ```bash
-   cd /home/ubuntu
-   ./scripts/generate-chatbot-env.sh
-   ```
-2. 핵심 변수
-   - `OPENAI_*`, `TAVILY_API_KEY`
-   - `PGVECTOR_CONNECTION`, `POSTGRES_*`
-   - `LANGSMITH_*`, `LANGCHAIN_*`
-   - `WEBSEARCH_ENABLED`, `WEBSEARCH_PROVIDER`, `WEBSEARCH_TOP_K`
-   - `LANGGRAPH_AES_KEY` (32바이트)
+1. **운영/공용 환경(권장)**  
+   - AWS SSM Parameter Store + Secrets Manager에 모든 민감 값을 저장하고, EC2에서는 스크립트로만 `chatbot.env`를 생성합니다.
+   - EC2에서:
+     ```bash
+     cd /home/ubuntu
+     ./scripts/generate-chatbot-env.sh
+     ```
+   - 내부 동작:
+     - SSM: `/itdaing/prod/db/url`, `/itdaing/prod/db/username`, `/itdaing/prod/db/password`, `/itdaing/prod/aws/region`
+     - Secrets Manager: `itdaing/prod/app-secrets` (OpenAI/Tavily/LangSmith/LangChain/모델/RAG/WebSearch/AES 키 등)
+   - 이 방식에서는 **Git, EC2 로컬에 직접 키를 쓰지 않고 AWS에서만 관리**합니다.
 
-> 로컬 개발 시에는 `chatbot/chatbot.env`를 직접 수정하고 `uvicorn` 실행 전에 `load_dotenv`가 불리도록 되어 있습니다.
+2. **로컬/테스트 환경 전용 (직접 수정)**  
+   - 개발자가 `chatbot/chatbot.env`를 직접 열어 값(모델명, RAG 파라미터 등)을 수정할 수 있습니다.
+   - 이 경우 파일 권한을 매번 다음과 같이 제한해야 합니다.
+     ```bash
+     chmod 600 /home/ubuntu/chatbot/chatbot.env
+     ```
+   - 이 방식은 **테스트용으로만 사용**하고, 실제 운영 키/비밀번호는 반드시 SSM/Secrets에서 관리해야 합니다.
+
+> 정리: **GitHub에는 템플릿 형태의 `chatbot.env`만 두고, 실제 값은 항상 AWS Systems Manager Parameter Store 또는 Secrets Manager를 통해 `scripts/generate-chatbot-env.sh`로 주입하는 것을 원칙**으로 합니다.
 
 ---
 
