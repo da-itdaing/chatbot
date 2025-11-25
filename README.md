@@ -109,6 +109,8 @@ uvicorn app.main:app --host 0.0.0.0 --port 9000
 ## 6. 운영 체크리스트
 
 1. `chatbot.env` 최신 여부 확인 (Secrets Manager 필드 누락 없는지)
+   - 빈 값 검출: `cd /home/ubuntu/chatbot && grep -nE '=[[:space:]]*$' chatbot.env`
+   - 출력이 `PGVECTOR_ZONE_URL=`만 뜬다면 정상이며, 그 외 결과는 즉시 채운다.
 2. RDS `checkpoint_*` 테이블 모니터링 (디스크 용량, VACUUM 주기)
 3. LangSmith 대시보드에서 trace 모니터링 (`LANGSMITH_PROJECT=chatbot-aws`)
 4. Nginx `/ai/` 프록시 대상 IP 변경 시 `ops/nginx/chatbot.conf` 업데이트

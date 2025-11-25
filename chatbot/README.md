@@ -9,11 +9,20 @@
   - **PostgreSQL + AsyncPostgresSaver** 로 대화 상태(checkpoint) 영구 저장
   - **PGVector** 기반 RAG (마켓 / 존 정보)
 
+### 잇다잉(Itdaing) 페르소나 요약
+
+- **서비스명/역할**: 광주광역시 플리마켓·팝업스토어 추천 전문가 “잇다잉(Itdaing)”으로 소개한다.
+- **목표**: 사용자(소비자/판매자)에게 가장 적절한 마켓 혹은 존 정보를 추천하거나 필요한 배경 정보를 제공한다.
+- **도구 사용 우선순위**: 구체적 추천·스케줄·위치 정보는 반드시 `retrieve` 계열 도구(PGVector)로 먼저 찾고, 데이터가 없을 때만 `web_search` 로 보완한다.
+- **판단 기준**: 모호한 질문도 플리마켓 추천 의도로 해석하며, 완전히 무관한 질문(코딩, 수학 등)은 정중하게 거절한다.
+- **답변 스타일**: 한국어로 친근·공손한 톤을 유지하고, 가벼운 유머나 위트를 섞어 대화를 이어간다.
+
 ### 폴더 구조 (요약)
 
 - `app/`
   - `config.py` – `.env(chatbot.env)` 로딩, OpenAI/PG/PGVector/LangSmith 설정
   - `db/postgres.py` – PGVector 헬퍼, (레거시) LangGraph 체크포인터 헬퍼
+  - `tools/` – LangGraph ToolNode에서 사용하는 retrieval/web_search 도구 모듈
   - `graphs/consumer/` – 소비자용 LangGraph 노드 + 빌더 (bot4c_v2_multiturn 이식)
   - `graphs/seller/` – 판매자용 LangGraph 노드 + 빌더 (bot4s 이식)
   - `graphs/shared/` – 메시지 포맷터, 웹 검색 fallback 등 공통 유틸
@@ -51,6 +60,19 @@
   - `MARKETS_SEED_PATH=/home/ubuntu/markets_seed.json`
   - `ZONES_SEED_PATH=/home/ubuntu/zones_seed.json`
 
+#### 환경 변수 검증
+
+- 운영/문서화 전에 `chatbot.env`에 **빈 값(`=` 뒤에 값이 없음)** 이 남아있는지 점검한다.
+- 빠르게 확인하려면 아래 명령을 실행한다. 신규 값이 발견되면 Secrets Manager 혹은 SSM 파라미터에서 누락된 항목을 확인한다.
+
+```bash
+cd /home/ubuntu/chatbot
+grep -nE '=[[:space:]]*$' chatbot.env
+```
+
+- 현재 기준으로 허용된 빈 값은 `PGVECTOR_ZONE_URL` 뿐이다. 이 값이 비어 있으면 판매자 존 RAG도 `PGVECTOR_CONNECTION`을 재사용하며, 별도 클러스터를 쓰고 싶을 때만 연결 문자열을 지정한다.
+- 나머지 항목에서 빈 값이 발견되면 배포 전까지 반드시 채워 넣어야 한다.
+
 ### LangGraph / thread_id 전략
 
 - LangGraph는 `AsyncPostgresSaver`를 사용해 **대화 상태를 Postgres에 저장**합니다.
@@ -64,6 +86,30 @@
 - 오류/타임아웃 후 재시작:
   - Request body에 `restart_thread=true`를 추가하면 서버가 `consumer|seller:{user}:{session}:{uuid}` 형태의 **새 thread_id**를 발급
   - Response에는 항상 `thread_id`가 포함되므로, 정상 케이스에서는 그대로 재사용하면 됩니다.
+
+### LangGraph Tool 파이프라인 (consumer ↔ seller 공통)
+
+- **Tool 정의**  
+  - `app/tools/retrieval.py` → `consumer_retrieve`, `seller_retrieve` (sync/async 버전 포함)  
+  - `app/tools/web_search.py` → `web_search` (DuckDuckGo)  
+  - 모든 Tool은 JSON 문자열로 `documents`/`metadata`/`count` 를 반환하므로 LangSmith trace에서 근거를 그대로 확인할 수 있습니다.
+- **그래프 내 흐름**  
+  1. `case_classification` 이후 `schedule_tool` 노드가 LangGraph MessagesState에 `AIMessage(tool_calls=...)` 를 추가합니다.  
+  2. `ToolNode`가 실제 Tool을 실행하고, `ToolMessage`를 messages에 추가합니다.  
+  3. `consume_tool` 노드가 Tool 결과(JSON)를 파싱해 `state.context`를 `Document` 리스트로 복원합니다.  
+  4. 결과 문서가 없고 `WEBSEARCH_ENABLED=true`이면 `web_search` Tool을 자동으로 재요청하여 DuckDuckGo 결과를 보강합니다.  
+  5. `generate` 노드는 항상 Tool이 전달한 `context`만을 이용해 RAG 응답을 작성하므로, consumer/seller 그래프 모두 **동일한 Tool 파이프라인** 위에서 동작합니다.
+- **비동기/스트림**  
+  - Async 그래프에서는 `consumer_retrieve_async`, `web_search_async` (동일 시그니처) 를 사용하여 `graph.astream(...)` 상황에서도 Tool 결과가 자연스럽게 diff에 포함됩니다.
+  - LangSmith에서 trace를 보면 `tool_call → tool_output → rag_generate` 순서가 consumer/seller 모두 동일하게 찍히며, 스트림 엔드포인트에서도 delta 로그를 통해 Tool 실행 시점이 그대로 노출됩니다.
+
+### LangGraph 시각화 (artifacts/graphs)
+
+- `scripts/render_graphs.py` 실행 시 아래 파일이 최신 그래프 정의를 기준으로 다시 생성됩니다.
+  - `artifacts/graphs/consumer_graph.mmd` / `consumer_graph.png`
+  - `artifacts/graphs/seller_graph.mmd` / `seller_graph.png`
+- Mermaid 소스(`.mmd`)는 PR 리뷰에서 구조 diff를 텍스트로 추적할 수 있고, PNG는 QA/기획이 바로 열어볼 수 있는 정적인 다이어그램입니다.
+- 두 그래프 모두 `__start__ → extract_query → case_classification → schedule_tool → ToolNode` 플로우를 공유하므로, 문서나 회의에서 빠르게 비교할 때 해당 이미지를 첨부하면 됩니다.
 
 ### RAG 시드 로딩 (1회 작업)
 
