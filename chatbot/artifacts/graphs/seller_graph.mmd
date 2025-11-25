@@ -7,7 +7,9 @@ graph TD;
 	__start__([<p>__start__</p>]):::first
 	extract_query(extract_query)
 	case_classification(case_classification)
-	retrieve(retrieve)
+	schedule_tool(schedule_tool)
+	consume_tool(consume_tool)
+	tool_executor(tool_executor)
 	generate(generate)
 	check_hallucination(check_hallucination)
 	rewrite(rewrite)
@@ -18,16 +20,20 @@ graph TD;
 	__end__([<p>__end__</p>]):::last
 	__start__ --> extract_query;
 	basic_generate --> format_answer;
-	case_classification --> retrieve;
+	case_classification --> schedule_tool;
 	check_hallucination -. &nbsp;not hallucinated&nbsp; .-> format_answer;
 	check_hallucination -. &nbsp;hallucinated&nbsp; .-> rewrite;
+	consume_tool -. &nbsp;continue&nbsp; .-> generate;
+	consume_tool -. &nbsp;more_tools&nbsp; .-> schedule_tool;
 	extract_query -. &nbsp;general_answer&nbsp; .-> basic_generate;
 	extract_query -. &nbsp;rag_answer&nbsp; .-> case_classification;
 	format_answer --> summarize_messages;
 	generate --> check_hallucination;
-	retrieve --> generate;
-	rewrite --> retrieve;
+	rewrite --> schedule_tool;
+	schedule_tool -. &nbsp;resume&nbsp; .-> generate;
+	schedule_tool -. &nbsp;tools&nbsp; .-> tool_executor;
 	summarize_messages --> truncate_messages;
+	tool_executor --> consume_tool;
 	truncate_messages --> __end__;
 	classDef default fill:#f2f0ff,line-height:1.2
 	classDef first fill-opacity:0

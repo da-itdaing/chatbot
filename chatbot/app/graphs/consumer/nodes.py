@@ -7,11 +7,12 @@ Consumer-facing LangGraph nodes and helpers.
 구조만 모듈화한 버전이다.
 """
 
-import asyncio
+import json
+import uuid
 from typing import Any, Dict, List, Literal, Sequence, cast
 
 from langchain_core.documents import Document
-from langchain_core.messages import AIMessage, BaseMessage, RemoveMessage
+from langchain_core.messages import AIMessage, BaseMessage, RemoveMessage, ToolMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langgraph.graph import MessagesState
@@ -22,29 +23,10 @@ from langchain_openai import ChatOpenAI
 
 from app.chains.consumer import build_consumer_rag_chain
 from app.config import get_settings
-from app.db.postgres import get_markets_vectorstore
-from app.graphs.shared import (
-    extend_with_web_results,
-    extend_with_web_results_async,
-    format_messages,
-    latest_user_message,
-)
-from app.utils.search import WebSearchClient
+from app.graphs.shared import format_messages, latest_user_message
 
 
 settings = get_settings()
-
-# ---------------------------------------------------------------------------
-# Shared resources (vector store + LLMs)
-# ---------------------------------------------------------------------------
-
-_vectorstore = get_markets_vectorstore(settings)
-_retriever = _vectorstore.as_retriever(
-    search_type="similarity",
-    search_kwargs={"k": settings.rag_top_k},
-)
-_web_search_client = WebSearchClient(settings)
-
 
 def _llm(temperature: float = 0.0) -> ChatOpenAI:
     # Pass api_key via callable so we don't depend on process env.
@@ -83,6 +65,12 @@ class AgentState(MessagesState):
     answer: NotRequired[str]
     hallucination_label: NotRequired[str]
     hallucination_reason: NotRequired[str]
+    pending_tool_call_id: NotRequired[str]
+    pending_tool_name: NotRequired[str]
+    pending_tool_query: NotRequired[str]
+    needs_web_search: NotRequired[bool]
+    web_search_attempted: NotRequired[bool]
+    last_tool_payload: NotRequired[Dict[str, Any]]
 
 
 # ---------------------------------------------------------------------------
@@ -121,16 +109,147 @@ def _get_answer_text(state: AgentState) -> str:
     raise ValueError("응답이 비어있습니다.")
 
 
-async def _aretrieve_documents(query: str) -> List[Document]:
-    """
-    Retriever가 비동기 인터페이스를 지원하면 그대로 사용하고,
-    그렇지 않으면 thread executor로 감싸 async 컨텍스트에서도 재사용한다.
-    """
+def _build_tool_call_message(
+    tool_name: str,
+    query: str,
+) -> tuple[str, AIMessage]:
+    call_id = f"{tool_name}-{uuid.uuid4().hex}"
+    # LangChain v1 ToolCall 스키마(name/args)를 따른다.
+    # 참고: https://docs.langchain.com/oss/python/langchain/overview
+    tool_call = {
+        "id": call_id,
+        "type": "tool_call",
+        "name": tool_name,
+        "args": {"query": query},
+    }
+    ai_message = AIMessage(
+        content=f"{tool_name} 호출 준비",
+        tool_calls=[tool_call],
+    )
+    return call_id, ai_message
 
-    if hasattr(_retriever, "ainvoke"):
-        return await _retriever.ainvoke(query)  # type: ignore[attr-defined]
-    loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(None, _retriever.invoke, query)
+
+def _schedule_tool(
+    state: AgentState,
+    *,
+    tool_name: str,
+    query: str,
+) -> AgentState:
+    call_id, ai_message = _build_tool_call_message(tool_name, query)
+    next_state: AgentState = {
+        **state,
+        "messages": [ai_message],
+        "pending_tool_call_id": call_id,
+        "pending_tool_name": tool_name,
+        "pending_tool_query": query,
+    }
+    if tool_name.startswith("web_search"):
+        next_state["web_search_attempted"] = True
+        next_state.pop("needs_web_search", None)
+    else:
+        next_state.pop("web_search_attempted", None)
+    return next_state
+
+
+def _resolve_tool_query(state: AgentState, *, web_search: bool) -> str:
+    if web_search:
+        return _get_query_for_reasoning(state)
+    return _get_query_for_search(state)
+
+
+def schedule_consumer_tool(state: AgentState) -> AgentState:
+    tool_name = "web_search" if state.get("needs_web_search") else "consumer_retrieve"
+    query = _resolve_tool_query(state, web_search=tool_name.startswith("web_search"))
+    return _schedule_tool(state, tool_name=tool_name, query=query)
+
+
+def schedule_consumer_tool_async(state: AgentState) -> AgentState:
+    tool_name = "web_search_async" if state.get("needs_web_search") else "consumer_retrieve_async"
+    query = _resolve_tool_query(state, web_search=tool_name.startswith("web_search"))
+    return _schedule_tool(state, tool_name=tool_name, query=query)
+
+
+def consumer_tool_router(state: AgentState) -> Literal["tools", "resume"]:
+    return "tools" if state.get("pending_tool_name") else "resume"
+
+
+def _find_tool_message(
+    messages: Sequence[BaseMessage],
+    call_id: str | None,
+) -> ToolMessage | None:
+    for message in reversed(messages):
+        if isinstance(message, ToolMessage):
+            if call_id is None or message.tool_call_id == call_id:
+                return message
+    return None
+
+
+def _parse_tool_payload(content: Any) -> Dict[str, Any]:
+    if isinstance(content, dict):
+        return content
+    if isinstance(content, str):
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            return {"type": "unknown", "raw": content}
+    return {"type": "unknown", "raw": content}
+
+
+def _documents_from_payload(payload: Dict[str, Any]) -> List[Document]:
+    docs_data = payload.get("documents") or []
+    documents: List[Document] = []
+    for row in docs_data:
+        if not isinstance(row, dict):
+            continue
+        page_content = row.get("page_content") or ""
+        metadata = row.get("metadata") or {}
+        documents.append(
+            Document(
+                page_content=str(page_content),
+                metadata=dict(metadata),
+            )
+        )
+    return documents
+
+
+def consume_consumer_tool_result(state: AgentState) -> AgentState:
+    call_id = state.get("pending_tool_call_id")
+    messages = state.get("messages", [])
+    tool_message = _find_tool_message(messages, call_id)
+    if tool_message is None:
+        return state
+
+    payload = _parse_tool_payload(tool_message.content)
+    documents = _documents_from_payload(payload)
+    next_state: AgentState = {
+        **state,
+        "context": documents,
+        "last_tool_payload": payload,
+    }
+
+    next_state.pop("pending_tool_call_id", None)
+    next_state.pop("pending_tool_name", None)
+    next_state.pop("pending_tool_query", None)
+
+    should_retry_with_web = (
+        payload.get("type") == "consumer_retrieve"
+        and not documents
+        and bool(settings.websearch_enabled)
+        and not state.get("web_search_attempted")
+    )
+    if should_retry_with_web:
+        next_state["needs_web_search"] = True
+    else:
+        next_state.pop("needs_web_search", None)
+
+    if payload.get("type") == "web_search":
+        next_state["web_search_attempted"] = True
+
+    return next_state
+
+
+def consumer_tool_followup_router(state: AgentState) -> Literal["more_tools", "continue"]:
+    return "more_tools" if state.get("needs_web_search") else "continue"
 
 
 # ---------------------------------------------------------------------------
@@ -145,17 +264,17 @@ class Route(BaseModel):
 
 
 router_system_prompt = """
-You are an expert router that decides whether a user's question should be
-answered using the rag_answer or the general_answer path.
+You are the routing assistant for '잇다잉(Itdaing)', 광주광역시 플리마켓/팝업 추천 서비스.
+Decide whether the user's question should go through the rag_answer path (DB/tool 기반)
+or the general_answer fallback.
 
-The vector store contains detailed information about flea markets for
-recommendations, including descriptions, locations, distances, categories,
-attributes, and metadata. Users typically describe their situation or desired
-experience (예: 여자친구랑 가기 좋은 곳, 배고픈데 뭐 먹지?).
+The vector store contains detailed information about flea markets for recommendations,
+including descriptions, locations, distances, categories, attributes, and metadata.
+Users typically describe their situation or desired experience (예: 여자친구랑 가기 좋은 곳, 배고픈데 뭐 먹지?).
 
-Choose ``rag_answer`` unless the question is completely unrelated to market
-recommendations, requests markets outside Gwangju, or clearly attempts abusive
-load (예: 대량 계산, 전혀 무관한 작업). Return only one of the two labels.
+Choose ``rag_answer`` unless the question is completely unrelated to Itdaing's market
+recommendations, requests markets outside Gwangju, or clearly attempts abusive load
+(예: 대량 계산, 전혀 무관한 작업). Return only one of the two labels.
 """.strip()
 
 router_prompt = ChatPromptTemplate.from_messages(
@@ -181,7 +300,7 @@ class CaseClassification(BaseModel):
 
 
 case_classification_system_prompt = """
-당신은 사용자에게 마켓을 추천해주려는 최종목적을 가진 질문분류기이자 문장작성기입니다.
+당신은 광주광역시 플리마켓/팝업 추천 전문가 '잇다잉(Itdaing)'의 질문분류기이자 문장작성기입니다.
 
 사용자 질문을 보고:
 1) 아래 질문 분류 기준 중 하나를 선택해서 case로 출력하고,
@@ -271,14 +390,14 @@ rewrite_chain = rewrite_prompt | rewrite_llm | StrOutputParser()
 
 
 basic_system_prompt = """
-당신은 소비자에게 플리마켓 안내 및 추천을 해주는 서비스의 간단한 응답용 챗봇입니다.
+당신은 광주광역시 플리마켓 및 팝업스토어 추천 전문가 '잇다잉(Itdaing)'의 간단 응답용 챗봇입니다.
 
 질문이 다음과 같은 경우:
 1) 광주광역시 외의 지역에 대한 마켓 추천 요청
 2) 비현실적인 계산/대량 나열 등 서버 공격 의도가 있는 요청
 
 "지원되지 않는 서비스입니다." 형태로 한 문장만 응답하세요.
-그 외 인사/잡담 등 간단한 대화에는 친근하고 간결하게 응답하세요.
+그 외 인사/잡담 등 간단한 대화에는 친근하고 유머러스하게, 그러나 간결하게 응답하세요.
 """.strip()
 
 basic_prompt = ChatPromptTemplate.from_messages(
@@ -342,16 +461,6 @@ def case_classification(state: AgentState) -> AgentState:
         **state,
         "case": result.case,
         "paraphrased_query": result.rewritten_query,
-    }
-
-
-def retrieve(state: AgentState) -> AgentState:
-    query_for_search = _get_query_for_search(state)
-    docs = _retriever.invoke(query_for_search)
-    docs = extend_with_web_results(docs, query_for_search, _web_search_client)
-    return {
-        **state,
-        "context": docs,
     }
 
 
@@ -521,16 +630,6 @@ async def case_classification_async(state: AgentState) -> AgentState:
     }
 
 
-async def retrieve_async(state: AgentState) -> AgentState:
-    query_for_search = _get_query_for_search(state)
-    docs = await _aretrieve_documents(query_for_search)
-    docs = await extend_with_web_results_async(docs, query_for_search, _web_search_client)
-    return {
-        **state,
-        "context": docs,
-    }
-
-
 async def generate_async(state: AgentState) -> AgentState:
     context_docs = state.get("context", []) or []
     summary = state.get("summary", "").strip()
@@ -631,11 +730,14 @@ __all__ = [
     "router_async",
     "case_classification",
     "case_classification_async",
-    "retrieve",
-    "retrieve_async",
+    "schedule_consumer_tool",
+    "schedule_consumer_tool_async",
+    "consumer_tool_router",
+    "consumer_tool_followup_router",
+    "consume_consumer_tool_result",
     "generate",
     "generate_async",
-    "check_hallucination",
+        "check_hallucination",
     "check_hallucination_async",
     "rewrite",
     "rewrite_async",

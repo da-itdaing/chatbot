@@ -7,11 +7,12 @@ Seller-facing LangGraph nodes and helpers.
 실제 로직은 기존 설계와 동일하게 유지된다.
 """
 
-import asyncio
+import json
+import uuid
 from typing import Any, Dict, List, Literal, Sequence, cast
 
 from langchain_core.documents import Document
-from langchain_core.messages import AIMessage, BaseMessage, RemoveMessage
+from langchain_core.messages import AIMessage, BaseMessage, RemoveMessage, ToolMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langgraph.graph import MessagesState
@@ -22,29 +23,10 @@ from langchain_openai import ChatOpenAI
 
 from app.chains.seller import build_seller_rag_chain
 from app.config import get_settings
-from app.db.postgres import get_zones_vectorstore
-from app.graphs.shared import (
-    extend_with_web_results,
-    extend_with_web_results_async,
-    format_messages,
-    latest_user_message,
-)
-from app.utils.search import WebSearchClient
+from app.graphs.shared import format_messages, latest_user_message
 
 
 settings = get_settings()
-
-# ---------------------------------------------------------------------------
-# Shared resources (zone vector store + LLMs)
-# ---------------------------------------------------------------------------
-
-_zone_vectorstore = get_zones_vectorstore(settings)
-_zone_retriever = _zone_vectorstore.as_retriever(
-    search_type="similarity",
-    search_kwargs={"k": settings.zone_rag_top_k},
-)
-_web_search_client = WebSearchClient(settings)
-
 
 def _llm(temperature: float = 0.0) -> ChatOpenAI:
     def _api_key_provider() -> str:
@@ -82,6 +64,12 @@ class AgentState(MessagesState):
     answer: NotRequired[str]
     hallucination_label: NotRequired[str]
     hallucination_reason: NotRequired[str]
+    pending_tool_call_id: NotRequired[str]
+    pending_tool_name: NotRequired[str]
+    pending_tool_query: NotRequired[str]
+    needs_web_search: NotRequired[bool]
+    web_search_attempted: NotRequired[bool]
+    last_tool_payload: NotRequired[Dict[str, Any]]
 
 
 def _format_context(docs: Sequence[Document]) -> str:
@@ -115,11 +103,146 @@ def _get_answer_text(state: AgentState) -> str:
     raise ValueError("응답이 비어있습니다.")
 
 
-async def _aretrieve_zone_documents(query: str) -> List[Document]:
-    if hasattr(_zone_retriever, "ainvoke"):
-        return await _zone_retriever.ainvoke(query)  # type: ignore[attr-defined]
-    loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(None, _zone_retriever.invoke, query)
+def _build_tool_call_message(
+    tool_name: str,
+    query: str,
+) -> tuple[str, AIMessage]:
+    call_id = f"{tool_name}-{uuid.uuid4().hex}"
+    # LangChain v1 ToolCall 스키마(name/args)를 따른다.
+    # 참고: https://docs.langchain.com/oss/python/langchain/overview
+    tool_call = {
+        "id": call_id,
+        "type": "tool_call",
+        "name": tool_name,
+        "args": {"query": query},
+    }
+    message = AIMessage(
+        content=f"{tool_name} 호출 준비",
+        tool_calls=[tool_call],
+    )
+    return call_id, message
+
+
+def _schedule_tool(
+    state: AgentState,
+    *,
+    tool_name: str,
+    query: str,
+) -> AgentState:
+    call_id, ai_message = _build_tool_call_message(tool_name, query)
+    next_state: AgentState = {
+        **state,
+        "messages": [ai_message],
+        "pending_tool_call_id": call_id,
+        "pending_tool_name": tool_name,
+        "pending_tool_query": query,
+    }
+    if tool_name.startswith("web_search"):
+        next_state["web_search_attempted"] = True
+        next_state.pop("needs_web_search", None)
+    else:
+        next_state.pop("web_search_attempted", None)
+    return next_state
+
+
+def _resolve_tool_query(state: AgentState, *, web_search: bool) -> str:
+    if web_search:
+        return _get_query_for_reasoning(state)
+    return _get_query_for_search(state)
+
+
+def schedule_seller_tool(state: AgentState) -> AgentState:
+    tool_name = "web_search" if state.get("needs_web_search") else "seller_retrieve"
+    query = _resolve_tool_query(state, web_search=tool_name.startswith("web_search"))
+    return _schedule_tool(state, tool_name=tool_name, query=query)
+
+
+def schedule_seller_tool_async(state: AgentState) -> AgentState:
+    tool_name = "web_search_async" if state.get("needs_web_search") else "seller_retrieve_async"
+    query = _resolve_tool_query(state, web_search=tool_name.startswith("web_search"))
+    return _schedule_tool(state, tool_name=tool_name, query=query)
+
+
+def seller_tool_router(state: AgentState) -> Literal["tools", "resume"]:
+    return "tools" if state.get("pending_tool_name") else "resume"
+
+
+def _find_tool_message(
+    messages: Sequence[BaseMessage],
+    call_id: str | None,
+) -> ToolMessage | None:
+    for message in reversed(messages):
+        if isinstance(message, ToolMessage):
+            if call_id is None or message.tool_call_id == call_id:
+                return message
+    return None
+
+
+def _parse_tool_payload(content: Any) -> Dict[str, Any]:
+    if isinstance(content, dict):
+        return content
+    if isinstance(content, str):
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            return {"type": "unknown", "raw": content}
+    return {"type": "unknown", "raw": content}
+
+
+def _documents_from_payload(payload: Dict[str, Any]) -> List[Document]:
+    documents: List[Document] = []
+    for row in payload.get("documents") or []:
+        if not isinstance(row, dict):
+            continue
+        page_content = row.get("page_content") or ""
+        metadata = row.get("metadata") or {}
+        documents.append(
+            Document(
+                page_content=str(page_content),
+                metadata=dict(metadata),
+            )
+        )
+    return documents
+
+
+def consume_seller_tool_result(state: AgentState) -> AgentState:
+    call_id = state.get("pending_tool_call_id")
+    messages = state.get("messages", [])
+    tool_message = _find_tool_message(messages, call_id)
+    if tool_message is None:
+        return state
+
+    payload = _parse_tool_payload(tool_message.content)
+    documents = _documents_from_payload(payload)
+    next_state: AgentState = {
+        **state,
+        "context": documents,
+        "last_tool_payload": payload,
+    }
+
+    next_state.pop("pending_tool_call_id", None)
+    next_state.pop("pending_tool_name", None)
+    next_state.pop("pending_tool_query", None)
+
+    should_retry_with_web = (
+        payload.get("type") == "seller_retrieve"
+        and not documents
+        and bool(settings.websearch_enabled)
+        and not state.get("web_search_attempted")
+    )
+    if should_retry_with_web:
+        next_state["needs_web_search"] = True
+    else:
+        next_state.pop("needs_web_search", None)
+
+    if payload.get("type") == "web_search":
+        next_state["web_search_attempted"] = True
+
+    return next_state
+
+
+def seller_tool_followup_router(state: AgentState) -> Literal["more_tools", "continue"]:
+    return "more_tools" if state.get("needs_web_search") else "continue"
 
 
 # ---------------------------------------------------------------------------
@@ -132,15 +255,14 @@ class Route(BaseModel):  # type: ignore[misc]
 
 
 router_system_prompt = """
-You are an expert router that decides whether a user's question should be
-answered using the rag_answer or the general_answer path.
+You are the routing assistant for '잇다잉(Itdaing)', 광주광역시 플리마켓/팝업 셀러 전용 존 추천 서비스.
+Decide whether the user's question should be answered via rag_answer (tool/DB 기반) or general_answer.
 
-The vector store contains detailed information about zone recommendations for
-sellers, including descriptions, locations, categories, visitor patterns, and
-atmosphere tags.
+The vector store contains detailed information about zone recommendations for sellers,
+including descriptions, locations, categories, visitor patterns, and atmosphere tags.
 
-Choose ``rag_answer`` unless the question is unrelated to picking a zone in
-Gwangju, requests other cities, or clearly aims to overload the system.
+Choose ``rag_answer`` unless the question is unrelated to picking a zone in Gwangju,
+requests other cities, or clearly aims to overload the system.
 """.strip()
 
 router_prompt = ChatPromptTemplate.from_messages(
@@ -166,8 +288,7 @@ class CaseClassification(BaseModel):  # type: ignore[misc]
 
 
 case_classification_system_prompt = """
-당신은 사용자의 질문을 분석해 존 추천에 필요한 정보를 뽑아주는 질문분류기이자
-문장 작성기입니다.
+당신은 광주광역시 존 추천 전문가 '잇다잉(Itdaing)'의 질문분류기이자 문장 작성기입니다.
 
 질문을 보고:
 1) 아래 라벨 중 하나를 case로 출력하고
@@ -230,10 +351,10 @@ rewrite_prompt = PromptTemplate.from_template(
 
 
 basic_system_prompt = """
-당신은 판매자에게 플리마켓 존을 안내해주는 간단한 챗봇입니다.
+당신은 광주광역시 플리마켓 및 팝업스토어 셀러를 돕는 '잇다잉(Itdaing)'의 간단 응답용 챗봇입니다.
 
 질문이 광주 외 지역이거나, 과도한 요청이면 "지원되지 않는 서비스입니다." 한 문장만 답하세요.
-간단한 인사나 소개는 친근하지만 짧게 답하세요.
+간단한 인사나 소개는 친근하고 유머러스하게, 그러나 짧게 답하세요.
 """.strip()
 
 basic_prompt = ChatPromptTemplate.from_messages(
@@ -289,13 +410,6 @@ def case_classification(state: AgentState) -> AgentState:
         case_classification_chain.invoke({"summary": summary, "query": query}),
     )
     return {**state, "case": result.case, "paraphrased_query": result.rewritten_query}
-
-
-def retrieve(state: AgentState) -> AgentState:
-    query_for_search = _get_query_for_search(state)
-    docs = _zone_retriever.invoke(query_for_search)
-    docs = extend_with_web_results(docs, query_for_search, _web_search_client)
-    return {**state, "context": docs}
 
 
 def generate(state: AgentState) -> AgentState:
@@ -419,13 +533,6 @@ async def case_classification_async(state: AgentState) -> AgentState:
     return {**state, "case": result.case, "paraphrased_query": result.rewritten_query}
 
 
-async def retrieve_async(state: AgentState) -> AgentState:
-    query_for_search = _get_query_for_search(state)
-    docs = await _aretrieve_zone_documents(query_for_search)
-    docs = await extend_with_web_results_async(docs, query_for_search, _web_search_client)
-    return {**state, "context": docs}
-
-
 async def generate_async(state: AgentState) -> AgentState:
     context_docs = state.get("context", []) or []
     summary = state.get("summary", "").strip() or "요약 없음"
@@ -499,11 +606,14 @@ __all__ = [
     "router_async",
     "case_classification",
     "case_classification_async",
-    "retrieve",
-    "retrieve_async",
+    "schedule_seller_tool",
+    "schedule_seller_tool_async",
+    "seller_tool_router",
+    "seller_tool_followup_router",
+    "consume_seller_tool_result",
     "generate",
     "generate_async",
-    "check_hallucination",
+        "check_hallucination",
     "check_hallucination_async",
     "rewrite",
     "rewrite_async",

@@ -60,19 +60,6 @@
   - `MARKETS_SEED_PATH=/home/ubuntu/markets_seed.json`
   - `ZONES_SEED_PATH=/home/ubuntu/zones_seed.json`
 
-#### 환경 변수 검증
-
-- 운영/문서화 전에 `chatbot.env`에 **빈 값(`=` 뒤에 값이 없음)** 이 남아있는지 점검한다.
-- 빠르게 확인하려면 아래 명령을 실행한다. 신규 값이 발견되면 Secrets Manager 혹은 SSM 파라미터에서 누락된 항목을 확인한다.
-
-```bash
-cd /home/ubuntu/chatbot
-grep -nE '=[[:space:]]*$' chatbot.env
-```
-
-- 현재 기준으로 허용된 빈 값은 `PGVECTOR_ZONE_URL` 뿐이다. 이 값이 비어 있으면 판매자 존 RAG도 `PGVECTOR_CONNECTION`을 재사용하며, 별도 클러스터를 쓰고 싶을 때만 연결 문자열을 지정한다.
-- 나머지 항목에서 빈 값이 발견되면 배포 전까지 반드시 채워 넣어야 한다.
-
 ### LangGraph / thread_id 전략
 
 - LangGraph는 `AsyncPostgresSaver`를 사용해 **대화 상태를 Postgres에 저장**합니다.
@@ -136,60 +123,137 @@ uvicorn app.main:app --host 0.0.0.0 --port 9000
 curl -s http://127.0.0.1:9000/health
 ```
 
-### HTTP API 설계 (엔드포인트별 예시)
+### API 명세 (HTTP + Streaming)
 
-> Nginx가 `/ai/` prefix를 FastAPI (`10.0.146.32:9000/`) 로 프록시하므로, Spring/프론트는 아래 URI를 그대로 호출하면 됩니다.
+> Nginx가 `/ai/` prefix를 FastAPI (`10.0.146.32:9000/`) 로 프록시하므로, 클라이언트는 `https://<nginx-host>/ai/...` 경로만 사용하면 됩니다.
 
-#### 1) 동기 완료 응답: `POST /ai/api/chat/(consumer|seller)`
+#### 공통 규칙
 
-- 사용 시점: 기존 v1 계약. LangGraph 실행이 끝나면 최종 답만 전달.
-- Request (소비자 예시):
+- **Content-Type**: 모든 요청/응답은 `application/json`.
+- **인증**: 현재 사내 VPC IP 화이트리스트로 보호, 추가 토큰은 추후 확장.
+- **타임아웃 가이드**: 백엔드는 60초 이상 잡아도 되지만, 프론트는 30초 내 재시도 UX를 권장.
+- **스레드 관리**: `thread_id`는 응답에 항상 포함. 다음 호출에서 그대로 전달하면 LangGraph가 Postgres 체크포인트 기반으로 대화를 이어준다.
+- **공통 헤더**: `X-Trace-Id` (선택). 미전달 시 FastAPI에서 UUID를 생성하여 로그/trace에 기록.
 
-  ```json
-  {
-    "user_id": "springUserId",
-    "session_id": "conversationId-or-null",
-    "message": "광주 야경 예쁜 플리마켓 추천해줘",
-    "thread_id": null,
-    "restart_thread": false
-  }
-  ```
+#### 요청 본문 공통 스키마
 
-- Response:
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| `user_id` | string | ✅ | Spring 사용자의 고유 ID. 비회원일 경우 프론트 세션 키 사용. |
+| `session_id` | string | ✅ | 프론트 탭/대화 ID. null 이면 서버가 `"default"` 로 처리. |
+| `message` | string | ✅ | 사용자 입력 문장. 빈 문자열은 400 처리. |
+| `thread_id` | string \| null | ⛔️ | (선택) 이전 응답에서 받은 thread_id. null 이면 `"{bot}:{user_id}:{session_id}"` 생성. |
+| `restart_thread` | boolean | ✅ | `true`면 기존 thread snapshot을 폐기하고 신규 UUID suffix를 붙인다. 주로 오류 복구용. |
 
-  ```json
-  {
-    "answer": "LLM이 생성한 한국어 답변",
-    "thread_id": "consumer:springUserId:conversationId-or-default"
-  }
-  ```
+> `consumer` 엔드포인트는 `thread_id` prefix가 항상 `consumer:`. `seller` 엔드포인트는 `seller:` 로 강제된다.
 
-- 판매자 요청도 동일하며 `thread_id` prefix만 `seller:` 로 다릅니다.
-- **멀티턴**: 응답의 `thread_id`를 다음 호출의 `thread_id` 필드에 그대로 넣으면 이전 대화가 이어집니다.
+#### 기본 응답 스키마
 
-#### 2) 동기 스트리밍: `POST /ai/api/chat/(consumer|seller)/stream`
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `answer` | string | 동기·Async 단발 엔드포인트에서 최종 LLM 응답. |
+| `thread_id` | string | LangGraph에서 실제 사용된 thread 식별자. 다음 요청에 그대로 사용. |
 
-- 사용 시점: LangGraph 실행이 끝난 후 한 번에 결과를 내려주지만, HTTP 응답을 스트림으로 받아 중간에 끊기지 않도록 할 때.
-- Response는 JSON 라인 하나 (`{"delta":"...","thread_id":"consumer:..."}`) 이며, 내용 자체는 동기 완료 응답과 동일합니다.
+Streaming 엔드포인트에서는 위 스키마 대신 **줄 단위(JSON Lines)** 로 `{ "delta": "...", "thread_id": "..." }` 형식을 지속 전송한다.
 
-#### 3) Async 단발 응답: `POST /ai/api/chat/(consumer|seller)/async`
+#### 엔드포인트 요약
 
-- 사용 시점: LangGraph 내부에서 LLM/RAG/WebSearch를 모두 async로 처리하되, 최종 응답만 한 번에 받고 싶을 때.
-- Request/Response 스키마는 동기 버전과 완전히 동일하며, thread_id 재사용 규칙도 같습니다.
+| 메서드 | 경로 | 설명 | 완료 시점 |
+|--------|------|------|-----------|
+| POST | `/ai/api/chat/consumer` | 소비자 챗봇 동기 응답 | LangGraph 완료 후 한 번에 결과 |
+| POST | `/ai/api/chat/consumer/stream` | 소비자 챗봇 동기 스트림 | 한 줄 JSON으로 결과 스트림 |
+| POST | `/ai/api/chat/consumer/async` | 소비자 챗봇 비동기(내부 async) 완료 응답 | LangGraph async 실행 종료 후 단발 |
+| POST | `/ai/api/chat/consumer/async/stream` | 소비자 챗봇 비동기 diff 스트림 | LangGraph `astream` diff 전송 |
+| POST | `/ai/api/chat/seller` | 판매자 챗봇 동기 응답 | 위와 동일 |
+| POST | `/ai/api/chat/seller/stream` | 판매자 챗봇 동기 스트림 | 위와 동일 |
+| POST | `/ai/api/chat/seller/async` | 판매자 챗봇 비동기 완료 응답 | 위와 동일 |
+| POST | `/ai/api/chat/seller/async/stream` | 판매자 챗봇 비동기 diff 스트림 | 위와 동일 |
 
-#### 4) Async diff 스트림: `POST /ai/api/chat/(consumer|seller)/async/stream`
+#### 1) 소비자 동기 완료 `POST /ai/api/chat/consumer`
 
-- 사용 시점: LangGraph `astream` 결과를 diff 단위로 받아 Spring → 프론트로 실시간 전달할 때.
-- Request 본문은 `/async`와 동일합니다.
-- Response: 여러 개의 JSON 라인이 순차적으로 흘러오며, 각 라인은 아래와 같습니다.
+- **설명**: LangGraph를 동기적으로 실행하고 `answer` 하나만 반환.
+- **성공 상태코드**: `200 OK`.
+- **Request 예시**
 
-  ```json
-  {"delta":"안녕하세요! ...","thread_id":"consumer:demoUser:test-session"}
-  {"delta":" (추가 문장)","thread_id":"consumer:demoUser:test-session"}
-  ```
+```json
+{
+  "user_id": "springUserId",
+  "session_id": "conv-202411",
+  "message": "광주 야경 예쁜 플리마켓 추천해줘",
+  "thread_id": null,
+  "restart_thread": false
+}
+```
 
-- diff 누적 방식이므로, 프론트에서는 같은 thread_id로 들어오는 delta를 이어 붙이면 전체 답변을 복원할 수 있습니다.
-- 판매자 엔드포인트도 동일하게 동작하므로 URI에서 `consumer`만 `seller`로 바꾸면 됩니다.
+- **Response 예시**
+
+```json
+{
+  "answer": "야경이 아름다운 플리마켓을 ...",
+  "thread_id": "consumer:springUserId:conv-202411"
+}
+```
+
+- **구현 노트**
+  - Spring은 응답의 `thread_id`를 저장 후, 다음 요청의 `thread_id` 필드에 그대로 실어야 멀티턴이 유지된다.
+  - 판매자용 API는 동일 JSON 구조에서 prefix만 `seller:` 로 바뀐다.
+
+#### 2) 소비자 동기 스트림 `POST /ai/api/chat/consumer/stream`
+
+- **설명**: 내부 처리는 동기지만, chunked 전송으로 한 번만 JSON 라인을 내려준다. 긴 응답에도 연결을 유지하기 위함.
+- **성공 상태코드**: `200 OK`, `Transfer-Encoding: chunked`.
+- **Response 포맷**
+
+```
+{"delta":"야경 플리 추천을 정리 중입니다...","thread_id":"consumer:..."}
+```
+
+> `delta`는 최종 답변 전체 문자열. (동기 완료형과 동일)
+
+#### 3) 소비자 Async 완료 `POST /ai/api/chat/consumer/async`
+
+- **설명**: LangGraph 노드들을 `async` 실행으로 구성한 버전. 인터페이스는 동기 완료와 동일해 Spring 쪽 코드 재사용이 가능하다.
+- **성공 상태코드**: `200 OK`.
+- **입출력 스키마**: 1)과 동일.
+- **사용 시점**: 추후 모든 그래프가 async로 전환되었을 때 기본 계약으로 사용할 예정.
+
+#### 4) 소비자 Async diff 스트림 `POST /ai/api/chat/consumer/async/stream`
+
+- **설명**: LangGraph `Graph.astream_events` 결과를 그대로 흘려 보내 diff 단위로 실시간 렌더링.
+- **성공 상태코드**: `200 OK`, `Transfer-Encoding: chunked`.
+- **Response 흐름**
+  1. `delta` 첫 줄은 사용자 원문 에코.
+  2. 이후 `consumer_retrieve_async` 등 Tool 스케줄 이벤트 메시지가 순서대로 등장.
+  3. 마지막에 LLM이 작성한 답변이 여러 개의 delta로 쪼개져 도착.
+- **프론트 처리 가이드**
+  - `thread_id`가 동일한 delta를 순서대로 이어 붙여 최종 답을 구성.
+  - 스트림 종료는 서버가 `0\r\n\r\n` (chunked 종료) 를 보낼 때.
+  - 연결 중 에러는 HTTP 상태코드로 즉시 응답 (예: 401, 429).
+
+#### 판매자 엔드포인트
+
+- 위 4가지 패턴과 완전히 동일하며, 경로의 `consumer`만 `seller`로 치환하면 된다.
+- 판매자 그래프는 도구(`seller_retrieve_async`)와 프롬프트만 다르므로, Spring/프론트에서 공통 SDK를 작성해도 무방하다.
+
+#### 오류 응답 규칙
+
+| 상태코드 | 예시 상황 | 응답 페이로드 |
+|----------|-----------|----------------|
+| 400 | 필수 필드 누락, message 길이 0 | `{"error":"BAD_REQUEST","detail":"message is required","code":"REQ_001"}` |
+| 401 | 추후 토큰 미검증 | `{"error":"UNAUTHORIZED","detail":"invalid token","code":"AUTH_001"}` |
+| 404 | 경로 오타 | FastAPI 기본 404 또는 Nginx 404 |
+| 422 | 스키마 검증 실패(FastAPI pydantic) | 자동 생성. 프론트에서는 `detail[0].msg` 참고. |
+| 429 | OpenAI RPM/TPM 제한, 내부 큐 초과 | `{"error":"RATE_LIMIT","detail":"OpenAI quota exceeded","code":"OPENAI_429"}` |
+| 500 | LangGraph 예외, Tool 실패 미처리 | `{"error":"INTERNAL_ERROR","detail":"...", "code":"SRV_001"}` |
+
+- FastAPI 예외 핸들러는 예제와 동일한 포맷으로 응답을 맞췄으며, 추가 코드(`code`) 는 클라이언트 로깅/알림에 사용.
+- Retry 가능한 오류(429, 500)는 Spring 단에서 exponential backoff(예: 1s, 2s, 4s)를 권장.
+
+#### 로깅 & 추적
+
+- 모든 API는 `thread_id`, `user_id`, `session_id`, `X-Trace-Id` 를 FastAPI 로거에 남긴다.
+- LangSmith 프로젝트(`chatbot-aws`)에서 동일한 `thread_id`를 키로 실행 trace를 조회할 수 있다.
+- 필요 시 Spring에서 `X-Trace-Id`를 생성해 전달하면, FastAPI → LangGraph → LangSmith 로그를 동일 키로 그룹화 가능하다.
 
 ### 터미널에서 Async Streaming 테스트하기
 

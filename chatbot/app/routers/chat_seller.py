@@ -16,7 +16,7 @@ class ChatSellerRequest(BaseModel):
     user_id: str = Field(..., description="판매자 식별자 (Spring 세션/회원 ID 등)")
     session_id: Optional[str] = Field(
         default=None,
-        description="대화 세션 ID (없으면 user_id 기준으로 단일 세션)",
+        description="대화 세션 ID (프론트 탭/대화 ID, 없으면 'default')",
     )
     message: str = Field(..., description="사용자 질문 텍스트")
     thread_id: Optional[str] = Field(
@@ -32,6 +32,12 @@ class ChatSellerRequest(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     thread_id: str
+
+
+class ErrorResponse(BaseModel):
+    error: str = Field(..., description="에러 유형 (예: BAD_REQUEST, RATE_LIMIT 등)")
+    detail: str = Field(..., description="사람이 읽을 수 있는 에러 메시지")
+    code: str = Field(..., description="클라이언트 로깅/분류용 내부 코드 (예: REQ_001)")
 
 
 def _extract_answer(messages: List[Any]) -> str:
@@ -68,7 +74,25 @@ def _initial_state(message: str) -> Dict[str, Any]:
     }
 
 
-@router.post("", response_model=ChatResponse)
+@router.post(
+    "",
+    response_model=ChatResponse,
+    summary="판매자 챗봇 동기 완료 응답 (존 추천)",
+    responses={
+        400: {
+            "model": ErrorResponse,
+            "description": "필수 필드 누락 등 잘못된 요청",
+        },
+        429: {
+            "model": ErrorResponse,
+            "description": "OpenAI 또는 내부 큐의 Rate Limit 초과",
+        },
+        500: {
+            "model": ErrorResponse,
+            "description": "서버 내부 오류 (LangGraph/Tool 예외 등)",
+        },
+    },
+)
 async def chat_seller(request: Request, payload: ChatSellerRequest) -> ChatResponse:
     """
     Seller-facing multi-turn chat endpoint (zone RAG).
@@ -89,7 +113,27 @@ async def chat_seller(request: Request, payload: ChatSellerRequest) -> ChatRespo
     return ChatResponse(answer=answer, thread_id=thread_id)
 
 
-@router.post("/stream")
+@router.post(
+    "/stream",
+    summary="판매자 챗봇 동기 스트림 (JSON 라인 1회 전송)",
+    responses={
+        200: {
+            "description": 'Chunked JSON line, 예: {"delta":"...","thread_id":"seller:..."}',
+        },
+        400: {
+            "model": ErrorResponse,
+            "description": "필수 필드 누락 등 잘못된 요청",
+        },
+        429: {
+            "model": ErrorResponse,
+            "description": "OpenAI 또는 내부 큐의 Rate Limit 초과",
+        },
+        500: {
+            "model": ErrorResponse,
+            "description": "서버 내부 오류 (LangGraph/Tool 예외 등)",
+        },
+    },
+)
 async def chat_seller_stream(
     request: Request,
     payload: ChatSellerRequest,
@@ -116,7 +160,25 @@ async def chat_seller_stream(
     return StreamingResponse(event_stream(), media_type="application/json")
 
 
-@router.post("/async", response_model=ChatResponse)
+@router.post(
+    "/async",
+    response_model=ChatResponse,
+    summary="판매자 챗봇 Async 완료 응답",
+    responses={
+        400: {
+            "model": ErrorResponse,
+            "description": "필수 필드 누락 등 잘못된 요청",
+        },
+        429: {
+            "model": ErrorResponse,
+            "description": "OpenAI 또는 내부 큐의 Rate Limit 초과",
+        },
+        500: {
+            "model": ErrorResponse,
+            "description": "서버 내부 오류 (LangGraph/Tool 예외 등)",
+        },
+    },
+)
 async def chat_seller_async(
     request: Request,
     payload: ChatSellerRequest,
@@ -137,7 +199,27 @@ async def chat_seller_async(
     return ChatResponse(answer=answer, thread_id=thread_id)
 
 
-@router.post("/async/stream")
+@router.post(
+    "/async/stream",
+    summary="판매자 챗봇 Async diff 스트림",
+    responses={
+        200: {
+            "description": '여러 JSON 라인 스트림, 예: {"delta":"...","thread_id":"seller:..."}',
+        },
+        400: {
+            "model": ErrorResponse,
+            "description": "필수 필드 누락 등 잘못된 요청",
+        },
+        429: {
+            "model": ErrorResponse,
+            "description": "OpenAI 또는 내부 큐의 Rate Limit 초과",
+        },
+        500: {
+            "model": ErrorResponse,
+            "description": "서버 내부 오류 (LangGraph/Tool 예외 등)",
+        },
+    },
+)
 async def chat_seller_async_stream(
     request: Request,
     payload: ChatSellerRequest,
