@@ -44,3 +44,4 @@ chatbot/artifacts/graphs/*.pdf
 !.gitignore
 current_schema.sql
 
+cetc/

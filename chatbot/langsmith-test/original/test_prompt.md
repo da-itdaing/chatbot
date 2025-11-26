@@ -1,50 +1,6 @@
 ## 테스트 프롬프트 예시
 
-
-다양한 흐름을 검증할 수 있도록 consumer/seller 별로 분류했습니다. 필요에 따라 문구를 조금씩 변형해도 됩니다.  
-2025-11-25 개편부터는 `test_prompts.json` 에 **mode/case_type/turn_type/transport/difficulty/expected_behavior/constraints** 메타데이터가 포함되며, LangSmith 평가 스키마(`../eval_schema.md`)와 1:1로 매핑됩니다.
-
-### 데이터셋 구조
-
-| 파일명 | 설명 | 케이스 수 | 주요 용도 |
-| --- | --- | --- | --- |
-| `test_prompts.json` | 전체 278개 케이스. `mode`/`case_type`/`transport`/`difficulty` 등 모든 메타 필드를 포함. | 278 | LangSmith Dataset `itdaing-chatbot-regression` 원본 |
-| `test_prompts_30_se.json` | 30개 단일턴 기본 세트 (consumer 18 / seller 12). `transport=sync/sync_stream`. | 30 | PR 단위 빠른 회귀, `/api/chat/(consumer|seller)` sync 확인 |
-| `test_prompts_30_se_hard.json` | 30개 가드레일/인젝션/edge 케이스. `difficulty=hard`. | 30 | 정책/보안 회귀 테스트 |
-| `test_prompts_100.json` | 100개 일반 케이스 (consumer 60 / seller 40). | 100 | 배포 전 풀 회귀, latency/비용 지표 트렌드 |
-| `test_prompts_100_hard.json` | 100개 난이도 hard 케이스(가능한 범위). | 100 | 가드레일+복원력 스트레스 테스트 |
-| `test_prompts.legacy.json` | 2025-11-25 이전 JSON 원본 백업. | 278 | 참고/비교용 |
-
-각 JSON은 동일 스키마를 사용하므로 LangSmith에 Dataset을 하나만 등록한 뒤, `subset` 필드를 Tag로 걸거나 CLI 러너 인자로 `--subset`을 넘겨 필터링합니다.
-
-### 메타데이터 필드 요약
-
-```
-{
-  "id": "C-1",
-  "case_group": "C-1",
-  "mode": "consumer",
-  "case_type": "retrieval_recommendation",
-  "turn_type": "single",
-  "transport": "sync",
-  "difficulty": "normal",
-  "expected_behavior": "must_recommend_from_seed",
-  "section": "지역+카테고리 추천",
-  "input": "...",
-  "constraints": { "table": "popup", "where": { "source": "markets_seed" } }
-}
-```
-
-- `mode`: `consumer` / `seller` (edge 케이스도 consumer 맥락으로 표준화).
-- `case_type`: `retrieval_recommendation`, `seller_guide`, `guardrail_safety`, `edge_robustness`, `prompt_injection`, `policy_bypass`, `performance_stress`.
-- `turn_type`: 현재 모든 케이스가 `single` 이지만, 멀티턴 시나리오는 추후 `turns` 배열과 함께 추가 예정.
-- `transport`: README(18-20) 기준 엔드포인트 축 (`sync`, `sync_stream`, `async`, `async_stream`). 스트림/async 조합을 커버하도록 섹션별 기본 transport를 미리 지정했다.
-- `difficulty`: `normal` (일반 RAG) / `hard` (가드레일·edge·공격 케이스).
-- `expected_behavior`: LangSmith 평가 루브릭과 직접 연결 (`must_recommend_from_seed`, `must_refuse_out_of_scope`, `must_resist_prompt_injection`, `must_handle_performance_stress` 등).
-- `constraints`: seed/DB 스키마와 연결되는 조건 요약. Consumer → `popup`, Seller → `zone_cell`, Guardrail → `guardrail_policy` 등.
-
-> **TIP**: CLI 러너(`run_langsmith_tests.py`, 추후 작성)에서는 `--subset`, `--mode`, `--case-type`, `--difficulty`, `--transport` 필터를 동시에 적용해 원하는 조합만 실행할 수 있도록 설계한다.
-
+다양한 흐름을 검증할 수 있도록 consumer/seller 별로 분류했습니다. 필요에 따라 문구를 조금씩 변형해도 됩니다.
 
 ### 케이스 요약 표
 
