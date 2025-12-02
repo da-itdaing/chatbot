@@ -1,39 +1,57 @@
 """
-정형 DB 직접 조회 도구.
+정형 DB 직접 조회 도구 (비동기).
 
 RAG와 병행하여 정확한 정보(날짜, 시간, 주소 등)가 필요할 때 사용.
+v11: asyncpg 기반 비동기 처리로 여러 유저 동시 접속 지원.
 """
 from __future__ import annotations
 
 import json
 from typing import Any, Dict, List, Optional
 
-import psycopg
+import asyncpg
 from langchain_core.tools import tool
 
 from app.config import get_settings
 
 
-def _get_db_connection() -> psycopg.Connection:
-    """정형 DB 연결 획득."""
-    settings = get_settings()
-    return psycopg.connect(
-        host=settings.postgres_host,
-        port=settings.postgres_port,
-        dbname=settings.postgres_db,
-        user=settings.postgres_user,
-        password=settings.postgres_password,
-    )
+# 모듈 레벨 커넥션 풀 (FastAPI lifespan에서 초기화)
+_pool: Optional[asyncpg.Pool] = None
 
 
-@tool("popup_sql_lookup")
-def popup_sql_lookup(
+async def get_pool() -> asyncpg.Pool:
+    """비동기 커넥션 풀 획득 (lazy initialization)."""
+    global _pool
+    if _pool is None:
+        settings = get_settings()
+        _pool = await asyncpg.create_pool(
+            host=settings.postgres_host,
+            port=settings.postgres_port,
+            database=settings.postgres_db,
+            user=settings.postgres_user,
+            password=settings.postgres_password,
+            min_size=2,
+            max_size=10,
+        )
+    return _pool
+
+
+async def close_pool() -> None:
+    """커넥션 풀 종료 (앱 종료 시 호출)."""
+    global _pool
+    if _pool is not None:
+        await _pool.close()
+        _pool = None
+
+
+@tool("popup_sql_lookup_async")
+async def popup_sql_lookup_async(
     name: Optional[str] = None,
     category: Optional[str] = None,
     limit: int = 5,
 ) -> str:
     """
-    정형 DB에서 팝업/이벤트 정보를 조회한다.
+    정형 DB에서 팝업/이벤트 정보를 비동기로 조회한다.
     정확한 날짜, 시간, 상태 정보가 필요할 때 사용.
     
     Args:
@@ -45,8 +63,7 @@ def popup_sql_lookup(
         JSON 형식의 팝업 정보 목록
     """
     try:
-        conn = _get_db_connection()
-        cur = conn.cursor()
+        pool = await get_pool()
         
         # 기본 쿼리
         query = """
@@ -65,29 +82,28 @@ def popup_sql_lookup(
             WHERE p.approval_status = 'APPROVED'
         """
         params: List[Any] = []
+        param_idx = 1
         
         if name:
-            query += " AND p.name ILIKE %s"
+            query += f" AND p.name ILIKE ${param_idx}"
             params.append(f"%{name}%")
+            param_idx += 1
         
-        query += " ORDER BY p.start_date DESC LIMIT %s"
+        query += f" ORDER BY p.start_date DESC LIMIT ${param_idx}"
         params.append(limit)
         
-        cur.execute(query, params)
-        columns = [desc[0] for desc in cur.description]
-        results = []
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(query, *params)
         
-        for row in cur.fetchall():
-            item = dict(zip(columns, row))
+        results = []
+        for row in rows:
+            item = dict(row)
             # 날짜 직렬화
             if item.get("start_date"):
                 item["start_date"] = str(item["start_date"])
             if item.get("end_date"):
                 item["end_date"] = str(item["end_date"])
             results.append(item)
-        
-        cur.close()
-        conn.close()
         
         return json.dumps({
             "type": "popup_sql_lookup",
@@ -105,32 +121,14 @@ def popup_sql_lookup(
         }, ensure_ascii=False)
 
 
-@tool("popup_sql_lookup_async")
-async def popup_sql_lookup_async(
-    name: Optional[str] = None,
-    category: Optional[str] = None,
-    limit: int = 5,
-) -> str:
-    """
-    (Async) 정형 DB에서 팝업/이벤트 정보를 조회한다.
-    정확한 날짜, 시간, 상태 정보가 필요할 때 사용.
-    """
-    import asyncio
-    loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(
-        None,
-        lambda: popup_sql_lookup.invoke({"name": name, "category": category, "limit": limit})
-    )
-
-
-@tool("zone_sql_lookup")
-def zone_sql_lookup(
+@tool("zone_sql_lookup_async")
+async def zone_sql_lookup_async(
     name: Optional[str] = None,
     region: Optional[str] = None,
     limit: int = 5,
 ) -> str:
     """
-    정형 DB에서 존/상권 정보를 조회한다.
+    정형 DB에서 존/상권 정보를 비동기로 조회한다.
     존 위치, 대여 가능 여부, 셀 정보가 필요할 때 사용.
     
     Args:
@@ -142,8 +140,7 @@ def zone_sql_lookup(
         JSON 형식의 존 정보 목록
     """
     try:
-        conn = _get_db_connection()
-        cur = conn.cursor()
+        pool = await get_pool()
         
         # 기본 쿼리
         query = """
@@ -161,29 +158,29 @@ def zone_sql_lookup(
             WHERE za.status = 'AVAILABLE'
         """
         params: List[Any] = []
+        param_idx = 1
         
         if name:
-            query += " AND za.name ILIKE %s"
+            query += f" AND za.name ILIKE ${param_idx}"
             params.append(f"%{name}%")
+            param_idx += 1
         
         if region:
-            query += " AND r.name ILIKE %s"
+            query += f" AND r.name ILIKE ${param_idx}"
             params.append(f"%{region}%")
+            param_idx += 1
         
         query += " GROUP BY za.id, za.name, za.status, za.max_capacity, za.notice, r.name"
-        query += " ORDER BY za.name LIMIT %s"
+        query += f" ORDER BY za.name LIMIT ${param_idx}"
         params.append(limit)
         
-        cur.execute(query, params)
-        columns = [desc[0] for desc in cur.description]
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(query, *params)
+        
         results = []
-        
-        for row in cur.fetchall():
-            item = dict(zip(columns, row))
+        for row in rows:
+            item = dict(row)
             results.append(item)
-        
-        cur.close()
-        conn.close()
         
         return json.dumps({
             "type": "zone_sql_lookup",
@@ -201,28 +198,9 @@ def zone_sql_lookup(
         }, ensure_ascii=False)
 
 
-@tool("zone_sql_lookup_async")
-async def zone_sql_lookup_async(
-    name: Optional[str] = None,
-    region: Optional[str] = None,
-    limit: int = 5,
-) -> str:
-    """
-    (Async) 정형 DB에서 존/상권 정보를 조회한다.
-    존 위치, 대여 가능 여부, 셀 정보가 필요할 때 사용.
-    """
-    import asyncio
-    loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(
-        None,
-        lambda: zone_sql_lookup.invoke({"name": name, "region": region, "limit": limit})
-    )
-
-
 __all__ = [
-    "popup_sql_lookup",
+    "get_pool",
+    "close_pool",
     "popup_sql_lookup_async",
-    "zone_sql_lookup",
     "zone_sql_lookup_async",
 ]
-

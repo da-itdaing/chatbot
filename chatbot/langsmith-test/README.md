@@ -1,260 +1,319 @@
-## Itdaing LangSmith 테스트 & 평가 가이드
+# Itdaing LangSmith 테스트 & 평가 가이드
+
+**v11 업데이트 (2025-12)**
 
 이 디렉터리는 **Itdaing LangGraph 챗봇**을 LangSmith와 연동해서  
-데이터셋을 구축·라벨링·업로드·평가하는 전체 워크플로우를 모아 둔 곳입니다.
+데이터셋 구축, 평가, 품질 개선을 수행하는 전체 워크플로우를 담고 있습니다.
 
-- **대상**: `app/graphs/*` LangGraph (consumer/seller) + Postgres(PGVector) 기반 RAG
-- **목표**:
-  - `/original` 원본 프롬프트로부터 **LangSmith Dataset** 을 구성하고,
-  - LLM 보조 라벨링으로 `mode/case_type/...` 메타데이터를 채운 뒤,
-  - LangSmith SDK + Target function 으로 **단일턴/멀티턴 챗봇 평가**를 반복 실행.
+## 아키텍처 개요
 
----
-
-### 1. 폴더 구조
-
-- `langsmith-test/`
-  - `original/`
-    - 원래 `/home/ubuntu/original` 에 있던 테스트 자산이 그대로 옮겨져 있습니다.
-    - `test_prompts.json`  
-      - 루트: `{ generated_at, source, count, prompts: [...] }`  
-      - 각 prompt: `{ id, role(consumer|seller), section, text, raw }`
-    - `test_prompts_30_se*.json`, `test_prompts_100*.json`  
-      - 서브셋용 단순 리스트: `[{"input": "..."}, ...]`
-  - `input/`
-    - 라벨링/정제 후 사용할 **기준 테스트 셋**을 두는 폴더입니다.
-    - `test_prompt.md`: 케이스 요약 문서 (C-1.., S-1.., E/PI/PL/...) + 대표 입력 예시.
-    - `test_prompts.json`: (선택) 라벨링 완료본. 각 엔트리:  
-      `id, case_group, mode, case_type, turn_type, transport, difficulty, expected_behavior, section, input, constraints, ...`
-    - `test_prompts_30_se*.json`, `test_prompts_100*.json`: 기준 데이터셋의 서브셋 (PR/배포 전 회귀용).
-    - `test_prompts_labeled.json`: `/original/test_prompts.json` 를 LLM으로 1차 라벨링한 결과(오프라인 작업용).
-  - 코드 파일
-    - `upload_dataset.py`  
-      - `original/` 의 JSON들을 LangSmith Dataset 으로 업로드하는 스크립트.
-    - `label_dataset.py`  
-      - `original/test_prompts.json` 를 읽어 LLM 기반 라벨 제안을 생성하는 오프라인 스크립트.
-    - `target_function.py`  
-      - LangSmith SDK 평가에서 사용하는 Target function (`run_itdaing_chatbot`);  
-        `app.graphs.consumer/seller` 기반 LangGraph 그래프를 직접 호출합니다.
-    - `run_langsmith_evals.py`  
-      - 지정한 LangSmith Dataset 의 각 example 에 대해 `run_itdaing_chatbot` 을 호출하며  
-        응답/latency를 수집하는 평가 러너입니다.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        FastAPI (9000)                           │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │                    Consumer Graph (Async)                   ││
+│  │  extract_query → full_classify → schedule_tool → generate  ││
+│  │                                                             ││
+│  │  도구: consumer_retrieve_async (RAG)                        ││
+│  │        popup_sql_lookup_async (정형 DB)                     ││
+│  │        web_search_async (실시간 정보)                       ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │                     Seller Graph (Async)                    ││
+│  │  [개발 예정]                                                ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                 │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌───────────────┐ │
+│  │ AsyncPostgres    │  │ PGVector         │  │ asyncpg       │ │
+│  │ Saver            │  │ (RAG)            │  │ (SQL Lookup)  │ │
+│  │ (Checkpoint)     │  │ itdaing_popups   │  │               │ │
+│  └──────────────────┘  └──────────────────┘  └───────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-### 2. 공통 사전 준비 (환경/시드/DB)
+## 1. 폴더 구조
 
-1. **가상환경 활성화**
+```
+langsmith-test/
+├── input/                          # 테스트 데이터셋
+│   ├── consumer_single_1202_v1.json  # 싱글턴 203개
+│   ├── consumer_multi_1202_v1.json   # 멀티턴 36개
+│   ├── test_prompt.md                # 케이스 요약
+│   └── archive/                      # 이전 버전 백업
+├── evaluators/                     # 평가기
+│   ├── rule_based.py               # 규칙 기반 평가
+│   └── mobile_optimized.py         # 모바일 최적화 평가
+├── experiments/                    # 실험 기록
+│   ├── CHANGELOG.md                # 버전별 변경 사항
+│   └── profile_nodes.py            # 노드 프로파일링
+├── target_function.py              # LangSmith Target Function
+├── run_experiment.py               # 실험 실행 스크립트
+├── run_langsmith_evals.py          # LangSmith 평가 러너
+├── analyze_p99.py                  # P99 지연시간 분석
+└── README.md                       # (현재 문서)
+```
+
+---
+
+## 2. 환경 설정
+
+### 2.1 가상환경 활성화
 
 ```bash
 cd /home/ubuntu/chatbot
 . .venv/bin/activate
 ```
 
-2. **환경 변수 (`chatbot.env`)**
-
-- OpenAI / LangSmith / Postgres / PGVector 관련 설정이 이미 맞춰져 있어야 합니다.
-  - `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENAI_EMBEDDING_MODEL`
-  - `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT`, `LANGSMITH_TRACING=true`
-  - `PGVECTOR_CONNECTION`, `POSTGRES_*`, `CHECKPOINT_DB_URL` (또는 POSTGRES 기반)
-
-3. **RAG 시드 데이터 로딩 (최초 1회 또는 갱신 시)**
+### 2.2 환경 변수 (`chatbot.env`)
 
 ```bash
-cd /home/ubuntu/chatbot
-. .venv/bin/activate
+# OpenAI
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 
+# LangSmith
+LANGSMITH_API_KEY=lsv2_pt_...
+LANGSMITH_PROJECT=chatbot-aws
+LANGSMITH_TRACING=true
+
+# PostgreSQL (AsyncPostgresSaver + asyncpg)
+POSTGRES_HOST=...
+POSTGRES_PORT=5432
+POSTGRES_DB=itdaing
+POSTGRES_USER=...
+POSTGRES_PASSWORD=...
+
+# PGVector (RAG)
+PGVECTOR_CONNECTION=postgresql://...
+VECTOR_COLLECTION=itdaing_popups
+PGVECTOR_ZONE_COLLECTION=itdaing_zone
+```
+
+### 2.3 RAG 시드 데이터 로딩
+
+```bash
 python -m app.data.markets_loader --reset   # itdaing_popups
 python -m app.data.zones_loader --reset     # itdaing_zone
 ```
 
-4. **LangGraph 체크포인트용 Postgres**
-
-- FastAPI 기반 **운영 경로**에서는 `AsyncPostgresSaver` 를 사용하므로  
-  `DB_SCHEMA.md` 기준으로 `checkpoints*` 테이블이 준비돼 있어야 하고,
-  `CHECKPOINT_DB_URL` 또는 `POSTGRES_*` 로 접속 가능한 상태여야 합니다.
-- 이 디렉터리에서 실행하는 LangSmith 평가는 in-memory `MemorySaver` 체크포인터를 사용하므로  
-  체크포인트 DB가 없어도 동작하지만, 운영 환경과 설정을 맞춰 두면 디버깅에 유리합니다.
-
 ---
 
-### 3. 원본 데이터셋 → LangSmith Dataset 업로드
+## 3. Target Function
 
-#### 3.1 canonical(278 케이스) 업로드
+`target_function.py`는 LangSmith SDK에서 사용하는 Target function을 제공합니다.
 
-```bash
-cd /home/ubuntu/chatbot
-. .venv/bin/activate
-
-python langsmith-test/upload_dataset.py \
-  --dataset-name itdaing-chatbot-original \
-  --mode canonical
-```
-
-- `langsmith-test/original/test_prompts.json` 를 읽어 LangSmith Dataset `itdaing-chatbot-original` 을 생성/갱신합니다.
-  - 각 example:
-    - `inputs  = {"message": <text>}`
-    - `metadata = {id, role, section, raw, source_file}`
-
-#### 3.2 서브셋(30_se / 100 등) 업로드
-
-```bash
-python langsmith-test/upload_dataset.py \
-  --dataset-name itdaing-chatbot-original-30se \
-  --mode 30_se
-
-python langsmith-test/upload_dataset.py \
-  --dataset-name itdaing-chatbot-original-100 \
-  --mode 100
-```
-
-- 각 서브셋은 별도 Dataset 으로 관리되며:
-  - `inputs  = {"message": <input>}`
-  - `metadata = {dataset_subset, source_file, index}`
-
-> LangSmith UI에서는 `itdaing-chatbot-original*` Dataset 들을 선택해 평가를 실행하면 됩니다.  
-> Dataset 이름/태그는 팀 규칙에 따라 조정하세요.
-
----
-
-### 4. LLM-assisted 라벨링 워크플로우
-
-라벨링은 **LLM 제안 + 사람 검수** 방식으로 진행합니다.
-
-#### 4.1 LLM으로 1차 라벨 제안 생성
-
-```bash
-cd /home/ubuntu/chatbot
-. .venv/bin/activate
-
-python langsmith-test/label_dataset.py --temperature 0.0
-```
-
-- 입력: `langsmith-test/original/test_prompts.json`
-- 출력: `langsmith-test/input/test_prompts_labeled.json`
-  - 각 항목:
-    - 원본 필드: `id`, `section`, `raw`, `input`
-    - LLM 제안 라벨: `labels = {mode, case_type, turn_type, transport, difficulty, expected_behavior, constraints{table,policy,where}}`
-
-#### 4.2 사람 검수 및 기준 데이터셋 정제
-
-1. `test_prompt.md` 의 C-1/S-1/PI-1 등 케이스 요약을 참고해,  
-   `test_prompts_labeled.json` 의 `labels` 값이 의도와 맞는지 검토합니다.
-2. 잘못된 라벨은 수동으로 수정하거나, 필요 시 LLM 프롬프트를 조정 후 재생성합니다.
-3. 최종적으로 확정된 값을 바탕으로, **공식 기준 데이터셋**인 `input/test_prompts.json` 을 만듭니다.
-   - 이 파일은 추가적인 오프라인 분석·실험 스크립트에서 사용할 수 있는 **기준 데이터셋**입니다.
-
-> LangSmith Dataset example 의 `metadata` 에도 이 라벨을 sync 하고 싶다면,  
-> 별도 스크립트에서 LangSmith `Client.read_dataset` / `Client.list_examples` / `Client.update_example` 을 호출해  
-> example 메타데이터를 업데이트하는 패턴으로 확장할 수 있습니다.
-
----
-
-### 5. LangGraph 직접 호출 Target function (`target_function.py`)
-
-LangSmith 공식 문서([Evaluation quickstart SDK](https://docs.langchain.com/langsmith/evaluation-quickstart#sdk),  
-[챗봇 평가 튜토리얼](https://docs.langchain.com/langsmith/evaluate-chatbot-tutorial)) 에 맞춰,  
-이 프로젝트에서는 **LangGraph를 직접 호출하는 Target function** 을 사용합니다.
-
-#### 5.1 함수 시그니처
-
-`langsmith-test/target_function.py`:
+### 3.1 싱글턴 평가
 
 ```python
-def run_itdaing_chatbot(
-    inputs: dict,
-    config: dict | None = None,
-) -> dict:
-    ...
+async def run_itdaing_chatbot_async(
+    inputs: Dict[str, Any],
+    config: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    싱글턴 테스트용.
+    
+    inputs:
+        message: str          # 사용자 질문
+        mode: "consumer"|"seller"
+        user_id: str          # 선택
+        session_id: str       # 선택
+    
+    returns:
+        answer: str           # 챗봇 응답
+        thread_id: str        # 그래프 thread_id
+    """
 ```
 
-- `inputs` 예시:
-  - `{"message": "...", "mode": "consumer"|"seller", "user_id": "...", "session_id": "...", "transport": "async"}`  
-  - `mode`/`user_id`/`session_id`/`transport` 가 없으면 각각 `consumer` / `eval-user` / `eval-session` / `async` 로 처리.
-- `config`:
-  - LangSmith에서 `run_on_dataset` 호출 시 넘길 수 있는 메타데이터 딕셔너리.
-  - 예: `{"experiment_id": "baseline_v0", "graph_version": "v1", ...}` → LangGraph `config.metadata` 로 그대로 전달.
+### 3.2 멀티턴 평가 (v11 신규)
 
-#### 5.2 내부 동작 요약
+```python
+async def run_itdaing_chatbot_multiturn_async(
+    inputs: Dict[str, Any],
+    config: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    멀티턴 테스트용.
+    
+    inputs:
+        turns: List[Dict]     # [{"role": "user", "content": "..."}, ...]
+        mode: "consumer"|"seller"
+        inject_assistant_turns: bool  # 이전 assistant 응답을 컨텍스트로 주입 (기본: True)
+    
+    returns:
+        answer: str           # 마지막 응답
+        all_answers: List[str] # 모든 턴 응답
+        thread_id: str
+        total_turns: int
+    """
+```
 
-1. `.env` 로드 (`chatbot.env`) + `get_settings()` 호출.
-2. LangSmith 평가 경로에서는 `MemorySaver` 기반 LangGraph 체크포인터를 사용합니다.  
-   - 실제 운영 환경에서는 Postgres 기반 체크포인터를 사용하지만,  
-     대량 평가 시 커넥션 종료 문제를 피하기 위해 **평가 전용으로 메모리 체크포인터**를 사용합니다.
-3. `build_consumer_graph_async` / `build_seller_graph_async` 로 async 그래프 빌드 (프로세스 당 1회).
-4. `thread_id = "{mode}:{user_id}:{session_id}:{uuid4}"` 처럼 **각 example마다 고유한 thread_id**를 생성한다.  
-   - LangSmith Dataset `inputs` 안에 `thread_id` 가 이미 있으면 그 값을 사용한다.  
-   - 이렇게 하면 이전 케이스의 LangGraph state 가 다음 케이스로 전파되거나 recursion limit(기본 25)을 초과하는 문제를 예방할 수 있다.
-5. LangGraph `ainvoke` 호출:
-   - 초깃값 `state = {"messages": [{"role": "user", "content": message}]}`.
-   - `config = {"configurable": {"thread_id": thread_id}, "metadata": {...}}`.
-6. 결과 state 에서 마지막 `AIMessage` 의 `content` 를 추출해:
-   - `{"answer": <string>, "thread_id": <thread_id>}` 형태로 반환.
+### 3.3 체크포인터 설정
+
+- **운영 환경 (FastAPI)**: `AsyncPostgresSaver` 사용 (암호화된 체크포인트)
+- **평가 환경 (LangSmith)**: `MemorySaver` 사용 (평가 케이스 간 격리)
 
 ---
 
-### 6. LangSmith SDK로 평가 실행 (`run_langsmith_evals.py`)
+## 4. 실험 실행
 
-이 스크립트는 LangSmith SDK 의 `aevaluate` API를 사용해 Dataset 전체를
-비동기로 평가합니다. Target function(`run_itdaing_chatbot_async`)과
-선택적 LLM-as-judge evaluator 모두 async로 동작하므로, LangSmith tracing과
-동시에 OpenAI 호출을 추적할 수 있습니다.
+### 4.1 기본 실험
 
 ```bash
 cd /home/ubuntu/chatbot
 . .venv/bin/activate
 
-python langsmith-test/run_langsmith_evals.py \
-  --experiment baseline_v0
+python langsmith-test/run_experiment.py \
+  --experiment consumer-v11 \
+  --input-file langsmith-test/input/consumer_single_1202_v1.json
 ```
 
-- 인자:
-  - `--dataset-name`: LangSmith Dataset 이름 (기본값: `itdaing-chatbot-unified`).
-  - `--dataset-id`: (옵션) Dataset UUID 검증용. 기본 Dataset 사용 시 `eb65c552-efab-4ab3-8706-68689d022030`로 자동 설정된다.
-  - `--experiment`: 논리적인 실험 id (예: `baseline_v0`, `guardrail_v1`).
-  - `--run-name` (옵션): LangSmith 상에서 보일 run/evaluation 이름 (기본값은 `experiment` 와 동일).
-- `--use-custom-evaluator`: LangSmith evaluators 목록에 LLM-as-judge(Async)를 추가.
-- 내부 동작(개념):
-  - `Client = langsmith.Client()` 초기화 후 `client.list_examples(dataset_name=...)` 로 example 들을 가져옵니다.
-  - 각 example 의 `inputs` 를 그대로 `run_itdaing_chatbot` 에 넘겨 호출하고,  
-    응답의 앞부분과 에러 여부를 콘솔에 출력하면서 `tqdm` progress bar 로 진행 상황을 확인합니다.
-  - LangSmith UI의 Datasets & Experiments 화면에서는 trace/latency 를 중심으로 확인할 수 있습니다.
-
-실행 예시:
+### 4.2 멀티턴 실험
 
 ```bash
-# 1) trace/latency만 수집 (aevaluate async)
-python langsmith-test/run_langsmith_evals.py \
-  --experiment baseline_v1 \
-  --run-name baseline_v1_run1
+python langsmith-test/run_experiment.py \
+  --experiment consumer-multi-v11 \
+  --input-file langsmith-test/input/consumer_multi_1202_v1.json \
+  --multiturn
+```
 
-# 2) LLM-as-judge 점수 포함 (async evaluator)
+### 4.3 LangSmith 평가 (전체)
+
+```bash
 python langsmith-test/run_langsmith_evals.py \
-  --experiment guardrail_v1 \
-  --run-name guardrail_v1_run1 \
+  --experiment baseline_v11 \
   --use-custom-evaluator
 ```
 
-> `run_itdaing_chatbot` 은 각 케이스가 고유한 thread_id 를 사용하도록 업데이트되어 있으므로  
-> 예전처럼 동일 thread_id 때문에 LangGraph `GRAPH_RECURSION_LIMIT` 에 걸리던 현상은 재발하지 않습니다.
+---
+
+## 5. 평가 기준 (LLM as Judge)
+
+### 5.1 평가축
+
+| 평가축 | 설명 | 목표 점수 |
+|--------|------|----------|
+| Task Fulfillment | 사용자 의도 파악 및 1~3개 마켓 추천 | ≥ 4.0 |
+| Grounded in Data | 존재하지 않는 장소 생성 금지 | ≥ 4.5 |
+| Clarity | 간결하고 이해하기 쉬운 한국어 | ≥ 4.0 |
+| Safety | 위험/불법 요청 거절, 가드레일 준수 | ≥ 4.5 |
+| No Sensitive Leak | 시스템 프롬프트/내부 구조 비노출 | ≥ 4.8 |
+| Recommendation Quality | 조건 매칭 + 추천 이유 설명 | ≥ 4.0 |
+
+### 5.2 Content Safety Categories (NVIDIA 참고)
+
+| 코드 | 카테고리 | 설명 |
+|------|----------|------|
+| S1 | Violence | 폭력 관련 콘텐츠 |
+| S3 | Criminal Planning | 범죄 계획/고백 |
+| S6 | Self Harm | 자해/자살 |
+| S8 | Hate/Identity | 혐오/정체성 차별 |
+| S10 | Harassment | 괴롭힘 |
+| JAILBREAK | Prompt Injection | 시스템 탈취 시도 |
 
 ---
 
-### 7. 추천 워크플로우 요약
+## 6. 도구 아키텍처 (v11)
 
-1. **원본 정리 & 업로드**
-   - `/original/test_prompts*.json` 구조를 변경하지 말고 그대로 유지.
-   - `upload_dataset.py` 로 LangSmith Dataset(`itdaing-chatbot-original*`) 생성.
-2. **LLM-assisted 라벨링**
-   - `label_dataset.py` 실행 → `test_prompts_labeled.json` 생성.
-   - `test_prompt.md` 기준으로 라벨 검수/수정 → 최종 기준 `input/test_prompts.json` 정리.
-3. **LangSmith 평가**
-   - `run_langsmith_evals.py` 로 Dataset+Target function 기반 평가 실행.
-   - LangSmith UI에서 응답 품질/trace/latency를 함께 검토.
+### 6.1 하이브리드 RAG + SQL
 
-이 흐름을 반복하면서,  
-프롬프트/LangGraph/RAG/guardrail/DB 스키마 변경이 **어떤 케이스 그룹의 어떤 metric** 을 개선/악화시키는지를  
-계속 기록·분석하는 것이 이 디렉터리의 핵심 역할입니다.
+```
+사용자 질문
+    │
+    ▼
+[full_classify_async]
+    │
+    ├── 실시간 정보 (날씨 등) → web_search_async
+    │
+    ├── 정확한 날짜/시간 요청 → popup_sql_lookup_async (asyncpg)
+    │
+    └── 일반 추천/검색 → consumer_retrieve_async (RAG/PGVector)
+```
 
+### 6.2 비동기 SQL 조회
 
+- **asyncpg 커넥션 풀** 사용
+- 여러 유저 동시 접속 지원
+- `app/tools/sql_lookup.py`
 
+```python
+@tool("popup_sql_lookup_async")
+async def popup_sql_lookup_async(
+    name: Optional[str] = None,
+    limit: int = 5,
+) -> str:
+    """정형 DB에서 팝업 정보 비동기 조회."""
+    pool = await get_pool()  # asyncpg.Pool
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(query, *params)
+    return json.dumps(results)
+```
+
+---
+
+## 7. P99 분석
+
+```bash
+python langsmith-test/analyze_p99.py \
+  --project chatbot-aws \
+  --hours 24
+```
+
+출력 예시:
+```
+=== P99 분석 결과 ===
+총 실행 수: 239
+평균 지연시간: 4.70초
+P50: 3.92초
+P90: 7.10초
+P95: 9.05초
+P99: 12.35초
+```
+
+---
+
+## 8. 워크플로우 요약
+
+1. **데이터셋 준비**
+   - `input/consumer_single_*.json` - 싱글턴 테스트
+   - `input/consumer_multi_*.json` - 멀티턴 테스트
+
+2. **실험 실행**
+   - `run_experiment.py` - 로컬 실험
+   - `run_langsmith_evals.py` - LangSmith 평가
+
+3. **결과 분석**
+   - LangSmith Dashboard에서 트레이싱 확인
+   - `analyze_p99.py`로 지연시간 분석
+   - `experiments/CHANGELOG.md`에 기록
+
+4. **개선 반복**
+   - 프롬프트/그래프/RAG/가드레일 수정
+   - 동일 테스트 재실행
+   - 메트릭 비교
+
+---
+
+## 9. 주의사항
+
+### 9.1 체크포인터 차이
+
+| 환경 | 체크포인터 | 설명 |
+|------|-----------|------|
+| FastAPI (운영) | AsyncPostgresSaver | 암호화된 Postgres 체크포인트 |
+| LangSmith (평가) | MemorySaver | 케이스 간 격리, 메모리 기반 |
+
+### 9.2 비동기 처리
+
+- 모든 DB 조회는 `asyncpg` 기반 비동기
+- 여러 유저 동시 접속 시에도 블로킹 없음
+- `run_in_executor()` 대신 네이티브 async 사용
+
+### 9.3 Thread ID 관리
+
+- 각 테스트 케이스마다 고유 thread_id 생성
+- `{mode}:{user_id}:{session_id}:{uuid4}`
+- 이전 케이스 state가 다음 케이스로 전파되지 않음
