@@ -35,6 +35,60 @@
 
 ## 실험 기록
 
+### 2025-12-02 v13: 2단계 캐싱 + 관리 API
+
+**주요 변경 사항**:
+
+1. **2단계 캐싱 시스템** (`app/tools/retrieval.py`)
+   - L1: 메모리 캐시 (빠름, 워커별)
+   - L2: PostgreSQL 캐시 (느리지만 워커 간 공유)
+   - `--workers 2` 환경에서도 캐시 히트율 유지
+
+2. **DB 캐시 모듈** (`app/utils/db_cache.py`)
+   - `rag_cache` 테이블 자동 생성
+   - asyncpg 기반 비동기 커넥션 풀
+   - TTL 기반 만료 + 히트 카운트 추적
+
+3. **관리자 API** (`app/routers/admin.py`)
+   - `GET /admin/cache/stats`: L1/L2/임베딩/응답 캐시 통계
+   - `POST /admin/cache/clear`: 캐시 초기화
+   - `POST /admin/cache/cleanup`: 만료된 캐시 정리
+   - `POST /admin/warmup`: 캐시 예열 (15개 기본 쿼리)
+   - `GET /admin/health/detailed`: 상세 헬스체크
+
+4. **DB 캐시 테이블 스키마**:
+```sql
+CREATE TABLE rag_cache (
+    cache_key VARCHAR(64) PRIMARY KEY,
+    cache_value JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    hit_count INTEGER DEFAULT 0
+);
+```
+
+**캐싱 효과 테스트**:
+
+| 호출 | 소요 시간 | 캐시 레벨 | 개선율 |
+|------|----------|----------|--------|
+| 1차 (미스) | 9.90초 | - | - |
+| 2차 (L2 히트) | 6.48초 | PostgreSQL | **-35%** |
+| 3차 (L1 히트) | 5.82초 | Memory | **-41%** |
+
+**운영 가이드**:
+```bash
+# 서버 시작 후 캐시 예열
+curl -X POST http://localhost:9000/admin/warmup
+
+# 캐시 통계 확인
+curl http://localhost:9000/admin/cache/stats
+
+# 만료된 캐시 정리 (주기적 cron 권장)
+curl -X POST http://localhost:9000/admin/cache/cleanup
+```
+
+---
+
 ### 2025-12-02 v12: 캐싱 최적화
 
 **주요 변경 사항**:
@@ -410,7 +464,8 @@ tool_executor                    0.71초 █░░░░░░░░░░░░
 | v9 컨텍스트 축소 | 3.92초 | 11.78초 | -73% | RAG 컨텍스트 500/2000 |
 | v10 멀티턴 최적화 | 3.97초 | **4.17초** | -73% | max_history 4, 증분 요약 |
 | v11 하이브리드 | - | - | - | RAG+SQL, 서비스 범위 확장 |
-| **v12 캐싱** | **6.03초** (캐시히트) | - | **-30%** | RAG 결과 캐싱, TTL 캐시 |
+| v12 캐싱 | 6.03초 (L1히트) | - | -30% | RAG 결과 캐싱, TTL 캐시 |
+| **v13 2단계캐싱** | **5.82초** (L1) / **6.48초** (L2) | - | **-41%** | L1 메모리 + L2 PostgreSQL |
 
 ---
 

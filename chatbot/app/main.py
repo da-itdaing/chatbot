@@ -8,7 +8,7 @@ from langgraph.checkpoint.serde.encrypted import EncryptedSerializer
 from app.config import ROOT_DIR, get_settings
 from app.graphs.consumer import build_consumer_graph, build_consumer_graph_async
 from app.graphs.seller import build_seller_graph, build_seller_graph_async
-from app.routers import chat_consumer, chat_seller
+from app.routers import chat_consumer, chat_seller, admin
 
 
 def create_app() -> FastAPI:
@@ -53,6 +53,7 @@ def create_app() -> FastAPI:
 
     app.include_router(chat_consumer.router)
     app.include_router(chat_seller.router)
+    app.include_router(admin.router)
 
     return app
 

@@ -20,10 +20,16 @@ from app.graphs.shared import (
 )
 from app.utils.search import WebSearchClient
 from app.utils.cache import TTLCache
+from app.utils.db_cache import (
+    get_from_db_cache,
+    set_to_db_cache,
+)
 
 logger = logging.getLogger(__name__)
 
 # RAG 결과 캐싱 (쿼리 → 검색 결과)
+# L1: 메모리 캐시 (빠름, 워커별)
+# L2: DB 캐시 (느리지만 워커 간 공유)
 _rag_cache = TTLCache(maxsize=500, ttl_seconds=1800)  # 30분 TTL
 
 
@@ -166,7 +172,13 @@ async def consumer_retrieve_async(
     query: str,
     structured_plan: Dict[str, Any] | None = None,
 ) -> str:
-    """(Async) 광주 플리마켓/팝업 정보를 찾는다. v12: RAG 결과 캐싱 적용."""
+    """
+    (Async) 광주 플리마켓/팝업 정보를 찾는다.
+    
+    v13: 2단계 캐싱 적용
+    - L1: 메모리 캐시 (빠름, 워커별)
+    - L2: DB 캐시 (느리지만 워커 간 공유)
+    """
     if not query.strip():
         return json.dumps(
             {"type": "consumer_retrieve", "query": query, "count": 0, "documents": []},
@@ -177,19 +189,43 @@ async def consumer_retrieve_async(
     plan_hash = hashlib.md5(json.dumps(structured_plan or {}, sort_keys=True).encode()).hexdigest()[:8]
     cache_key = _cache_key(query_clean, "consumer", plan_hash)
     
-    # 캐시 확인
+    # L1: 메모리 캐시 확인
     cached_docs = _get_cached_docs(cache_key)
     if cached_docs is not None:
-        logger.debug(f"RAG cache hit: {query_clean[:30]}...")
+        logger.debug(f"L1 cache hit: {query_clean[:30]}...")
         docs, extras, _ = _apply_structured_plan_arg(cached_docs, structured_plan)
-        extras["cache_hit"] = True
+        extras["cache_hit"] = "L1_memory"
         return _format_result(query, docs, "consumer_retrieve", extras)
+    
+    # L2: DB 캐시 확인
+    try:
+        db_cached = await get_from_db_cache(cache_key)
+        if db_cached is not None:
+            logger.debug(f"L2 cache hit: {query_clean[:30]}...")
+            # DB 캐시에서 가져온 데이터를 메모리 캐시에 저장 (L1 채우기)
+            _rag_cache.set(cache_key, db_cached)
+            cached_docs = [
+                Document(page_content=d["page_content"], metadata=d["metadata"])
+                for d in db_cached
+            ]
+            docs, extras, _ = _apply_structured_plan_arg(cached_docs, structured_plan)
+            extras["cache_hit"] = "L2_db"
+            return _format_result(query, docs, "consumer_retrieve", extras)
+    except Exception as e:
+        logger.warning(f"L2 cache read error: {e}")
     
     # 캐시 미스: RAG 검색 실행
     docs = await _consumer.arun(query_clean)
     
     # 캐싱 (structured_plan 적용 전 원본 문서)
-    _cache_docs(cache_key, docs)
+    serialized = _serialize_documents(docs)
+    _cache_docs(cache_key, docs)  # L1 캐싱
+    
+    # L2 캐싱 (비동기, 백그라운드)
+    try:
+        await set_to_db_cache(cache_key, serialized, ttl_seconds=1800)
+    except Exception as e:
+        logger.warning(f"L2 cache write error: {e}")
     
     docs, extras, _ = _apply_structured_plan_arg(docs, structured_plan)
     extras["cache_hit"] = False
@@ -217,7 +253,13 @@ async def seller_retrieve_async(
     query: str,
     structured_plan: Dict[str, Any] | None = None,
 ) -> str:
-    """(Async) 셀러 전용 존/상권 데이터를 찾는다. v12: RAG 결과 캐싱 적용."""
+    """
+    (Async) 셀러 전용 존/상권 데이터를 찾는다.
+    
+    v13: 2단계 캐싱 적용
+    - L1: 메모리 캐시 (빠름, 워커별)
+    - L2: DB 캐시 (느리지만 워커 간 공유)
+    """
     if not query.strip():
         return json.dumps(
             {"type": "seller_retrieve", "query": query, "count": 0, "documents": []},
@@ -228,19 +270,41 @@ async def seller_retrieve_async(
     plan_hash = hashlib.md5(json.dumps(structured_plan or {}, sort_keys=True).encode()).hexdigest()[:8]
     cache_key = _cache_key(query_clean, "seller", plan_hash)
     
-    # 캐시 확인
+    # L1: 메모리 캐시 확인
     cached_docs = _get_cached_docs(cache_key)
     if cached_docs is not None:
-        logger.debug(f"RAG cache hit: {query_clean[:30]}...")
+        logger.debug(f"L1 cache hit: {query_clean[:30]}...")
         docs, extras, _ = _apply_structured_plan_arg(cached_docs, structured_plan)
-        extras["cache_hit"] = True
+        extras["cache_hit"] = "L1_memory"
         return _format_result(query, docs, "seller_retrieve", extras)
+    
+    # L2: DB 캐시 확인
+    try:
+        db_cached = await get_from_db_cache(cache_key)
+        if db_cached is not None:
+            logger.debug(f"L2 cache hit: {query_clean[:30]}...")
+            _rag_cache.set(cache_key, db_cached)
+            cached_docs = [
+                Document(page_content=d["page_content"], metadata=d["metadata"])
+                for d in db_cached
+            ]
+            docs, extras, _ = _apply_structured_plan_arg(cached_docs, structured_plan)
+            extras["cache_hit"] = "L2_db"
+            return _format_result(query, docs, "seller_retrieve", extras)
+    except Exception as e:
+        logger.warning(f"L2 cache read error: {e}")
     
     # 캐시 미스: RAG 검색 실행
     docs = await _seller.arun(query_clean)
     
     # 캐싱
-    _cache_docs(cache_key, docs)
+    serialized = _serialize_documents(docs)
+    _cache_docs(cache_key, docs)  # L1
+    
+    try:
+        await set_to_db_cache(cache_key, serialized, ttl_seconds=1800)  # L2
+    except Exception as e:
+        logger.warning(f"L2 cache write error: {e}")
     
     docs, extras, _ = _apply_structured_plan_arg(docs, structured_plan)
     extras["cache_hit"] = False
