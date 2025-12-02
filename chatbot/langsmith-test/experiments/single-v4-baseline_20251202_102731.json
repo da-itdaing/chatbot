@@ -1,0 +1,12 @@
+{
+  "experiment_prefix": "single-v4-baseline",
+  "timestamp": "20251202_102731",
+  "num_repeats": 1,
+  "dataset_name": "consumer-single-v4",
+  "is_multiturn": false,
+  "runs": [
+    {
+      "error": "[Errno 32] Broken pipe"
+    }
+  ]
+}
