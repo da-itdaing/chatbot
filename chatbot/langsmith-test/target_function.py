@@ -249,9 +249,15 @@ async def run_itdaing_chatbot_multiturn_async(
     for turn_idx, turn in enumerate(turns):
         # turn이 dict이고 'content' 키가 있으면 사용, 아니면 문자열 그대로 사용
         if isinstance(turn, dict):
+            role = turn.get("role", "user")
             content = turn.get("content", "")
         else:
+            role = "user"
             content = str(turn)
+        
+        # assistant 턴은 건너뜀 (이미 이전 응답에 포함됨)
+        if role == "assistant":
+            continue
         
         if not content:
             continue

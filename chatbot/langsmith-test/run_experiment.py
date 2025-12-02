@@ -23,8 +23,7 @@ CHATBOT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(CHATBOT_ROOT))
 
 from dotenv import load_dotenv
-from langsmith import Client
-from langsmith.evaluation import aevaluate, EvaluationResult, EvaluationResults
+from langsmith.evaluation import aevaluate
 
 # Load environment
 load_dotenv(CHATBOT_ROOT / "chatbot.env")
@@ -203,11 +202,11 @@ async def run_single_experiment(
     results = await aevaluate(
         target_fn,
         data=dataset_name,
-        evaluators=[llm_judge_evaluator, latency_evaluator],
+        evaluators=[llm_judge_evaluator, latency_evaluator],  # type: ignore[arg-type]
         experiment_prefix=experiment_name,
         max_concurrency=max_concurrency,
     )
-    
+
     elapsed = time.time() - start_time
     
     return {
