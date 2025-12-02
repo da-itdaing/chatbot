@@ -116,7 +116,7 @@ def render_fallback_message(code: str, detail: str | None = None) -> str:
     # 톤: 친근하고 공감하며, 자연스럽게 서비스 범위로 유도
     templates = {
         # 서비스 범위
-        "OUT_OF_SCOPE_REGION": "아, 저는 광주 전문이라 다른 지역은 잘 몰라요 😅 혹시 광주 쪽에서 찾으시는 마켓이 있으면 도와드릴게요!",
+        "OUT_OF_SCOPE_REGION": "아, 저는 광주광역시 전문이라 다른 지역은 잘 몰라요 😅 혹시 광주광역시 쪽에서 찾으시는 마켓이 있으면 도와드릴게요!",
         "OUT_OF_SCOPE_TOPIC": "음, 그건 제 전문 분야가 아니라서요 🤔 대신 광주 플리마켓이나 팝업 정보가 필요하시면 언제든 물어봐 주세요!",
         "NOT_IMPLEMENTED": "앗, 아직 그 기능은 준비 중이에요! 조금 더 간단하게 '북구 플리마켓 추천해줘' 이런 식으로 물어봐 주시면 잘 도와드릴 수 있어요 😊",
         "INSUFFICIENT_DATA": "음, 조건이 좀 까다로워서 딱 맞는 곳을 찾기 어렵네요. 조건을 조금 바꿔보시거나, 제가 비슷한 분위기의 마켓을 추천해드릴까요?",
@@ -145,9 +145,10 @@ def classify_query_type(
 
     - greeting: 짧은 인사/감사/헤어짐 인사
     - bot_about: 챗봇/서비스 소개 질문
-    - out_of_scope: 명확히 서비스 범위 외 (타 지역, 날씨, GPU 등)
+    - out_of_scope_region: 명확히 서비스 범위 외 지역 (경기도 광주, 서울 등)
+    - out_of_scope_topic: 플리마켓과 무관한 주제 (GPU, 주식 등)
     - noise: 의미 없는 한 글자/이모지/기호 위주
-    - normal: 그 외 일반 질문
+    - normal: 그 외 일반 질문 (광주 = 광주광역시로 해석)
 
     LangGraph/LangChain 호출 전에 빠르게 필터링하기 위한 용도이며,
     LLM 기반 intent 분류기의 보조 신호로 사용한다.
@@ -215,9 +216,23 @@ def classify_query_type(
         if pattern in text:
             return "bot_about"
 
-    # 명확한 서비스 범위 외 (out_of_scope)
+    # === 경기도 광주 명확히 구분 ===
+    # "경기도 광주", "경기 광주", "경기광주" 등 명확한 경우만 out_of_scope
+    gyeonggi_gwangju_patterns = (
+        "경기도 광주", "경기 광주", "경기광주",
+        "광주시 경기", "광주시 성남", "광주시 이천",
+        "광주시 하남", "광주시 용인",  # 경기도 광주시 인접 지역
+    )
+    for pattern in gyeonggi_gwangju_patterns:
+        if pattern in text:
+            return "out_of_scope_region"
+    
+    # 경기도 언급 + 광주 → 경기도 광주시로 해석
+    if "경기" in text and "광주" in text:
+        return "out_of_scope_region"
+
     # 타 지역 (광주가 아닌 도시명이 포함되고 플리마켓 관련 키워드가 있을 때)
-    other_cities = ("서울", "부산", "대구", "인천", "대전", "울산", "제주", "경기", "수원", "성남")
+    other_cities = ("서울", "부산", "대구", "인천", "대전", "울산", "제주", "수원", "성남", "용인")
     market_keywords = ("플리마켓", "마켓", "팝업", "축제", "야시장", "추천")
     
     has_other_city = any(city in text for city in other_cities)
@@ -238,10 +253,7 @@ def classify_query_type(
         if topic in lowered:
             return "out_of_scope_topic"
     
-    # 날씨 질문은 플리마켓 방문과 관련될 수 있으므로 normal로 분류 (웹 검색으로 처리)
-    # "광주 날씨", "오늘 비 와?", "주말 날씨" 등
-
-    # 특정 구/플리마켓/존 등 의미 있는 한국어 단어가 포함되어 있으면 normal
+    # "광주", "광주시" 등은 모두 광주광역시로 해석 → normal로 처리
     return "normal"
 
 

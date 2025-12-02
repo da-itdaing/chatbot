@@ -1,0 +1,69 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment files (secrets)
+chatbot.env
+*.env
+!.env.example
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ===== 프로젝트 특화 제외 =====
+
+# 크롤링 데이터 (DB 관리용, 챗봇과 무관)
+data/images/
+data/scraped_events.json
+data/events_with_s3_images.json
+data/crawler_state.json
+
+# 크롤링 스크립트
+scripts/scrape_playgwangju.py
+scripts/daily_crawler.py
+scripts/daily-crawler.service
+scripts/download_and_upload_images.py
+scripts/sync_popup_to_db.py
+
+# 로그
+*.log
+logs/
+
+# 임시 파일
+*.tmp
+*.temp
+
