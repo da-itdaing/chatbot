@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
-from typing import Any, Dict, List, Sequence
+import logging
+from typing import Any, Dict, List, Optional, Sequence
 
 from langchain_core.documents import Document
 from langchain_core.tools import tool
@@ -17,6 +19,12 @@ from app.graphs.shared import (
     extend_with_web_results_async,
 )
 from app.utils.search import WebSearchClient
+from app.utils.cache import TTLCache
+
+logger = logging.getLogger(__name__)
+
+# RAG 결과 캐싱 (쿼리 → 검색 결과)
+_rag_cache = TTLCache(maxsize=500, ttl_seconds=1800)  # 30분 TTL
 
 
 def _serialize_documents(docs: Sequence[Document]) -> List[Dict[str, Any]]:
@@ -29,6 +37,28 @@ def _serialize_documents(docs: Sequence[Document]) -> List[Dict[str, Any]]:
             }
         )
     return serialized
+
+
+def _cache_key(query: str, mode: str, plan_hash: str = "") -> str:
+    """캐시 키 생성."""
+    return hashlib.md5(f"{mode}:{query}:{plan_hash}".encode()).hexdigest()
+
+
+def _get_cached_docs(key: str) -> Optional[List[Document]]:
+    """캐시된 문서 목록 반환."""
+    cached = _rag_cache.get(key)
+    if cached is None:
+        return None
+    # 역직렬화: dict → Document
+    return [
+        Document(page_content=d["page_content"], metadata=d["metadata"])
+        for d in cached
+    ]
+
+
+def _cache_docs(key: str, docs: Sequence[Document]) -> None:
+    """문서 목록 캐싱."""
+    _rag_cache.set(key, _serialize_documents(docs))
 
 
 class _ConsumerRetriever:
@@ -136,14 +166,33 @@ async def consumer_retrieve_async(
     query: str,
     structured_plan: Dict[str, Any] | None = None,
 ) -> str:
-    """(Async) 광주 플리마켓/팝업 정보를 찾는다."""
+    """(Async) 광주 플리마켓/팝업 정보를 찾는다. v12: RAG 결과 캐싱 적용."""
     if not query.strip():
         return json.dumps(
             {"type": "consumer_retrieve", "query": query, "count": 0, "documents": []},
             ensure_ascii=False,
         )
-    docs = await _consumer.arun(query.strip())
+    
+    query_clean = query.strip()
+    plan_hash = hashlib.md5(json.dumps(structured_plan or {}, sort_keys=True).encode()).hexdigest()[:8]
+    cache_key = _cache_key(query_clean, "consumer", plan_hash)
+    
+    # 캐시 확인
+    cached_docs = _get_cached_docs(cache_key)
+    if cached_docs is not None:
+        logger.debug(f"RAG cache hit: {query_clean[:30]}...")
+        docs, extras, _ = _apply_structured_plan_arg(cached_docs, structured_plan)
+        extras["cache_hit"] = True
+        return _format_result(query, docs, "consumer_retrieve", extras)
+    
+    # 캐시 미스: RAG 검색 실행
+    docs = await _consumer.arun(query_clean)
+    
+    # 캐싱 (structured_plan 적용 전 원본 문서)
+    _cache_docs(cache_key, docs)
+    
     docs, extras, _ = _apply_structured_plan_arg(docs, structured_plan)
+    extras["cache_hit"] = False
     return _format_result(query, docs, "consumer_retrieve", extras)
 
 
@@ -168,14 +217,33 @@ async def seller_retrieve_async(
     query: str,
     structured_plan: Dict[str, Any] | None = None,
 ) -> str:
-    """(Async) 셀러 전용 존/상권 데이터를 찾는다."""
+    """(Async) 셀러 전용 존/상권 데이터를 찾는다. v12: RAG 결과 캐싱 적용."""
     if not query.strip():
         return json.dumps(
             {"type": "seller_retrieve", "query": query, "count": 0, "documents": []},
             ensure_ascii=False,
         )
-    docs = await _seller.arun(query.strip())
+    
+    query_clean = query.strip()
+    plan_hash = hashlib.md5(json.dumps(structured_plan or {}, sort_keys=True).encode()).hexdigest()[:8]
+    cache_key = _cache_key(query_clean, "seller", plan_hash)
+    
+    # 캐시 확인
+    cached_docs = _get_cached_docs(cache_key)
+    if cached_docs is not None:
+        logger.debug(f"RAG cache hit: {query_clean[:30]}...")
+        docs, extras, _ = _apply_structured_plan_arg(cached_docs, structured_plan)
+        extras["cache_hit"] = True
+        return _format_result(query, docs, "seller_retrieve", extras)
+    
+    # 캐시 미스: RAG 검색 실행
+    docs = await _seller.arun(query_clean)
+    
+    # 캐싱
+    _cache_docs(cache_key, docs)
+    
     docs, extras, _ = _apply_structured_plan_arg(docs, structured_plan)
+    extras["cache_hit"] = False
     return _format_result(query, docs, "seller_retrieve", extras)
 
 
