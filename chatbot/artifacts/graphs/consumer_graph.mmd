@@ -6,9 +6,7 @@ config:
 graph TD;
 	__start__([<p>__start__</p>]):::first
 	extract_query(extract_query)
-	assess_feasibility(assess_feasibility)
-	case_classification(case_classification)
-	plan_structured_search(plan_structured_search)
+	full_classify(full_classify)
 	schedule_tool(schedule_tool)
 	consume_tool(consume_tool)
 	tool_executor(tool_executor)
@@ -21,18 +19,16 @@ graph TD;
 	truncate_messages(truncate_messages)
 	__end__([<p>__end__</p>]):::last
 	__start__ --> extract_query;
-	assess_feasibility -. &nbsp;general_answer&nbsp; .-> basic_generate;
-	assess_feasibility -. &nbsp;rag_answer&nbsp; .-> case_classification;
 	basic_generate --> format_answer;
-	case_classification --> plan_structured_search;
 	check_hallucination -. &nbsp;not hallucinated&nbsp; .-> format_answer;
 	check_hallucination -. &nbsp;hallucinated&nbsp; .-> rewrite;
 	consume_tool -. &nbsp;continue&nbsp; .-> generate;
 	consume_tool -. &nbsp;more_tools&nbsp; .-> schedule_tool;
-	extract_query --> assess_feasibility;
+	extract_query --> full_classify;
 	format_answer --> summarize_messages;
+	full_classify -. &nbsp;general_answer&nbsp; .-> basic_generate;
+	full_classify -. &nbsp;rag_answer&nbsp; .-> schedule_tool;
 	generate --> check_hallucination;
-	plan_structured_search --> schedule_tool;
 	rewrite --> schedule_tool;
 	schedule_tool -. &nbsp;resume&nbsp; .-> generate;
 	schedule_tool -. &nbsp;tools&nbsp; .-> tool_executor;
