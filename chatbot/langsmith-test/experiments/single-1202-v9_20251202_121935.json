@@ -1,0 +1,14 @@
+{
+  "experiment_prefix": "single-1202-v9",
+  "timestamp": "20251202_121935",
+  "num_repeats": 1,
+  "dataset_name": "consumer-single-1202-v1",
+  "is_multiturn": false,
+  "runs": [
+    {
+      "experiment_name": "single-1202-v9_run1_20251202_121935",
+      "elapsed_seconds": 796.5338544845581,
+      "results": "<AsyncExperimentResults single-1202-v9_run1_20251202_121935-ee89bc62>"
+    }
+  ]
+}
