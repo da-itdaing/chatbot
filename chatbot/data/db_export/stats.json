@@ -1,0 +1,61 @@
+{
+  "exported_at": "2025-12-02T18:50:12.386865",
+  "counts": {
+    "zone_area": 36,
+    "zone_cell": 137,
+    "popup": 197,
+    "popup_image": 89
+  },
+  "by_district": {
+    "동구": {
+      "areas": 10,
+      "cells": 26,
+      "popups": 85
+    },
+    "서구": {
+      "areas": 6,
+      "cells": 27,
+      "popups": 26
+    },
+    "남구": {
+      "areas": 5,
+      "cells": 29,
+      "popups": 29
+    },
+    "북구": {
+      "areas": 5,
+      "cells": 28,
+      "popups": 31
+    },
+    "광산구": {
+      "areas": 5,
+      "cells": 27,
+      "popups": 26
+    },
+    "region_31": {
+      "areas": 1,
+      "cells": 0,
+      "popups": 0
+    },
+    "region_32": {
+      "areas": 1,
+      "cells": 0,
+      "popups": 0
+    },
+    "region_33": {
+      "areas": 1,
+      "cells": 0,
+      "popups": 0
+    },
+    "region_34": {
+      "areas": 1,
+      "cells": 0,
+      "popups": 0
+    },
+    "region_35": {
+      "areas": 1,
+      "cells": 0,
+      "popups": 0
+    }
+  }
+}

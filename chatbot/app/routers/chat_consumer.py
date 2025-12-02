@@ -309,7 +309,7 @@ async def chat_consumer_async_stream(
         first_token_sent = False
         final_answer: Optional[str] = None
         final_recommendations: Optional[List[Dict[str, Any]]] = None
-        
+
         # generate 노드에서만 스트리밍
         STREAMING_NODES = {"generate", "basic_generate"}
         
@@ -364,14 +364,14 @@ async def chat_consumer_async_stream(
                     "recommendations": final_recommendations or [],
                 }
                 yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
-            elif final_recommendations:
+        elif final_recommendations:
                 # 스트리밍 후 recommendations만 전송
                 payload_dict = {
-                    "thread_id": thread_id,
-                    "recommendations": final_recommendations,
-                }
-                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
-                
+                "thread_id": thread_id,
+                "recommendations": final_recommendations,
+            }
+            yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+
         except Exception as e:
             logger.error(f"[chat_consumer_async_stream] Error: {e}")
             error_payload = {
