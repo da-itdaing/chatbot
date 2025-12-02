@@ -67,3 +67,14 @@ logs/
 *.tmp
 *.temp
 
+# 실험 결과 (LangSmith에서 확인 가능)
+langsmith-test/experiments/*.log
+langsmith-test/experiments/*.json
+langsmith-test/experiments/analysis/
+
+# 아카이브된 데이터셋
+langsmith-test/input/archive/
+
+# 생성된 그래프 이미지 (mmd로 재생성 가능)
+artifacts/graphs/*.png
+

@@ -359,4 +359,49 @@ location /ai/ {
 - LangSmith 대시보드에서 프로젝트 이름으로 검색하면,  
   각 `/api/chat/...` 호출에 대응되는 LangGraph 실행 trace를 확인할 수 있습니다.
 
+---
+
+### 성능 최적화 현황 (2025-12-02 v9)
+
+| 지표 | v1 Baseline | v9 현재 | 개선율 |
+|------|-------------|---------|--------|
+| **싱글턴 Latency** | 17.56초 | **3.92초** | **-78%** |
+| **멀티턴 Latency** | N/A | **4.70초** | - |
+| **P99 (싱글턴)** | N/A | **3.92초** | - |
+| **Error Rate** | 0% | **0%** | - |
+| **Quality Score** | N/A | **4.29/5.0** | - |
+
+#### 주요 최적화 내역
+
+1. **LLM 호출 최적화**: 6회 → 2회 (노드 병합)
+2. **RAG 컨텍스트 축소**: 3000자 → 2000자
+3. **응답 토큰 제한**: 256 토큰
+4. **휴리스틱 빠른 경로**: 인사/범위외 질문 즉시 응답
+
+자세한 내용은 `langsmith-test/experiments/CHANGELOG.md` 참조.
+
+---
+
+### 테스트 실행
+
+```bash
+cd /home/ubuntu/chatbot
+. .venv/bin/activate
+
+# 싱글턴 테스트 (203개 케이스)
+python langsmith-test/run_experiment.py \
+  --dataset consumer-single-1202-v1 \
+  --experiment single-test \
+  --repeats 1
+
+# 멀티턴 테스트 (36개 케이스)
+python langsmith-test/run_experiment.py \
+  --dataset consumer-multi-1202-v1 \
+  --experiment multi-test \
+  --repeats 1 \
+  --multiturn
+
+# P99 분석
+python langsmith-test/analyze_p99.py --experiment single-test
+```
 
