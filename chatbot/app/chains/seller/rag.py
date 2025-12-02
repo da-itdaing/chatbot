@@ -20,10 +20,16 @@ def build_seller_rag_chain(settings: Optional[Settings] = None) -> Runnable:
     def _api_key_provider() -> str:
         return cfg.openai_api_key
 
-    llm = ChatOpenAI(
-        model=cfg.openai_model,
+    # NOTE:
+    # Runtime ChatOpenAI __init__ signature(printed via inspect) supports
+    # model / temperature / api_key / max_completion_tokens. Some type
+    # checkers ship older stubs that don't know these keyword names, so we
+    # explicitly ignore call-arg type errors here.
+    llm = ChatOpenAI(  # type: ignore[call-arg]
+        model=cfg.openai_rag_model or cfg.openai_model,
         temperature=0,
         api_key=_api_key_provider,
+        max_completion_tokens=cfg.rag_max_completion_tokens,
     )
 
     return SELLER_RAG_PROMPT | llm

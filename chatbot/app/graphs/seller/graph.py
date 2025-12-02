@@ -12,17 +12,25 @@ from app.tools import (
 
 from .nodes import (
     AgentState,
+    analyze_zone_performance,
     basic_generate,
     basic_generate_async,
     case_classification,
     case_classification_async,
+    assess_feasibility,
+    assess_feasibility_async,
     check_hallucination,
     check_hallucination_async,
+    check_allowed_categories,
+    check_allowed_categories_async,
+    classify_intent_node,
     extract_user_query,
     format_answer_message,
     generate,
     generate_async,
     hallucination_router,
+    plan_structured_search,
+    plan_structured_search_async,
     schedule_seller_tool,
     schedule_seller_tool_async,
     seller_tool_router,
@@ -48,10 +56,15 @@ def build_seller_graph(checkpointer=None):
     tool_node = ToolNode([seller_retrieve, web_search])
 
     graph_builder.add_node("extract_query", extract_user_query)
+    graph_builder.add_node("classify_intent", classify_intent_node)
+    graph_builder.add_node("assess_feasibility", assess_feasibility)
     graph_builder.add_node("case_classification", case_classification)
+    graph_builder.add_node("plan_structured_search", plan_structured_search)
     graph_builder.add_node("schedule_tool", schedule_seller_tool)
     graph_builder.add_node("consume_tool", consume_seller_tool_result)
     graph_builder.add_node("tool_executor", tool_node)
+    graph_builder.add_node("analyze_zone_performance", analyze_zone_performance)
+    graph_builder.add_node("check_allowed_categories", check_allowed_categories)
     graph_builder.add_node("generate", generate)
     graph_builder.add_node("check_hallucination", check_hallucination)
     graph_builder.add_node("rewrite", rewrite)
@@ -61,15 +74,18 @@ def build_seller_graph(checkpointer=None):
     graph_builder.add_node("truncate_messages", truncate_messages)
 
     graph_builder.add_edge(START, "extract_query")
+    graph_builder.add_edge("extract_query", "classify_intent")
+    graph_builder.add_edge("classify_intent", "assess_feasibility")
     graph_builder.add_conditional_edges(
-        "extract_query",
+        "assess_feasibility",
         router,
         {
             "rag_answer": "case_classification",
             "general_answer": "basic_generate",
         },
     )
-    graph_builder.add_edge("case_classification", "schedule_tool")
+    graph_builder.add_edge("case_classification", "plan_structured_search")
+    graph_builder.add_edge("plan_structured_search", "schedule_tool")
     graph_builder.add_conditional_edges(
         "schedule_tool",
         seller_tool_router,
@@ -84,9 +100,11 @@ def build_seller_graph(checkpointer=None):
         seller_tool_followup_router,
         {
             "more_tools": "schedule_tool",
-            "continue": "generate",
+            "continue": "analyze_zone_performance",
         },
     )
+    graph_builder.add_edge("analyze_zone_performance", "check_allowed_categories")
+    graph_builder.add_edge("check_allowed_categories", "generate")
     graph_builder.add_edge("generate", "check_hallucination")
     graph_builder.add_conditional_edges(
         "check_hallucination",
@@ -114,10 +132,15 @@ def build_seller_graph_async(checkpointer=None):
     tool_node = ToolNode([seller_retrieve_async, web_search_async])
 
     graph_builder.add_node("extract_query", extract_user_query)
+    graph_builder.add_node("classify_intent", classify_intent_node)
+    graph_builder.add_node("assess_feasibility", assess_feasibility_async)
     graph_builder.add_node("case_classification", case_classification_async)
+    graph_builder.add_node("plan_structured_search", plan_structured_search_async)
     graph_builder.add_node("schedule_tool", schedule_seller_tool_async)
     graph_builder.add_node("consume_tool", consume_seller_tool_result)
     graph_builder.add_node("tool_executor", tool_node)
+    graph_builder.add_node("analyze_zone_performance", analyze_zone_performance)
+    graph_builder.add_node("check_allowed_categories", check_allowed_categories_async)
     graph_builder.add_node("generate", generate_async)
     graph_builder.add_node("check_hallucination", check_hallucination_async)
     graph_builder.add_node("rewrite", rewrite_async)
@@ -127,15 +150,18 @@ def build_seller_graph_async(checkpointer=None):
     graph_builder.add_node("truncate_messages", truncate_messages)
 
     graph_builder.add_edge(START, "extract_query")
+    graph_builder.add_edge("extract_query", "classify_intent")
+    graph_builder.add_edge("classify_intent", "assess_feasibility")
     graph_builder.add_conditional_edges(
-        "extract_query",
+        "assess_feasibility",
         router_async,
         {
             "rag_answer": "case_classification",
             "general_answer": "basic_generate",
         },
     )
-    graph_builder.add_edge("case_classification", "schedule_tool")
+    graph_builder.add_edge("case_classification", "plan_structured_search")
+    graph_builder.add_edge("plan_structured_search", "schedule_tool")
     graph_builder.add_conditional_edges(
         "schedule_tool",
         seller_tool_router,
@@ -150,9 +176,11 @@ def build_seller_graph_async(checkpointer=None):
         seller_tool_followup_router,
         {
             "more_tools": "schedule_tool",
-            "continue": "generate",
+            "continue": "analyze_zone_performance",
         },
     )
+    graph_builder.add_edge("analyze_zone_performance", "check_allowed_categories")
+    graph_builder.add_edge("check_allowed_categories", "generate")
     graph_builder.add_edge("generate", "check_hallucination")
     graph_builder.add_conditional_edges(
         "check_hallucination",

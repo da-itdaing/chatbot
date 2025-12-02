@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 from typing import Any, AsyncGenerator, Dict, List, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, ToolMessage
 
 
 router = APIRouter(prefix="/api/chat/consumer", tags=["consumer-chat"])
@@ -32,6 +33,7 @@ class ChatConsumerRequest(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     thread_id: str
+    recommendations: Optional[List[Dict[str, Any]]] = None
 
 
 class ErrorResponse(BaseModel):
@@ -40,17 +42,48 @@ class ErrorResponse(BaseModel):
     code: str = Field(..., description="클라이언트 로깅/분류용 내부 코드 (예: REQ_001)")
 
 
+def _coerce_content(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        parts: List[str] = []
+        for item in value:
+            if isinstance(item, str):
+                parts.append(item)
+            elif isinstance(item, dict):
+                text = item.get("text")
+                if isinstance(text, str):
+                    parts.append(text)
+                else:
+                    parts.append(str(item))
+            else:
+                parts.append(str(item))
+        return "\n".join(parts)
+    return str(value)
+
+
 def _extract_answer(messages: List[Any]) -> str:
-    if not messages:
-        return ""
-    last = messages[-1]
-    if isinstance(last, AIMessage):
-        content = last.content
-    elif isinstance(last, dict) and last.get("role") == "assistant":
-        content = last.get("content", "")
-    else:
-        content = getattr(last, "content", "")
-    return content if isinstance(content, str) else str(content)
+    for message in reversed(messages or []):
+        if isinstance(message, ToolMessage):
+            continue
+        if isinstance(message, AIMessage):
+            if message.tool_calls:
+                continue
+            content = message.content
+        elif isinstance(message, dict):
+            role = message.get("role")
+            if role == "tool":
+                continue
+            if message.get("tool_calls"):
+                continue
+            content = message.get("content", "")
+        else:
+            content = getattr(message, "content", "")
+
+        text = _coerce_content(content).strip()
+        if text:
+            return text
+    return ""
 
 
 def _build_thread_id(prefix: str, payload: ChatConsumerRequest) -> str:
@@ -116,8 +149,13 @@ async def chat_consumer(request: Request, payload: ChatConsumerRequest) -> ChatR
     state = _initial_state(payload.message)
     result = await graph.ainvoke(state, config=config)
     answer = _extract_answer(result.get("messages", []))
+    recommendations = result.get("recommendations")
 
-    return ChatResponse(answer=answer, thread_id=thread_id)
+    return ChatResponse(
+        answer=answer,
+        thread_id=thread_id,
+        recommendations=recommendations,
+    )
 
 
 @router.post(
@@ -211,7 +249,8 @@ async def chat_consumer_async(
 
     result = await graph.ainvoke(state, config=config)
     answer = _extract_answer(result.get("messages", []))
-    return ChatResponse(answer=answer, thread_id=thread_id)
+    recommendations = result.get("recommendations")
+    return ChatResponse(answer=answer, thread_id=thread_id, recommendations=recommendations)
 
 
 @router.post(
@@ -256,22 +295,58 @@ async def chat_consumer_async_stream(
     state = _initial_state(payload.message)
 
     async def event_stream() -> AsyncGenerator[bytes, None]:
-        previous = ""
+        """
+        LangGraph async 그래프에서 answer가 갱신될 때마다 diff를 받아,
+        작은 조각으로 잘라 여러 번 내려보냄으로써 토큰 스트리밍에 가까운 UX를 제공한다.
+        
+        멀티턴 대화에서 이전 턴의 answer가 다시 스트리밍되지 않도록,
+        마지막으로 생성된 answer만 스트리밍한다.
+        """
+
+        CHUNK_SIZE = 20
+        recommendations_sent = False
+        final_answer = ""
+        final_recommendations = None
+
+        # 먼저 전체 스트림을 소비하여 최종 answer를 얻음
         async for chunk in graph.astream(state, config=config, stream_mode="values"):
             if not isinstance(chunk, dict):
                 continue
-            messages = chunk.get("messages", [])
-            delta_text = _extract_answer(messages)
-            if not delta_text:
-                continue
-            if previous and delta_text.startswith(previous):
-                new_part = delta_text[len(previous) :]
-            else:
-                new_part = delta_text
-            previous = delta_text
-            if not new_part.strip():
-                continue
-            payload_dict = {"delta": new_part, "thread_id": thread_id}
+
+            chunk_recommendations = chunk.get("recommendations")
+            if isinstance(chunk_recommendations, list) and len(chunk_recommendations) > 0:
+                final_recommendations = chunk_recommendations
+
+            chunk_answer = chunk.get("answer")
+            if isinstance(chunk_answer, str) and chunk_answer.strip():
+                final_answer = chunk_answer.strip()
+
+        # 최종 answer를 청크 단위로 스트리밍
+        if final_answer:
+            text_chunks = [
+                final_answer[i : i + CHUNK_SIZE]
+                for i in range(0, len(final_answer), CHUNK_SIZE)
+            ]
+
+            for idx, piece in enumerate(text_chunks):
+                payload_dict: Dict[str, Any] = {"thread_id": thread_id}
+                if piece.strip():
+                    payload_dict["delta"] = piece
+                # 첫 청크에 추천 결과 포함 (없으면 빈 배열로 이전 추천 초기화)
+                if idx == 0 and not recommendations_sent:
+                    payload_dict["recommendations"] = final_recommendations if final_recommendations else []
+                    recommendations_sent = True
+
+                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode(
+                    "utf-8"
+                )
+                await asyncio.sleep(0)
+        elif final_recommendations:
+            # answer 없이 recommendations만 있는 경우
+            payload_dict: Dict[str, Any] = {
+                "thread_id": thread_id,
+                "recommendations": final_recommendations,
+            }
             yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
 
     return StreamingResponse(event_stream(), media_type="application/json")

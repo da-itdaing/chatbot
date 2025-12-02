@@ -20,10 +20,17 @@ def build_consumer_rag_chain(settings: Optional[Settings] = None) -> Runnable:
     def _api_key_provider() -> str:
         return cfg.openai_api_key
 
-    llm = ChatOpenAI(
-        model=cfg.openai_model,
+    # NOTE:
+    # ChatOpenAI의 실제 __init__ 시그니처는 model / temperature / api_key /
+    # max_completion_tokens를 모두 지원하지만, 일부 타입 스텁은 이를
+    # 모르는 경우가 있어 call-arg 에러를 무시한다.
+    llm = ChatOpenAI(  # type: ignore[call-arg]
+        # 별도 RAG 모델이 지정되어 있으면 우선 사용하고, 없으면 기본 대화 모델 사용
+        model=cfg.openai_rag_model or cfg.openai_model,
         temperature=0,
         api_key=_api_key_provider,
+        # LangChain OpenAI Chat에서는 max_completion_tokens가 completion 길이 상한으로 사용된다.
+        max_completion_tokens=cfg.rag_max_completion_tokens,
     )
 
     return CONSUMER_RAG_PROMPT | llm

@@ -42,6 +42,8 @@ def _record_to_document(record: dict) -> Document:
 
     We keep the text fairly rich so that RAG answers have enough grounding,
     but avoid overly verbose, repeated boilerplate.
+    
+    2025-11 업데이트: 운영시간, 가격대, 이벤트 날짜, 검색 태그 등 증강 필드 추가
     """
 
     market_id = record.get("market_id", "")
@@ -53,13 +55,24 @@ def _record_to_document(record: dict) -> Document:
     rating = record.get("market_rating")
     locations: list[dict] = record.get("market_location", []) or []
 
-    # Take first location as primary
+    # Take first location as primary (legacy format) or use direct fields
     primary_loc = locations[0] if locations else {}
-    address = primary_loc.get("address", "")
-    distance_km = primary_loc.get("distance_km")
-    zone_id = primary_loc.get("zone_id")
-    lat = primary_loc.get("lat")
-    lon = primary_loc.get("lon")
+    address = record.get("address") or primary_loc.get("address", "")
+    distance_km = record.get("distance_km") or primary_loc.get("distance_km")
+    zone_id = record.get("zone_id") or primary_loc.get("zone_id")
+    lat = record.get("lat") or record.get("latitude") or primary_loc.get("latitude") or primary_loc.get("lat")
+    lon = record.get("lon") or record.get("longitude") or primary_loc.get("longitude") or primary_loc.get("lon")
+
+    # 증강 필드들
+    operating_hours = record.get("operating_hours", {})
+    operating_days = record.get("operating_days", [])
+    price_range = record.get("price_range", "")
+    event_dates = record.get("event_dates", [])
+    event_type = record.get("event_type", "")
+    search_tags = record.get("search_tags", [])
+    contact_info = record.get("contact_info", {})
+    sns_links = record.get("sns_links", {})
+    facility_details = record.get("facility_details", {})
 
     text_lines: List[str] = []
     text_lines.append(f"[마켓 이름] {name}")
@@ -70,15 +83,49 @@ def _record_to_document(record: dict) -> Document:
         text_lines.append(f"[편의시설] {', '.join(map(str, amenities))}")
     if address:
         text_lines.append(f"[주소] {address}")
+    
+    # 운영 정보 추가
+    if operating_hours:
+        weekday = operating_hours.get("weekday", "")
+        weekend = operating_hours.get("weekend", "")
+        if weekday or weekend:
+            hours_str = f"평일 {weekday}" if weekday else ""
+            if weekend:
+                hours_str += f", 주말 {weekend}" if hours_str else f"주말 {weekend}"
+            text_lines.append(f"[운영시간] {hours_str}")
+    
+    if operating_days:
+        text_lines.append(f"[운영요일] {', '.join(operating_days)}")
+    
+    if price_range:
+        text_lines.append(f"[가격대] {price_range}")
+    
+    # 이벤트/개최 일정 (플리마켓의 경우)
+    if event_dates:
+        upcoming = [e for e in event_dates[:3]]  # 최근 3개만
+        if upcoming:
+            dates_str = ", ".join([f"{e.get('date', '')}({e.get('day_of_week', '')})" for e in upcoming])
+            text_lines.append(f"[개최일정] {dates_str}")
+        if event_type:
+            text_lines.append(f"[개최유형] {'정기' if event_type == 'regular' else '비정기'}")
+    
     if distance_km is not None:
         text_lines.append(f"[기준 지점으로부터 거리(km)] {distance_km}")
     if rating is not None:
         text_lines.append(f"[평점(5점 만점)] {rating}")
+    
+    # 검색 태그 추가 (검색 정확도 향상)
+    if search_tags:
+        text_lines.append(f"[검색키워드] {', '.join(search_tags[:10])}")
+    
     text_lines.append("")  # spacer
     text_lines.append("[상세 설명]")
     text_lines.append(desc)
 
     page_content = "\n".join(text_lines).strip()
+
+    # 이미지 URL
+    image_url = record.get("image_url", "")
 
     metadata = {
         "market_id": market_id,
@@ -92,6 +139,15 @@ def _record_to_document(record: dict) -> Document:
         "lat": lat,
         "lon": lon,
         "distance_km": distance_km,
+        # 증강 메타데이터
+        "operating_hours": operating_hours,
+        "operating_days": operating_days,
+        "price_range": price_range,
+        "event_type": event_type,
+        "search_tags": search_tags,
+        "contact_phone": contact_info.get("phone", ""),
+        "instagram": sns_links.get("instagram", ""),
+        "image_url": image_url,
     }
     return Document(page_content=page_content, metadata=metadata)
 

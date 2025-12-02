@@ -43,6 +43,8 @@ class AgentState(MessagesState):
     force_hallucination_check: NotRequired[bool]
     policy_notes: NotRequired[str]
     rewrite_count: NotRequired[int]  # rewrite 루프 횟수 제한용
+    is_realtime_query: NotRequired[bool]  # 날씨/실시간 정보 질문 여부
+    is_gwangju_general: NotRequired[bool]  # 광주 일반 질문 (관광지 등)
 
 
 __all__ = ["AgentState"]

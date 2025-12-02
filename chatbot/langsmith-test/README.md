@@ -182,7 +182,9 @@ def run_itdaing_chatbot(
    - 실제 운영 환경에서는 Postgres 기반 체크포인터를 사용하지만,  
      대량 평가 시 커넥션 종료 문제를 피하기 위해 **평가 전용으로 메모리 체크포인터**를 사용합니다.
 3. `build_consumer_graph_async` / `build_seller_graph_async` 로 async 그래프 빌드 (프로세스 당 1회).
-4. `thread_id = "{mode}:{user_id}:{session_id}"` 로 설정.
+4. `thread_id = "{mode}:{user_id}:{session_id}:{uuid4}"` 처럼 **각 example마다 고유한 thread_id**를 생성한다.  
+   - LangSmith Dataset `inputs` 안에 `thread_id` 가 이미 있으면 그 값을 사용한다.  
+   - 이렇게 하면 이전 케이스의 LangGraph state 가 다음 케이스로 전파되거나 recursion limit(기본 25)을 초과하는 문제를 예방할 수 있다.
 5. LangGraph `ainvoke` 호출:
    - 초깃값 `state = {"messages": [{"role": "user", "content": message}]}`.
    - `config = {"configurable": {"thread_id": thread_id}, "metadata": {...}}`.
@@ -193,32 +195,48 @@ def run_itdaing_chatbot(
 
 ### 6. LangSmith SDK로 평가 실행 (`run_langsmith_evals.py`)
 
-이 스크립트는 LangSmith SDK 로 Dataset example 들을 순회하면서  
-각 example 에 대해 Target function 을 호출하는 형태로 챗봇을 평가합니다.
+이 스크립트는 LangSmith SDK 의 `aevaluate` API를 사용해 Dataset 전체를
+비동기로 평가합니다. Target function(`run_itdaing_chatbot_async`)과
+선택적 LLM-as-judge evaluator 모두 async로 동작하므로, LangSmith tracing과
+동시에 OpenAI 호출을 추적할 수 있습니다.
 
 ```bash
 cd /home/ubuntu/chatbot
 . .venv/bin/activate
 
 python langsmith-test/run_langsmith_evals.py \
-  --dataset-name itdaing-chatbot-original \
   --experiment baseline_v0
 ```
 
 - 인자:
-  - `--dataset-name`: LangSmith Dataset 이름 (예: `itdaing-chatbot-original`).
+  - `--dataset-name`: LangSmith Dataset 이름 (기본값: `itdaing-chatbot-unified`).
+  - `--dataset-id`: (옵션) Dataset UUID 검증용. 기본 Dataset 사용 시 `eb65c552-efab-4ab3-8706-68689d022030`로 자동 설정된다.
   - `--experiment`: 논리적인 실험 id (예: `baseline_v0`, `guardrail_v1`).
   - `--run-name` (옵션): LangSmith 상에서 보일 run/evaluation 이름 (기본값은 `experiment` 와 동일).
-  - `--use-custom-evaluator` (옵션): 추후 커스텀 LLM-as-judge evaluator를 붙일 때 사용.
+- `--use-custom-evaluator`: LangSmith evaluators 목록에 LLM-as-judge(Async)를 추가.
 - 내부 동작(개념):
   - `Client = langsmith.Client()` 초기화 후 `client.list_examples(dataset_name=...)` 로 example 들을 가져옵니다.
   - 각 example 의 `inputs` 를 그대로 `run_itdaing_chatbot` 에 넘겨 호출하고,  
     응답의 앞부분과 에러 여부를 콘솔에 출력하면서 `tqdm` progress bar 로 진행 상황을 확인합니다.
   - LangSmith UI의 Datasets & Experiments 화면에서는 trace/latency 를 중심으로 확인할 수 있습니다.
 
-> Evaluator(LLM-as-judge)는 아직 붙이지 않았으며,  
-> 우선은 **정성적인 trace/응답 품질 확인 + latency 관찰** 용도로 사용할 수 있습니다.  
-> 이후 LangSmith criteria/custom evaluator 를 붙여 metric 까지 연동하는 것이 자연스러운 다음 단계입니다.
+실행 예시:
+
+```bash
+# 1) trace/latency만 수집 (aevaluate async)
+python langsmith-test/run_langsmith_evals.py \
+  --experiment baseline_v1 \
+  --run-name baseline_v1_run1
+
+# 2) LLM-as-judge 점수 포함 (async evaluator)
+python langsmith-test/run_langsmith_evals.py \
+  --experiment guardrail_v1 \
+  --run-name guardrail_v1_run1 \
+  --use-custom-evaluator
+```
+
+> `run_itdaing_chatbot` 은 각 케이스가 고유한 thread_id 를 사용하도록 업데이트되어 있으므로  
+> 예전처럼 동일 thread_id 때문에 LangGraph `GRAPH_RECURSION_LIMIT` 에 걸리던 현상은 재발하지 않습니다.
 
 ---
 

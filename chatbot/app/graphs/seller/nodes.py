@@ -9,7 +9,7 @@ Seller-facing LangGraph nodes and helpers.
 
 import json
 import uuid
-from typing import Any, Dict, List, Literal, Sequence, cast
+from typing import Any, Dict, List, Literal, Optional, Sequence, cast
 
 from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, BaseMessage, RemoveMessage, ToolMessage
@@ -23,16 +23,31 @@ from langchain_openai import ChatOpenAI
 
 from app.chains.seller import build_seller_rag_chain
 from app.config import get_settings
-from app.graphs.shared import format_messages, latest_user_message
+from app.graphs.shared import (
+    IntentDecision,
+    StructuredRetrievalPlan,
+    clean_answer_text,
+    detect_policy_violation,
+    format_messages,
+    latest_user_message,
+    render_fallback_message,
+)
+from app.graphs.shared.utils import classify_query_type
 
 
 settings = get_settings()
+
+# RAG 컨텍스트 길이 상한: 셀러 존 설명도 과도하게 길어지지 않도록 제한한다.
+ZONE_CONTEXT_DOC_MAX_CHARS = 800
+ZONE_CONTEXT_TOTAL_MAX_CHARS = 3000
 
 def _llm(temperature: float = 0.0) -> ChatOpenAI:
     def _api_key_provider() -> str:
         return settings.openai_api_key
 
-    return ChatOpenAI(
+    # Runtime 시그니처는 model / temperature / api_key를 지원하지만,
+    # 타입 스텁이 오래된 경우 call-arg 오류가 날 수 있어 무시한다.
+    return ChatOpenAI(  # type: ignore[call-arg]
         model=settings.openai_model,
         temperature=temperature,
         api_key=_api_key_provider,
@@ -40,11 +55,15 @@ def _llm(temperature: float = 0.0) -> ChatOpenAI:
 
 
 router_llm = _llm(temperature=0)
+intent_llm = _llm(temperature=0)
 case_classification_llm = _llm(temperature=0)
 hallucination_llm = _llm(temperature=0)
 rewrite_llm = _llm(temperature=0)
 basic_llm = _llm(temperature=0.3)
 summary_llm = _llm(temperature=0)
+feasibility_llm = _llm(temperature=0)
+structured_plan_llm = _llm(temperature=0)
+policy_llm = _llm(temperature=0)
 rag_chain = build_seller_rag_chain(settings)
 
 
@@ -70,15 +89,46 @@ class AgentState(MessagesState):
     needs_web_search: NotRequired[bool]
     web_search_attempted: NotRequired[bool]
     last_tool_payload: NotRequired[Dict[str, Any]]
+    recommendations: NotRequired[List[Dict[str, Any]]]
+    structured_plan: NotRequired[Dict[str, Any]]
+    structured_plan_result: NotRequired[str]
+    entity_target: NotRequired[str | None]
+    intent: NotRequired[str]
+    # Lightweight intent label (예: greeting, chitchat, seller_query 등)
+    fallback_code: NotRequired[str | None]
+    fallback_detail: NotRequired[str | None]
+    risk_level: NotRequired[str | None]
+    force_hallucination_check: NotRequired[bool]
+    policy_notes: NotRequired[str]
+    analysis_notes: NotRequired[str]
+
+
+def _trim_text(text: str, max_chars: int) -> str:
+    """Safely trim long zone descriptions to avoid huge prompts."""
+
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars].rstrip() + "..."
 
 
 def _format_context(docs: Sequence[Document]) -> str:
     if not docs:
         return "(no documents)"
     parts: List[str] = []
+    total_chars = 0
     for idx, doc in enumerate(docs, start=1):
         title = doc.metadata.get("zone_name", f"Zone {idx}")
-        parts.append(f"## {title}\n{doc.page_content}")
+        raw_content = str(doc.page_content or "")
+        body = _trim_text(raw_content, ZONE_CONTEXT_DOC_MAX_CHARS)
+        chunk = f"## {title}\n{body}"
+        if total_chars + len(chunk) > ZONE_CONTEXT_TOTAL_MAX_CHARS:
+            remaining = max(ZONE_CONTEXT_TOTAL_MAX_CHARS - total_chars, 0)
+            if remaining > 0:
+                chunk = _trim_text(chunk, remaining)
+                parts.append(chunk)
+            break
+        parts.append(chunk)
+        total_chars += len(chunk)
     return "\n\n".join(parts)
 
 
@@ -106,18 +156,22 @@ def _get_answer_text(state: AgentState) -> str:
 def _build_tool_call_message(
     tool_name: str,
     query: str,
+    tool_args: Optional[Dict[str, Any]] = None,
 ) -> tuple[str, AIMessage]:
     call_id = f"{tool_name}-{uuid.uuid4().hex}"
     # LangChain v1 ToolCall 스키마(name/args)를 따른다.
     # 참고: https://docs.langchain.com/oss/python/langchain/overview
+    args: Dict[str, Any] = {"query": query}
+    if tool_args:
+        args.update(tool_args)
     tool_call = {
         "id": call_id,
         "type": "tool_call",
         "name": tool_name,
-        "args": {"query": query},
+        "args": args,
     }
     message = AIMessage(
-        content=f"{tool_name} 호출 준비",
+        content="",
         tool_calls=[tool_call],
     )
     return call_id, message
@@ -128,8 +182,9 @@ def _schedule_tool(
     *,
     tool_name: str,
     query: str,
+    tool_args: Optional[Dict[str, Any]] = None,
 ) -> AgentState:
-    call_id, ai_message = _build_tool_call_message(tool_name, query)
+    call_id, ai_message = _build_tool_call_message(tool_name, query, tool_args=tool_args)
     next_state: AgentState = {
         **state,
         "messages": [ai_message],
@@ -151,16 +206,40 @@ def _resolve_tool_query(state: AgentState, *, web_search: bool) -> str:
     return _get_query_for_search(state)
 
 
+def _structured_plan_args(state: AgentState) -> Dict[str, Any]:
+    plan = state.get("structured_plan")
+    if isinstance(plan, dict):
+        return {"structured_plan": plan}
+    return {}
+
+
+def _matches_category(allowed: Sequence[str], item: str) -> bool:
+    lowered_item = item.lower()
+    for category in allowed:
+        token = str(category).lower()
+        if not token:
+            continue
+        if lowered_item in token or token in lowered_item:
+            return True
+    return False
+
+
 def schedule_seller_tool(state: AgentState) -> AgentState:
     tool_name = "web_search" if state.get("needs_web_search") else "seller_retrieve"
     query = _resolve_tool_query(state, web_search=tool_name.startswith("web_search"))
-    return _schedule_tool(state, tool_name=tool_name, query=query)
+    tool_args = _structured_plan_args(state)
+    return _schedule_tool(
+        state, tool_name=tool_name, query=query, tool_args=tool_args or None
+    )
 
 
 def schedule_seller_tool_async(state: AgentState) -> AgentState:
     tool_name = "web_search_async" if state.get("needs_web_search") else "seller_retrieve_async"
     query = _resolve_tool_query(state, web_search=tool_name.startswith("web_search"))
-    return _schedule_tool(state, tool_name=tool_name, query=query)
+    tool_args = _structured_plan_args(state)
+    return _schedule_tool(
+        state, tool_name=tool_name, query=query, tool_args=tool_args or None
+    )
 
 
 def seller_tool_router(state: AgentState) -> Literal["tools", "resume"]:
@@ -205,6 +284,34 @@ def _documents_from_payload(payload: Dict[str, Any]) -> List[Document]:
     return documents
 
 
+def _build_zone_recommendations(documents: List[Document], limit: int = 3) -> List[Dict[str, Any]]:
+    recommendations: List[Dict[str, Any]] = []
+    for doc in documents:
+        metadata = doc.metadata or {}
+        zone_id = metadata.get("zone_id")
+        name = metadata.get("zone_name") or metadata.get("zone_id")
+        if not (zone_id or name):
+            continue
+        recommendations.append(
+            {
+                "type": "zone",
+                "zone_id": zone_id,
+                "name": name,
+                "address": metadata.get("address"),
+                "lat": metadata.get("lat"),
+                "lon": metadata.get("lon"),
+                "distance_km": metadata.get("distance_km"),
+                "category": metadata.get("zone_type"),
+                "style_tags": metadata.get("zone_style_tags"),
+                "allowed_categories": metadata.get("allowed_categories"),
+                "metadata": metadata,
+            }
+        )
+        if len(recommendations) >= limit:
+            break
+    return recommendations
+
+
 def consume_seller_tool_result(state: AgentState) -> AgentState:
     call_id = state.get("pending_tool_call_id")
     messages = state.get("messages", [])
@@ -238,6 +345,78 @@ def consume_seller_tool_result(state: AgentState) -> AgentState:
     if payload.get("type") == "web_search":
         next_state["web_search_attempted"] = True
 
+    plan_result = payload.get("structured_plan_result")
+    if plan_result:
+        next_state["structured_plan_result"] = plan_result
+
+    recs = _build_zone_recommendations(documents)
+    if recs:
+        next_state["recommendations"] = recs
+    else:
+        next_state.pop("recommendations", None)
+
+    return next_state
+
+
+def analyze_zone_performance(state: AgentState) -> AgentState:
+    docs = state.get("context", []) or []
+    if not docs:
+        return state
+    insights: List[str] = []
+    for doc in docs:
+        metadata = doc.metadata or {}
+        zone_name = metadata.get("zone_name") or metadata.get("zone_id") or "해당 존"
+        age_40 = metadata.get("age_ratio_40s_plus")
+        evening = metadata.get("evening_peak_score")
+        night = metadata.get("night_peak_score")
+        tag_count = metadata.get("tag_count")
+        if isinstance(age_40, (int, float)) and age_40 >= 0.5:
+            insights.append(f"{zone_name}: 40대 이상 비중 {int(age_40 * 100)}%")
+        if isinstance(evening, (int, float)) and evening >= 0.5:
+            insights.append(f"{zone_name}: 18시 이후 피크 타임 강함")
+        if isinstance(night, (int, float)) and night >= 0.5:
+            insights.append(f"{zone_name}: 야간 판매 수요가 높음")
+        if isinstance(tag_count, (int, float)) and tag_count <= 3:
+            insights.append(f"{zone_name}: 콘셉트 태그 {int(tag_count)}개로 집중도 높음")
+    if insights:
+        return {**state, "analysis_notes": "; ".join(insights)}
+    next_state: AgentState = dict(state)
+    next_state.pop("analysis_notes", None)
+    return next_state
+
+
+def check_allowed_categories(state: AgentState) -> AgentState:
+    docs = state.get("context", []) or []
+    if not docs:
+        return state
+    query = _get_query_for_reasoning(state)
+    assessment = cast(
+        AllowedCategoryRequest,
+        allowed_category_chain.invoke({"query": query}),
+    )
+    requested = [item for item in assessment.requested_items if item]
+    warnings: List[str] = []
+    for doc in docs:
+        metadata = doc.metadata or {}
+        allowed = [str(x) for x in metadata.get("allowed_categories") or []]
+        if requested and allowed:
+            conflicts = [
+                item for item in requested if not _matches_category(allowed, item)
+            ]
+            if conflicts:
+                zone_name = metadata.get("zone_name", "해당 존")
+                warnings.append(
+                    f"{zone_name}: {', '.join(conflicts)} 판매는 허용 범위인지 주최 측 확인 필요"
+                )
+        elif requested and not allowed:
+            zone_name = metadata.get("zone_name", "해당 존")
+            warnings.append(f"{zone_name}: 허용 업종 정보가 없어 주최 측 확인이 필요합니다.")
+    if assessment.risky_items:
+        warnings.append(f"추가 확인 필요 품목: {', '.join(assessment.risky_items)}")
+    if warnings:
+        return {**state, "policy_notes": " / ".join(warnings)}
+    next_state: AgentState = dict(state)
+    next_state.pop("policy_notes", None)
     return next_state
 
 
@@ -248,6 +427,24 @@ def seller_tool_followup_router(state: AgentState) -> Literal["more_tools", "con
 # ---------------------------------------------------------------------------
 # Router & prompts (seller tone preserved from bot4s)
 # ---------------------------------------------------------------------------
+
+
+class FeasibilityDecision(BaseModel):  # type: ignore[misc]
+    code: Literal[
+        "OK",
+        "OUT_OF_SCOPE_REGION",
+        "NOT_IMPLEMENTED",
+        "INSUFFICIENT_DATA",
+        "POLICY_RESTRICTED",
+    ] = "OK"
+    detail: str = ""
+    risk_level: Literal["low", "medium", "high"] = "low"
+
+
+class AllowedCategoryRequest(BaseModel):  # type: ignore[misc]
+    requested_items: List[str] = Field(default_factory=list)
+    risky_items: List[str] = Field(default_factory=list)
+    needs_warning: bool = False
 
 
 class Route(BaseModel):  # type: ignore[misc]
@@ -274,6 +471,78 @@ router_prompt = ChatPromptTemplate.from_messages(
 
 structured_router_llm = router_llm.with_structured_output(Route)
 router_chain = router_prompt | structured_router_llm
+
+
+feasibility_system_prompt = """
+당신은 광주 셀러 챗봇의 정책/기능 가드레일 평가자입니다.
+다음 코드 중 하나를 선택하세요.
+
+- OK: 정상 처리 가능
+- OUT_OF_SCOPE_REGION: 광주 외 지역이거나 셀러 서비스 범위 밖
+- NOT_IMPLEMENTED: 데이터 계산/정렬/통계 등 미구현 기능 요청
+- INSUFFICIENT_DATA: 보유 데이터가 부족해 신뢰도 있는 분석 불가
+- POLICY_RESTRICTED: 불법/편법/법규 위반 가능성이 있는 요청
+
+detail에는 짧은 이유를 한국어로 적고, risk_level은 low/medium/high 중 하나를 선택하세요.
+""".strip()
+
+feasibility_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", feasibility_system_prompt),
+        ("user", "이전 대화 요약:\n{summary}\n\n사용자 질문:\n{query}"),
+    ]
+)
+
+feasibility_chain = feasibility_prompt | feasibility_llm.with_structured_output(
+    FeasibilityDecision
+)
+
+
+SELLER_STRUCTURED_PLAN_SYSTEM_PROMPT = """
+당신은 광주 존 추천을 위한 structured planner입니다.
+
+Keyword fields:
+- zone_style_tags, allowed_categories, search_keywords, recommended_items_detail, zone_type.
+
+Numeric fields:
+- tag_count, latitude, longitude,
+- age_ratio_10s, age_ratio_20s, age_ratio_30s, age_ratio_40s_plus,
+- group_ratio_couple, group_ratio_family, group_ratio_friends, group_ratio_solo,
+- evening_peak_score, night_peak_score.
+
+Sort fields: latitude, longitude, age_ratio_40s_plus, tag_count.
+target_entity는 기본적으로 "zone"입니다.
+allow_broadening은 조건이 매우 명확한 경우에만 False로 설정하고,
+risk_level은 법규/안전/규제 관련 질문일 때 high로 설정하세요.
+""".strip()
+
+seller_structured_plan_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", SELLER_STRUCTURED_PLAN_SYSTEM_PROMPT),
+        ("user", "이전 대화 요약:\n{summary}\n\n사용자 질문:\n{query}"),
+    ]
+)
+
+seller_structured_plan_chain = (
+    seller_structured_plan_prompt
+    | structured_plan_llm.with_structured_output(StructuredRetrievalPlan)
+)
+
+
+allowed_category_prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "사용자가 판매하려는 품목/서비스를 추출해 requested_items에 적고, "
+            "위험하거나 허용 여부가 불확실한 품목은 risky_items에 추가하세요.",
+        ),
+        ("user", "{query}"),
+    ]
+)
+
+allowed_category_chain = allowed_category_prompt | policy_llm.with_structured_output(
+    AllowedCategoryRequest
+)
 
 
 class CaseClassification(BaseModel):  # type: ignore[misc]
@@ -353,8 +622,19 @@ rewrite_prompt = PromptTemplate.from_template(
 basic_system_prompt = """
 당신은 광주광역시 플리마켓 및 팝업스토어 셀러를 돕는 '잇다잉(Itdaing)'의 간단 응답용 챗봇입니다.
 
-질문이 광주 외 지역이거나, 과도한 요청이면 "지원되지 않는 서비스입니다." 한 문장만 답하세요.
-간단한 인사나 소개는 친근하고 유머러스하게, 그러나 짧게 답하세요.
+질문 유형별 응답 방향:
+
+1) **셀러/존 관련 일반 질문**:
+   → 가능한 범위에서 실무 팁과 체크리스트 중심으로 2~3문장 안에서 답하세요.
+
+2) **광주 외 지역/플랫폼 범위 밖 요청**:
+   → "잇다잉은 광주 플리마켓 셀러를 위한 서비스라 다른 지역은 자세히 안내하기 어려워요. 광주에서의 셀러 활동에 대해 물어봐 주시면 더 잘 도와드릴게요."
+
+3) **챗봇/서비스 소개 질문 (bot_about)**:
+   → "저는 광주광역시 플리마켓·팝업스토어 셀러분들을 위한 존 추천과 운영 가이드를 도와주는 잇다잉 챗봇이에요. 판매 품목이나 목표를 알려주시면 어울리는 존과 전략을 함께 고민해 드릴게요."
+
+4) **간단한 인사**:
+   → 친근하고 짧게 인사한 뒤, 어떤 셀러 고민을 돕고 있는지 한 문장으로 소개하세요.
 """.strip()
 
 basic_prompt = ChatPromptTemplate.from_messages(
@@ -387,7 +667,51 @@ def extract_user_query(state: AgentState) -> AgentState:
     return {**state, "query": latest_text.strip()}
 
 
+def classify_intent_node(state: AgentState) -> AgentState:
+    """
+    High-level intent classifier for seller chatbot.
+
+    - greeting/noise 는 휴리스틱으로 빠르게 처리
+    - 그 외에는 LLM 기반 IntentDecision 을 사용
+    """
+
+    summary = state.get("summary", "").strip() or "요약 없음"
+    query = state.get("query", "")
+    query_text = query if isinstance(query, str) else ""
+
+    qtype = classify_query_type(query_text)
+    if qtype == "greeting":
+        intent = "greeting"
+        normalized = query_text.strip()
+    elif qtype == "noise":
+        intent = "noise"
+        normalized = query_text.strip()
+    else:
+        decision = cast(
+            IntentDecision,
+            # 판매자 그래프에서는 seller_query 와 기타 intent 위주로 분류한다.
+            intent_llm.with_structured_output(IntentDecision).invoke(
+                {
+                    "summary": summary,
+                    "query": query_text,
+                }
+            ),
+        )
+        intent = decision.intent
+        normalized = decision.normalized_query.strip() or query_text.strip()
+
+    next_state: AgentState = {**state, "intent": intent}
+    if normalized and normalized != query_text:
+        next_state["query"] = normalized
+    return next_state
+
 def router(state: AgentState) -> Literal["rag_answer", "general_answer"]:
+    intent = state.get("intent")
+    if intent in {"greeting", "bot_about", "chitchat", "noise", "safety_violation"}:
+        return "general_answer"
+
+    if state.get("fallback_code"):
+        return "general_answer"
     summary = state.get("summary", "").strip() or "요약 없음"
     query = state.get("query", "")
     result = cast(
@@ -402,6 +726,58 @@ def router(state: AgentState) -> Literal["rag_answer", "general_answer"]:
     return result.target
 
 
+def assess_feasibility(state: AgentState) -> AgentState:
+    summary = state.get("summary", "").strip() or "요약 없음"
+    query = state.get("query", "")
+    query_text = query if isinstance(query, str) else str(query)
+
+    next_state: AgentState = {**state}
+
+    # 1) 초경량 휴리스틱: 인사/노이즈는 별도 처리
+    query_type = classify_query_type(query_text)
+    if query_type == "greeting":
+        next_state["intent"] = "greeting"
+        next_state.pop("fallback_code", None)
+        next_state.pop("fallback_detail", None)
+        next_state["risk_level"] = "low"
+        next_state.pop("force_hallucination_check", None)
+        return next_state
+
+    if query_type == "noise":
+        next_state["intent"] = "noise"
+        next_state["fallback_code"] = "INSUFFICIENT_DATA"
+        next_state["fallback_detail"] = "질문이 조금 모호해요. 플리마켓 셀러 관련해서 더 구체적으로 알려주세요."
+        next_state["risk_level"] = "low"
+        next_state.pop("force_hallucination_check", None)
+        return next_state
+
+    # 2) 정책 키워드 기반 가드레일
+    violation, code, detail = detect_policy_violation(query_text)
+    if violation and code:
+        next_state["intent"] = "safety_violation"
+        next_state["fallback_code"] = code
+        next_state["fallback_detail"] = detail
+        next_state["risk_level"] = "high"
+        next_state["force_hallucination_check"] = True
+        return next_state
+
+    # 3) LLM 기반 feasibility 평가
+    decision = cast(
+        FeasibilityDecision,
+        feasibility_chain.invoke({"summary": summary, "query": query_text}),
+    )
+    next_state["risk_level"] = decision.risk_level
+    if decision.risk_level == "high":
+        next_state["force_hallucination_check"] = True
+    if decision.code != "OK":
+        next_state["fallback_code"] = decision.code
+        next_state["fallback_detail"] = decision.detail
+    else:
+        next_state.pop("fallback_code", None)
+        next_state.pop("fallback_detail", None)
+    return next_state
+
+
 def case_classification(state: AgentState) -> AgentState:
     summary = state.get("summary", "").strip() or "요약 없음"
     query = _get_query_for_reasoning(state)
@@ -412,10 +788,42 @@ def case_classification(state: AgentState) -> AgentState:
     return {**state, "case": result.case, "paraphrased_query": result.rewritten_query}
 
 
+def plan_structured_search(state: AgentState) -> AgentState:
+    summary = state.get("summary", "").strip() or "요약 없음"
+    query = _get_query_for_reasoning(state)
+    plan = cast(
+        StructuredRetrievalPlan,
+        seller_structured_plan_chain.invoke({"summary": summary, "query": query}),
+    )
+    next_state: AgentState = {
+        **state,
+        "structured_plan": plan.model_dump(),
+        "entity_target": plan.target_entity,
+    }
+    if plan.risk_level == "high":
+        next_state["risk_level"] = "high"
+        next_state["force_hallucination_check"] = True
+    return next_state
+
+
 def generate(state: AgentState) -> AgentState:
     context_docs = state.get("context", []) or []
     summary = state.get("summary", "").strip() or "요약 없음"
     question = _get_query_for_search(state)
+    guidance_parts: List[str] = []
+    plan_label = state.get("structured_plan_result")
+    if plan_label == "no_match":
+        guidance_parts.append("조건에 완전히 맞는 존이 없으면 그 사실을 밝히고 유사 존만 제안하세요.")
+    elif plan_label == "broadened":
+        guidance_parts.append("정확 일치가 아니므로 근접 존임을 명시하세요.")
+    analysis_notes = state.get("analysis_notes")
+    if analysis_notes:
+        guidance_parts.append(f"데이터 인사이트: {analysis_notes}")
+    policy_notes = state.get("policy_notes")
+    if policy_notes:
+        guidance_parts.append(f"운영 주의사항: {policy_notes}")
+    if guidance_parts:
+        question = f"{question}\n\n[추가 지시]\n" + "\n".join(guidance_parts)
     response = rag_chain.invoke(
         {
             "summary": summary,
@@ -424,13 +832,18 @@ def generate(state: AgentState) -> AgentState:
         }
     )
     answer_text = response.content if isinstance(response.content, str) else str(response.content)
+    answer_text = clean_answer_text(answer_text)
     return {**state, "answer": answer_text}
 
 
 def check_hallucination(state: AgentState) -> AgentState:
     docs = state.get("context", []) or []
-    formatted_docs = _format_context(docs)
     answer_text = _get_answer_text(state)
+    force_check = bool(state.get("force_hallucination_check"))
+    if not force_check and (len(docs) == 0 or len(answer_text) < 200):
+        return {**state, "hallucination_label": "not hallucinated", "hallucination_reason": "skipped_check_short_or_no_docs"}
+
+    formatted_docs = _format_context(docs)
     result = cast(
         Hallucination,
         hallucination_chain.invoke({"student_answer": answer_text, "documents": formatted_docs}),
@@ -457,10 +870,42 @@ def rewrite(state: AgentState) -> AgentState:
 
 
 def basic_generate(state: AgentState) -> AgentState:
+    """
+    셀러용 기본 응답 생성기.
+
+    - OUT_OF_SCOPE_REGION / POLICY_RESTRICTED: 정책/범위 안내만 반환
+    - INSUFFICIENT_DATA / NOT_IMPLEMENTED: 안내 문구 + LLM 기반 후속 제안 결합
+    - 나머지: LLM 기반 간단 응답
+    """
+
+    fallback_code = state.get("fallback_code")
+    detail = state.get("fallback_detail")
+
+    # 강한 거절: 범위 밖/정책 위반
+    if fallback_code in {"OUT_OF_SCOPE_REGION", "POLICY_RESTRICTED"}:
+        answer_text = render_fallback_message(fallback_code, detail)
+        return {**state, "answer": answer_text}
+
     summary = state.get("summary", "").strip() or "요약 없음"
     query = state.get("query", "")
+    prefix = ""
+    if fallback_code in {"INSUFFICIENT_DATA", "NOT_IMPLEMENTED"}:
+        prefix = render_fallback_message(fallback_code, detail)
+
     answer = basic_chain.invoke({"summary": summary, "query": query})
-    return {**state, "answer": answer}
+    if isinstance(answer, str):
+        answer_text = answer
+    elif hasattr(answer, "content"):
+        content = getattr(answer, "content")
+        answer_text = content if isinstance(content, str) else str(content)
+    else:
+        answer_text = str(answer)
+    answer_text = clean_answer_text(answer_text)
+
+    if prefix:
+        answer_text = f"{prefix}\n\n{answer_text}"
+
+    return {**state, "answer": answer_text}
 
 
 def format_answer_message(state: AgentState) -> AgentState:
@@ -475,14 +920,29 @@ def summarize_messages(state: AgentState) -> AgentState:
     messages = state.get("messages", [])
     if not messages:
         return state
+
+    if not settings.summary_enabled:
+        return state
+
+    # Only summarize once the conversation exceeds the truncation window.
+    if len(messages) <= settings.zone_max_message_history:
+        return state
+
+    if settings.summary_min_answer_chars > 0:
+        answer = state.get("answer", "")
+        answer_text = answer if isinstance(answer, str) else str(answer)
+        if len(answer_text) < settings.summary_min_answer_chars:
+            return state
+
     summary = state.get("summary", "")
+    recent_messages = messages[-settings.zone_max_message_history :]
     prompt = (
         "summarize this chat history below"
         if not summary
         else "summarize this chat history while incorporating the previous summary"
     )
     summary_text = summary_llm.invoke(
-        f"{prompt}\n\nchat_history:\n{format_messages(messages)}\n\nsummary:{summary}"
+        f"{prompt}\n\nchat_history:\n{format_messages(recent_messages)}\n\nsummary:{summary}"
     )
     new_summary = summary_text.content if isinstance(summary_text.content, str) else str(summary_text.content)
     return {**state, "summary": new_summary}
@@ -508,6 +968,12 @@ def truncate_messages(state: AgentState) -> dict:
 
 
 async def router_async(state: AgentState) -> Literal["rag_answer", "general_answer"]:
+    intent = state.get("intent")
+    if intent in {"greeting", "bot_about", "chitchat", "noise", "safety_violation"}:
+        return "general_answer"
+
+    if state.get("fallback_code"):
+        return "general_answer"
     summary = state.get("summary", "").strip() or "요약 없음"
     query = state.get("query", "")
     query_text = query if isinstance(query, str) else str(query)
@@ -523,6 +989,58 @@ async def router_async(state: AgentState) -> Literal["rag_answer", "general_answ
     return result.target
 
 
+async def assess_feasibility_async(state: AgentState) -> AgentState:
+    summary = state.get("summary", "").strip() or "요약 없음"
+    query = state.get("query", "")
+    query_text = query if isinstance(query, str) else str(query)
+
+    next_state: AgentState = {**state}
+
+    # 1) 인사/노이즈 휴리스틱
+    query_type = classify_query_type(query_text)
+    if query_type == "greeting":
+        next_state["intent"] = "greeting"
+        next_state.pop("fallback_code", None)
+        next_state.pop("fallback_detail", None)
+        next_state["risk_level"] = "low"
+        next_state.pop("force_hallucination_check", None)
+        return next_state
+
+    if query_type == "noise":
+        next_state["intent"] = "noise"
+        next_state["fallback_code"] = "INSUFFICIENT_DATA"
+        next_state["fallback_detail"] = "질문이 조금 모호해요. 플리마켓 셀러 관련해서 더 구체적으로 알려주세요."
+        next_state["risk_level"] = "low"
+        next_state.pop("force_hallucination_check", None)
+        return next_state
+
+    # 2) 정책 키워드 기반 가드레일
+    violation, code, detail = detect_policy_violation(query_text)
+    if violation and code:
+        next_state["intent"] = "safety_violation"
+        next_state["fallback_code"] = code
+        next_state["fallback_detail"] = detail
+        next_state["risk_level"] = "high"
+        next_state["force_hallucination_check"] = True
+        return next_state
+
+    # 3) LLM 기반 feasibility 평가
+    decision = cast(
+        FeasibilityDecision,
+        await feasibility_chain.ainvoke({"summary": summary, "query": query_text}),
+    )
+    next_state["risk_level"] = decision.risk_level
+    if decision.risk_level == "high":
+        next_state["force_hallucination_check"] = True
+    if decision.code != "OK":
+        next_state["fallback_code"] = decision.code
+        next_state["fallback_detail"] = decision.detail
+    else:
+        next_state.pop("fallback_code", None)
+        next_state.pop("fallback_detail", None)
+    return next_state
+
+
 async def case_classification_async(state: AgentState) -> AgentState:
     summary = state.get("summary", "").strip() or "요약 없음"
     query = _get_query_for_reasoning(state)
@@ -533,10 +1051,77 @@ async def case_classification_async(state: AgentState) -> AgentState:
     return {**state, "case": result.case, "paraphrased_query": result.rewritten_query}
 
 
+async def plan_structured_search_async(state: AgentState) -> AgentState:
+    summary = state.get("summary", "").strip() or "요약 없음"
+    query = _get_query_for_reasoning(state)
+    plan = cast(
+        StructuredRetrievalPlan,
+        await seller_structured_plan_chain.ainvoke({"summary": summary, "query": query}),
+    )
+    next_state: AgentState = {
+        **state,
+        "structured_plan": plan.model_dump(),
+        "entity_target": plan.target_entity,
+    }
+    if plan.risk_level == "high":
+        next_state["risk_level"] = "high"
+        next_state["force_hallucination_check"] = True
+    return next_state
+
+
+async def check_allowed_categories_async(state: AgentState) -> AgentState:
+    docs = state.get("context", []) or []
+    if not docs:
+        return state
+    query = _get_query_for_reasoning(state)
+    assessment = cast(
+        AllowedCategoryRequest,
+        await allowed_category_chain.ainvoke({"query": query}),
+    )
+    requested = [item for item in assessment.requested_items if item]
+    warnings: List[str] = []
+    for doc in docs:
+        metadata = doc.metadata or {}
+        allowed = [str(x) for x in metadata.get("allowed_categories") or []]
+        if requested and allowed:
+            conflicts = [
+                item for item in requested if not _matches_category(allowed, item)
+            ]
+            if conflicts:
+                zone_name = metadata.get("zone_name", "해당 존")
+                warnings.append(
+                    f"{zone_name}: {', '.join(conflicts)} 판매는 허용 범위인지 주최 측 확인 필요"
+                )
+        elif requested and not allowed:
+            zone_name = metadata.get("zone_name", "해당 존")
+            warnings.append(f"{zone_name}: 허용 업종 정보가 없어 주최 측 확인이 필요합니다.")
+    if assessment.risky_items:
+        warnings.append(f"추가 확인 필요 품목: {', '.join(assessment.risky_items)}")
+    if warnings:
+        return {**state, "policy_notes": " / ".join(warnings)}
+    next_state: AgentState = dict(state)
+    next_state.pop("policy_notes", None)
+    return next_state
+
+
 async def generate_async(state: AgentState) -> AgentState:
     context_docs = state.get("context", []) or []
     summary = state.get("summary", "").strip() or "요약 없음"
     question = _get_query_for_search(state)
+    guidance_parts: List[str] = []
+    plan_label = state.get("structured_plan_result")
+    if plan_label == "no_match":
+        guidance_parts.append("조건에 완전히 맞는 존이 없으면 그 사실을 밝히고 유사 존만 제안하세요.")
+    elif plan_label == "broadened":
+        guidance_parts.append("정확 일치가 아니므로 근접 존임을 명시하세요.")
+    analysis_notes = state.get("analysis_notes")
+    if analysis_notes:
+        guidance_parts.append(f"데이터 인사이트: {analysis_notes}")
+    policy_notes = state.get("policy_notes")
+    if policy_notes:
+        guidance_parts.append(f"운영 주의사항: {policy_notes}")
+    if guidance_parts:
+        question = f"{question}\n\n[추가 지시]\n" + "\n".join(guidance_parts)
     response = await rag_chain.ainvoke(
         {
             "summary": summary,
@@ -545,13 +1130,18 @@ async def generate_async(state: AgentState) -> AgentState:
         }
     )
     answer_text = response.content if isinstance(response.content, str) else str(response.content)
+    answer_text = clean_answer_text(answer_text)
     return {**state, "answer": answer_text}
 
 
 async def check_hallucination_async(state: AgentState) -> AgentState:
     docs = state.get("context", []) or []
-    formatted_docs = _format_context(docs)
     answer_text = _get_answer_text(state)
+    force_check = bool(state.get("force_hallucination_check"))
+    if not force_check and (len(docs) == 0 or len(answer_text) < 200):
+        return {**state, "hallucination_label": "not hallucinated", "hallucination_reason": "skipped_check_short_or_no_docs"}
+
+    formatted_docs = _format_context(docs)
     result = cast(
         Hallucination,
         await hallucination_chain.ainvoke(
@@ -576,24 +1166,67 @@ async def rewrite_async(state: AgentState) -> AgentState:
 
 
 async def basic_generate_async(state: AgentState) -> AgentState:
+    """
+    basic_generate의 Async 버전.
+
+    동기 버전과 동일한 정책을 따르되 LLM 호출만 await 한다.
+    """
+
+    fallback_code = state.get("fallback_code")
+    detail = state.get("fallback_detail")
+
+    if fallback_code in {"OUT_OF_SCOPE_REGION", "POLICY_RESTRICTED"}:
+        answer_text = render_fallback_message(fallback_code, detail)
+        return {**state, "answer": answer_text}
+
     summary = state.get("summary", "").strip() or "요약 없음"
     query = state.get("query", "")
+    prefix = ""
+    if fallback_code in {"INSUFFICIENT_DATA", "NOT_IMPLEMENTED"}:
+        prefix = render_fallback_message(fallback_code, detail)
+
     answer = await basic_chain.ainvoke({"summary": summary, "query": query})
-    return {**state, "answer": answer}
+    if isinstance(answer, str):
+        answer_text = answer
+    elif hasattr(answer, "content"):
+        content = getattr(answer, "content")
+        answer_text = content if isinstance(content, str) else str(content)
+    else:
+        answer_text = str(answer)
+    answer_text = clean_answer_text(answer_text)
+
+    if prefix:
+        answer_text = f"{prefix}\n\n{answer_text}"
+
+    return {**state, "answer": answer_text}
 
 
 async def summarize_messages_async(state: AgentState) -> AgentState:
     messages = state.get("messages", [])
     if not messages:
         return state
+
+    if not settings.summary_enabled:
+        return state
+
+    if len(messages) <= settings.zone_max_message_history:
+        return state
+
+    if settings.summary_min_answer_chars > 0:
+        answer = state.get("answer", "")
+        answer_text = answer if isinstance(answer, str) else str(answer)
+        if len(answer_text) < settings.summary_min_answer_chars:
+            return state
+
     summary = state.get("summary", "")
+    recent_messages = messages[-settings.zone_max_message_history :]
     prompt = (
         "summarize this chat history below"
         if not summary
         else "summarize this chat history while incorporating the previous summary"
     )
     summary_text = await summary_llm.ainvoke(
-        f"{prompt}\n\nchat_history:\n{format_messages(messages)}\n\nsummary:{summary}"
+        f"{prompt}\n\nchat_history:\n{format_messages(recent_messages)}\n\nsummary:{summary}"
     )
     new_summary = summary_text.content if isinstance(summary_text.content, str) else str(summary_text.content)
     return {**state, "summary": new_summary}
@@ -602,15 +1235,22 @@ async def summarize_messages_async(state: AgentState) -> AgentState:
 __all__ = [
     "AgentState",
     "extract_user_query",
+    "assess_feasibility",
+    "assess_feasibility_async",
     "router",
     "router_async",
     "case_classification",
     "case_classification_async",
+    "plan_structured_search",
+    "plan_structured_search_async",
     "schedule_seller_tool",
     "schedule_seller_tool_async",
     "seller_tool_router",
     "seller_tool_followup_router",
     "consume_seller_tool_result",
+    "analyze_zone_performance",
+    "check_allowed_categories",
+    "check_allowed_categories_async",
     "generate",
     "generate_async",
         "check_hallucination",

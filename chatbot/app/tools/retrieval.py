@@ -7,7 +7,10 @@ from typing import Any, Dict, List, Sequence
 from langchain_core.documents import Document
 from langchain_core.tools import tool
 
+from pydantic import ValidationError
+
 from app.config import Settings, get_settings
+from app.graphs.shared import StructuredRetrievalPlan, apply_structured_plan
 from app.db.postgres import get_markets_vectorstore, get_zones_vectorstore
 from app.graphs.shared import (
     extend_with_web_results,
@@ -80,6 +83,7 @@ def _format_result(
     query: str,
     docs: Sequence[Document],
     label: str,
+    extras: Dict[str, Any] | None = None,
 ) -> str:
     payload = {
         "type": label,
@@ -87,11 +91,35 @@ def _format_result(
         "count": len(docs),
         "documents": _serialize_documents(docs),
     }
+    if extras:
+        payload.update(extras)
     return json.dumps(payload, ensure_ascii=False)
 
 
+def _apply_structured_plan_arg(
+    docs: Sequence[Document],
+    structured_plan: Dict[str, Any] | None,
+) -> tuple[List[Document], Dict[str, Any], str]:
+    plan_obj: StructuredRetrievalPlan | None = None
+    if structured_plan:
+        try:
+            plan_obj = StructuredRetrievalPlan.model_validate(structured_plan)
+        except (ValidationError, ValueError):
+            plan_obj = None
+    result = apply_structured_plan(docs, plan_obj)
+    extras: Dict[str, Any] = {
+        "structured_plan_result": result.label,
+    }
+    if plan_obj:
+        extras["structured_plan"] = plan_obj.model_dump()
+    return result.documents, extras, result.label
+
+
 @tool("consumer_retrieve", return_direct=False)
-def consumer_retrieve(query: str) -> str:
+def consumer_retrieve(
+    query: str,
+    structured_plan: Dict[str, Any] | None = None,
+) -> str:
     """광주 플리마켓/팝업 정보를 찾는다. 마켓 설명, 위치, 분위기, 운영 정보를 반환한다."""
     if not query.strip():
         return json.dumps(
@@ -99,11 +127,15 @@ def consumer_retrieve(query: str) -> str:
             ensure_ascii=False,
         )
     docs = _consumer.run(query.strip())
-    return _format_result(query, docs, "consumer_retrieve")
+    docs, extras, _ = _apply_structured_plan_arg(docs, structured_plan)
+    return _format_result(query, docs, "consumer_retrieve", extras)
 
 
 @tool("consumer_retrieve_async", return_direct=False)
-async def consumer_retrieve_async(query: str) -> str:
+async def consumer_retrieve_async(
+    query: str,
+    structured_plan: Dict[str, Any] | None = None,
+) -> str:
     """(Async) 광주 플리마켓/팝업 정보를 찾는다."""
     if not query.strip():
         return json.dumps(
@@ -111,11 +143,15 @@ async def consumer_retrieve_async(query: str) -> str:
             ensure_ascii=False,
         )
     docs = await _consumer.arun(query.strip())
-    return _format_result(query, docs, "consumer_retrieve")
+    docs, extras, _ = _apply_structured_plan_arg(docs, structured_plan)
+    return _format_result(query, docs, "consumer_retrieve", extras)
 
 
 @tool("seller_retrieve", return_direct=False)
-def seller_retrieve(query: str) -> str:
+def seller_retrieve(
+    query: str,
+    structured_plan: Dict[str, Any] | None = None,
+) -> str:
     """셀러 전용 존/상권 데이터를 찾는다. 인구, 카테고리 적합도, 추천 존을 반환한다."""
     if not query.strip():
         return json.dumps(
@@ -123,11 +159,15 @@ def seller_retrieve(query: str) -> str:
             ensure_ascii=False,
         )
     docs = _seller.run(query.strip())
-    return _format_result(query, docs, "seller_retrieve")
+    docs, extras, _ = _apply_structured_plan_arg(docs, structured_plan)
+    return _format_result(query, docs, "seller_retrieve", extras)
 
 
 @tool("seller_retrieve_async", return_direct=False)
-async def seller_retrieve_async(query: str) -> str:
+async def seller_retrieve_async(
+    query: str,
+    structured_plan: Dict[str, Any] | None = None,
+) -> str:
     """(Async) 셀러 전용 존/상권 데이터를 찾는다."""
     if not query.strip():
         return json.dumps(
@@ -135,7 +175,8 @@ async def seller_retrieve_async(query: str) -> str:
             ensure_ascii=False,
         )
     docs = await _seller.arun(query.strip())
-    return _format_result(query, docs, "seller_retrieve")
+    docs, extras, _ = _apply_structured_plan_arg(docs, structured_plan)
+    return _format_result(query, docs, "seller_retrieve", extras)
 
 
 __all__ = [

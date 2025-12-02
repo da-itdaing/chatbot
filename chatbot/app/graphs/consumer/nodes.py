@@ -49,6 +49,43 @@ CONTEXT_TOTAL_MAX_CHARS = 3000
 # ---------------------------------------------------------------------------
 
 
+def _is_realtime_info_query(query: str) -> bool:
+    """
+    날씨, 시간, 교통 등 실시간 정보가 필요한 질문인지 판단.
+    이런 질문은 웹 검색으로 처리한다.
+    """
+    if not query:
+        return False
+    lowered = query.lower()
+    realtime_keywords = (
+        "날씨", "기온", "온도", "비 올", "눈 올", "비올", "눈올",
+        "우산", "미세먼지", "일기예보",
+        "현재 시간", "몇 시",
+    )
+    return any(kw in lowered for kw in realtime_keywords)
+
+
+def _is_gwangju_general_query(query: str) -> bool:
+    """
+    광주 관련 일반 질문인지 판단 (관광지, 명소, 위치 등).
+    플리마켓과 직접 관련은 없지만, 근처 플리마켓으로 연결할 수 있다.
+    """
+    if not query:
+        return False
+    
+    # 광주 + 관광/명소 키워드
+    gwangju_landmarks = (
+        "무등산", "양림동", "충장로", "국립아시아문화전당", "5.18",
+        "광주비엔날레", "광주호", "사직공원", "중외공원",
+    )
+    location_queries = ("어디", "위치", "가는 법", "어떻게 가")
+    
+    has_landmark = any(lm in query for lm in gwangju_landmarks)
+    has_location_q = any(lq in query for lq in location_queries)
+    
+    return has_landmark and has_location_q
+
+
 def _trim_text(text: str, max_chars: int) -> str:
     """Safely trim long document text to avoid huge prompts."""
     if len(text) <= max_chars:
@@ -247,9 +284,18 @@ def extract_user_query(state: AgentState) -> AgentState:
 
 def schedule_consumer_tool_async(state: AgentState) -> AgentState:
     """도구 호출 스케줄링."""
-    tool_name = "web_search_async" if state.get("needs_web_search") else "consumer_retrieve_async"
+    query_text = _get_query_for_search(state)
+    
+    # 실시간 정보 질문(날씨 등)이나 광주 일반 질문은 웹 검색 사용
+    use_web_search = (
+        state.get("needs_web_search")
+        or _is_realtime_info_query(query_text)
+        or _is_gwangju_general_query(query_text)
+    )
+    
+    tool_name = "web_search_async" if use_web_search else "consumer_retrieve_async"
     query = _resolve_tool_query(state, web_search=tool_name.startswith("web_search"))
-    tool_args = _structured_plan_args(state)
+    tool_args = _structured_plan_args(state) if not use_web_search else None
     return _schedule_tool(
         state, tool_name=tool_name, query=query, tool_args=tool_args or None
     )
@@ -515,6 +561,19 @@ async def full_classify_async(state: AgentState) -> AgentState:
 
     next_state: AgentState = {**state}
 
+    # 0) 날씨/실시간 정보 또는 광주 일반 질문 체크 (웹 검색으로 처리)
+    if _is_realtime_info_query(query_text):
+        next_state["intent"] = "realtime_info"
+        next_state["risk_level"] = "low"
+        next_state["is_realtime_query"] = True
+        return next_state
+    
+    if _is_gwangju_general_query(query_text):
+        next_state["intent"] = "gwangju_general"
+        next_state["risk_level"] = "low"
+        next_state["is_gwangju_general"] = True
+        return next_state
+
     # 1) 휴리스틱으로 명확한 케이스는 LLM 호출을 건너뛴다
     qtype = classify_query_type(query_text)
     if qtype == "greeting":
@@ -598,6 +657,10 @@ def full_router(state: AgentState) -> Literal["rag_answer", "general_answer"]:
     """full_classify_async 결과를 기반으로 라우팅."""
     fallback_code = state.get("fallback_code")
     if fallback_code:
+        return "general_answer"
+    
+    # 날씨/실시간 정보, 광주 일반 질문은 basic_generate로 (웹 검색 활용)
+    if state.get("is_realtime_query") or state.get("is_gwangju_general"):
         return "general_answer"
     
     intent = state.get("intent", "")
@@ -692,18 +755,50 @@ async def rewrite_async(state: AgentState) -> AgentState:
 
 
 async def basic_generate_async(state: AgentState) -> AgentState:
-    """기본 응답 생성 (non-RAG)."""
+    """기본 응답 생성 (non-RAG). 날씨/광주 일반 질문은 웹 검색 활용."""
+    from app.utils.search import WebSearchClient
+    
     fallback_code = state.get("fallback_code")
     if fallback_code:
         detail = state.get("fallback_detail")
         answer_text = render_fallback_message(fallback_code, detail)
         return {**state, "answer": answer_text}
+    
     summary = state.get("summary", "").strip() or "요약 없음"
     query = state.get("query", "")
     query_text = query if isinstance(query, str) else str(query)
+    
+    # 날씨/광주 일반 질문은 웹 검색 결과 활용
+    is_realtime = state.get("is_realtime_query", False)
+    is_gwangju_general = state.get("is_gwangju_general", False)
+    
+    web_context = ""
+    if (is_realtime or is_gwangju_general) and settings.websearch_enabled:
+        try:
+            web_client = WebSearchClient(settings)
+            search_query = f"광주 {query_text}" if "광주" not in query_text else query_text
+            web_docs = await web_client.search_async(search_query)
+            if web_docs:
+                web_context = "\n".join([
+                    f"- {doc.page_content[:200]}" for doc in web_docs[:3]
+                ])
+        except Exception:
+            pass  # 웹 검색 실패 시 무시
+    
+    # 웹 검색 결과가 있으면 컨텍스트 포함
+    if web_context:
+        enhanced_query = f"""질문: {query_text}
+
+참고 정보:
+{web_context}
+
+위 정보를 바탕으로 간단히 답변하고, 자연스럽게 광주 플리마켓/팝업으로 연결해주세요."""
+    else:
+        enhanced_query = query_text
+    
     answer = await basic_chain.ainvoke(
         {
-            "query": query_text,
+            "query": enhanced_query,
             "summary": summary,
         }
     )
