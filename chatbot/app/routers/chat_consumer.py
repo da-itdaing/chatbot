@@ -305,12 +305,39 @@ async def chat_consumer_async_stream(
         generate 노드에서 LLM이 토큰을 생성할 때마다 즉시 클라이언트로 전송하여
         TTFT를 크게 개선한다. 기존 방식(전체 응답 후 청킹)과 달리
         첫 토큰이 ~1-2초 내에 도착한다.
+        
+        v14.1: 토큰 버퍼링으로 띄어쓰기/마크다운 깨짐 방지
+        - 공백, 줄바꿈, 구두점 후에 버퍼 플러시
+        - 최소 버퍼 크기(5자) 이상일 때만 전송
         """
         first_token_sent = False
         final_recommendations: Optional[List[Dict[str, Any]]] = None
+        token_buffer = ""  # 토큰 버퍼
+        MIN_BUFFER_SIZE = 3  # 최소 버퍼 크기
+        FLUSH_CHARS = {" ", "\n", ".", ",", "!", "?", ":", ";", ")", "】", "》", "—"}  # 플러시 트리거 문자
         
         # generate 노드에서만 스트리밍 (다른 노드의 LLM 호출은 무시)
         STREAMING_NODES = {"generate", "basic_generate"}
+        
+        async def flush_buffer(force: bool = False) -> AsyncGenerator[bytes, None]:
+            """버퍼를 플러시하고 클라이언트로 전송"""
+            nonlocal token_buffer, first_token_sent
+            
+            if not token_buffer:
+                return
+            
+            # 버퍼가 최소 크기 이상이거나 강제 플러시일 때만 전송
+            if force or len(token_buffer) >= MIN_BUFFER_SIZE:
+                payload_dict: Dict[str, Any] = {
+                    "delta": token_buffer,
+                    "thread_id": thread_id,
+                }
+                if not first_token_sent:
+                    payload_dict["recommendations"] = []
+                    first_token_sent = True
+                
+                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+                token_buffer = ""
         
         try:
             async for event in graph.astream_events(state, config=config, version="v2"):
@@ -329,16 +356,17 @@ async def chat_consumer_async_stream(
                             # AIMessageChunk에서 content 추출
                             content = getattr(chunk, "content", None)
                             if content:
-                                payload_dict: Dict[str, Any] = {
-                                    "delta": content,
-                                    "thread_id": thread_id,
-                                }
-                                # 첫 토큰에 빈 recommendations 보내기 (UI에서 이전 추천 초기화)
-                                if not first_token_sent:
-                                    payload_dict["recommendations"] = []
-                                    first_token_sent = True
+                                token_buffer += content
                                 
-                                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+                                # 플러시 조건: 구두점/공백 후 또는 버퍼가 충분히 찼을 때
+                                should_flush = (
+                                    any(c in content for c in FLUSH_CHARS) or
+                                    len(token_buffer) >= 20  # 최대 버퍼 크기
+                                )
+                                
+                                if should_flush:
+                                    async for chunk_bytes in flush_buffer():
+                                        yield chunk_bytes
                 
                 # 그래프 전체 종료 시 최종 state에서 recommendations 추출
                 elif event_type == "on_chain_end" and event_name == "LangGraph":
@@ -347,6 +375,10 @@ async def chat_consumer_async_stream(
                         recs = output.get("recommendations")
                         if isinstance(recs, list) and len(recs) > 0:
                             final_recommendations = recs
+            
+            # 남은 버퍼 플러시
+            async for chunk_bytes in flush_buffer(force=True):
+                yield chunk_bytes
             
             # 마지막에 recommendations 전송 (있으면)
             if final_recommendations:
