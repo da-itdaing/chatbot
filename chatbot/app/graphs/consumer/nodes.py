@@ -708,7 +708,7 @@ async def full_classify_async(state: AgentState) -> AgentState:
         next_state["intent"] = "gwangju_general"
         next_state["risk_level"] = "low"
         next_state["is_gwangju_general"] = True
-    return next_state
+        return next_state
 
     # 1) 휴리스틱으로 명확한 케이스는 LLM 호출을 건너뛴다
     qtype = classify_query_type(query_text)
