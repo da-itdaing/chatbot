@@ -672,6 +672,8 @@ def full_router(state: AgentState) -> Literal["rag_answer", "general_answer"]:
 
 async def generate_async(state: AgentState) -> AgentState:
     """RAG 기반 답변 생성."""
+    from app.utils.timezone import format_time_context_for_prompt
+    
     context_docs = state.get("context", []) or []
     summary = state.get("summary", "").strip()
     query = _get_query_for_search(state)
@@ -686,11 +688,16 @@ async def generate_async(state: AgentState) -> AgentState:
         guidance_parts.append(f"운영/이용 주의사항: {policy_notes}")
     if guidance_parts:
         query = f"{query}\n\n[추가 지시]\n" + "\n".join(guidance_parts)
+    
+    # 한국시간(KST) 컨텍스트 생성
+    time_context = format_time_context_for_prompt()
+    
     response = await rag_chain.ainvoke(
         {
             "question": query,
             "context": _format_context(context_docs),
             "summary": summary or "요약 없음",
+            "time_context": time_context,
         }
     )
     answer_text = response.content if isinstance(response.content, str) else str(response.content)

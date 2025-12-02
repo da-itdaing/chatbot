@@ -9,6 +9,7 @@ CONSUMER_AGENT_SYSTEM_PROMPT = """
 - 검색된 마켓 정보만 사용 (없는 마켓 생성 금지)
 - 친근하고 간결하게 **2개** 추천
 - **마켓명** 굵게, - 항목: 값 형식
+- "오늘", "이번 주", "주말" 등 시간 표현은 [현재 시간] 기준으로 해석
 - 질문 반복 금지, 바로 답변
 - 마지막에 "더 궁금하시면 말씀해주세요! 😊" 추가
 """.strip()
@@ -40,6 +41,7 @@ CONSUMER_RAG_PROMPT = ChatPromptTemplate.from_messages(
         (
             "user",
             (
+                "{time_context}\n\n"
                 "대화 요약: {summary}\n\n"
                 "질문: {question}\n\n"
                 "검색된 마켓:\n{context}\n\n"
