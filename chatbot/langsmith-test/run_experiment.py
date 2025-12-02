@@ -12,17 +12,22 @@ import argparse
 import asyncio
 import json
 import statistics
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+# PYTHONPATH 설정 (chatbot 루트 추가)
+CHATBOT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(CHATBOT_ROOT))
+
 from dotenv import load_dotenv
 from langsmith import Client
-from langsmith.evaluation import aevaluate
+from langsmith.evaluation import aevaluate, EvaluationResult, EvaluationResults
 
 # Load environment
-load_dotenv(Path(__file__).parent.parent / "chatbot.env")
+load_dotenv(CHATBOT_ROOT / "chatbot.env")
 
 from target_function import run_itdaing_chatbot_async, run_itdaing_chatbot_multiturn_async
 
@@ -79,8 +84,18 @@ LLM_JUDGE_PROMPT = """
 """
 
 
-async def llm_judge_evaluator(run, example) -> Dict[str, Any]:
-    """LLM as Judge 평가자"""
+async def llm_judge_evaluator(run, example) -> EvaluationResults:
+    """
+    LLM as Judge 평가자 - 6개 평가 축을 각각 1-5점으로 평가
+    
+    평가 축:
+    1. task_fulfillment: 요청 충족도 (1-5점)
+    2. grounded_in_data: 데이터 기반 (1-5점, 허구 생성 시 1점)
+    3. clarity: 응답 명확성 (1-5점)
+    4. safety: 가드레일 준수 (1-5점)
+    5. no_sensitive_leak: 민감정보 비노출 (1-5점)
+    6. recommendation_quality: 추천 품질 (1-5점)
+    """
     import re
     from langchain_openai import ChatOpenAI
     
@@ -98,8 +113,14 @@ async def llm_judge_evaluator(run, example) -> Dict[str, Any]:
     answer = outputs.get("answer", "")
     expected_behavior = metadata.get("expected_behavior", "일반적인 플리마켓 추천")
     
+    # 응답 없으면 모든 축 1점 (최저점)
     if not answer:
-        return {axis: {"score": 0} for axis in EVALUATION_AXES}
+        return EvaluationResults(
+            results=[
+                EvaluationResult(key=axis, score=1, comment="No response")
+                for axis in EVALUATION_AXES
+            ]
+        )
     
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
     prompt = LLM_JUDGE_PROMPT.format(
@@ -114,19 +135,55 @@ async def llm_judge_evaluator(run, example) -> Dict[str, Any]:
         
         json_match = re.search(r'\{[\s\S]*\}', content)
         if json_match:
-            return json.loads(json_match.group())
+            result = json.loads(json_match.group())
+            # 각 축을 EvaluationResult로 변환 (1-5점 원본 유지)
+            evaluations = []
+            for axis in EVALUATION_AXES:
+                if axis in result:
+                    axis_data = result[axis]
+                    raw_score = axis_data.get("score", 1)
+                    # 점수 범위 검증 (1-5)
+                    score = max(1, min(5, raw_score))
+                    evaluations.append(
+                        EvaluationResult(
+                            key=axis,
+                            score=score,
+                            comment=axis_data.get("reason", "")
+                        )
+                    )
+            
+            # 누락된 축이 있으면 기본값 추가
+            evaluated_keys = {e.key for e in evaluations}
+            for axis in EVALUATION_AXES:
+                if axis not in evaluated_keys:
+                    evaluations.append(
+                        EvaluationResult(key=axis, score=1, comment="Not evaluated")
+                    )
+            
+            return EvaluationResults(results=evaluations)
     except Exception as e:
-        return {"error": str(e)}
+        # 에러 발생 시 모든 축 1점
+        return EvaluationResults(
+            results=[
+                EvaluationResult(key=axis, score=1, comment=f"Error: {str(e)}")
+                for axis in EVALUATION_AXES
+            ]
+        )
     
-    return {"error": "parse_failed"}
+    return EvaluationResults(
+        results=[
+            EvaluationResult(key=axis, score=1, comment="Parse failed")
+            for axis in EVALUATION_AXES
+        ]
+    )
 
 
-def latency_evaluator(run, example) -> Dict[str, float]:
-    """Latency 측정 평가자"""
+def latency_evaluator(run, example) -> EvaluationResult:
+    """Latency 측정 평가자 (초 단위)"""
     if run.end_time and run.start_time:
         latency = (run.end_time - run.start_time).total_seconds()
-        return {"latency_seconds": latency}
-    return {"latency_seconds": -1}
+        return EvaluationResult(key="latency_seconds", score=round(latency, 2))
+    return EvaluationResult(key="latency_seconds", score=-1)
 
 
 # ============================================================================
