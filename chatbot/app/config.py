@@ -58,16 +58,17 @@ class Settings(BaseSettings):
     # --- Misc limits ---
     rag_top_k: int = Field(2, alias="RAG_TOP_K")
     zone_rag_top_k: int = Field(3, alias="ZONE_RAG_TOP_K")
-    max_message_history: int = Field(6, alias="MAX_MESSAGE_HISTORY")
-    zone_max_message_history: int = Field(6, alias="ZONE_MAX_MESSAGE_HISTORY")
+    # v10: 멀티턴 P99 개선 - 컨텍스트 크기 축소 (6 → 4)
+    max_message_history: int = Field(4, alias="MAX_MESSAGE_HISTORY")
+    zone_max_message_history: int = Field(4, alias="ZONE_MAX_MESSAGE_HISTORY")
     # RAG 응답에서 사용할 최대 completion 토큰 수 (답변 길이 제한용)
     rag_max_completion_tokens: int = Field(256, alias="RAG_MAX_COMPLETION_TOKENS")
 
     # --- Conversation summarization ---
     # 요약 기능이 비활성화되면 summarize_messages 노드는 state를 그대로 반환한다.
     summary_enabled: bool = Field(True, alias="SUMMARY_ENABLED")
-    # 이 값보다 메시지 수가 적으면 요약 LLM을 호출하지 않는다.
-    summary_min_messages: int = Field(4, alias="SUMMARY_MIN_MESSAGES")
+    # v10: 6으로 상향 - 3턴 이하 대화에서는 요약 스킵 (4 → 6)
+    summary_min_messages: int = Field(6, alias="SUMMARY_MIN_MESSAGES")
     # 마지막 answer 길이가 이 값보다 짧으면 요약을 건너뛴다 (0이면 비활성화).
     summary_min_answer_chars: int = Field(0, alias="SUMMARY_MIN_ANSWER_CHARS")
 

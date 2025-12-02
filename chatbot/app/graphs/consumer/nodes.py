@@ -824,13 +824,25 @@ async def basic_generate_async(state: AgentState) -> AgentState:
 
 
 async def summarize_messages_async(state: AgentState) -> AgentState:
-    """대화 요약."""
+    """
+    대화 요약 (v10 최적화).
+    
+    - summary_min_messages 이하면 요약 스킵 (짧은 대화에서 LLM 호출 방지)
+    - 이전 요약이 있으면 증분 요약 (새 메시지만 추가)
+    - 프롬프트 간소화로 토큰 절감
+    """
     messages = state.get("messages", [])
     summary = state.get("summary", "")
+    
     if not messages:
         return state
 
     if not settings.summary_enabled:
+        return state
+
+    # v10: summary_min_messages 조건 강화 (기본값 6)
+    # 3턴 이하 대화(6개 메시지 이하)에서는 요약하지 않음
+    if len(messages) < settings.summary_min_messages:
         return state
 
     if len(messages) <= settings.max_message_history:
@@ -842,17 +854,19 @@ async def summarize_messages_async(state: AgentState) -> AgentState:
         if len(answer_text) < settings.summary_min_answer_chars:
             return state
 
-    recent_messages = messages[-settings.max_message_history:]
-
-    prompt = (
-        "summarize this chat history below"
-        if not summary
-        else "summarize this chat history while incorporating the previous summary"
-    )
-    summary_text = await summary_llm.ainvoke(
-        f"{prompt}\n\nchat_history:\n{format_messages(recent_messages)}\n\nsummary:{summary}"
-    )
+    # v10: 증분 요약 - 이전 요약이 있으면 새 메시지만 요약에 추가
+    if summary:
+        # 이전 요약이 있으면 최근 2개 메시지만 추가 요약
+        new_messages = messages[-2:] if len(messages) >= 2 else messages
+        prompt = f"이전 요약: {summary}\n\n새 대화:\n{format_messages(new_messages)}\n\n위 내용을 50자 이내로 통합 요약:"
+    else:
+        # 첫 요약: 최근 메시지만 요약
+        recent_messages = messages[-settings.max_message_history:]
+        prompt = f"대화 내용:\n{format_messages(recent_messages)}\n\n위 대화를 50자 이내로 요약:"
+    
+    summary_text = await summary_llm.ainvoke(prompt)
     new_summary = summary_text.content if isinstance(summary_text.content, str) else str(summary_text.content)
+    
     return {
         **state,
         "summary": new_summary,
