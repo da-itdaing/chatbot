@@ -6,6 +6,10 @@ Consumer LangGraph 빌더 (Async-only).
 2025-12 v7 최적화:
 - classify_and_assess + classify_case_and_plan → full_classify_async (LLM 호출 2회 → 1회)
 - 총 LLM 호출: 기존 3-4회 → 2-3회로 감소
+
+2025-12 v11 추가:
+- 하이브리드 RAG + SQL: popup_sql_lookup_async, zone_sql_lookup_async 도구 추가
+- 정확한 날짜/시간/상태 정보가 필요할 때 SQL 직접 조회
 """
 
 from langgraph.graph import END, START, StateGraph
@@ -14,6 +18,9 @@ from langgraph.prebuilt import ToolNode
 from app.tools import (
     consumer_retrieve_async,
     web_search_async,
+)
+from app.tools.sql_lookup import (
+    popup_sql_lookup_async,
 )
 
 from app.graphs.consumer.state import AgentState
@@ -49,7 +56,12 @@ def build_consumer_graph_async(checkpointer=None):
     """
 
     graph_builder = StateGraph(AgentState)
-    tool_node = ToolNode([consumer_retrieve_async, web_search_async])
+    # v11: 하이브리드 RAG + SQL 도구
+    tool_node = ToolNode([
+        consumer_retrieve_async,  # RAG 검색
+        web_search_async,         # 웹 검색
+        popup_sql_lookup_async,   # 정형 DB 조회 (정확한 날짜/시간)
+    ])
 
     # 노드 등록
     graph_builder.add_node("extract_query", extract_user_query)

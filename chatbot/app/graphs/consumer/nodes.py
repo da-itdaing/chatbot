@@ -282,8 +282,48 @@ def extract_user_query(state: AgentState) -> AgentState:
     }
 
 
+def _should_use_sql_lookup(query: str, state: AgentState) -> bool:
+    """
+    SQL 직접 조회가 필요한지 판단.
+    
+    정확한 날짜/시간/상태 정보가 필요할 때 SQL 사용:
+    - "언제 열어?", "몇 시에", "정확한 날짜"
+    - 특정 마켓 이름을 언급하고 상세 정보 요청
+    """
+    if not query:
+        return False
+    
+    lowered = query.lower()
+    
+    # 정확한 정보 요청 키워드
+    exact_info_keywords = (
+        "언제 열", "몇 시", "정확한 날짜", "정확한 시간",
+        "운영 시간", "영업 시간", "오픈 시간",
+        "시작일", "종료일", "기간이",
+    )
+    
+    # 상세 정보 요청 + 이전 대화에서 마켓 추천이 있었을 때
+    detail_keywords = ("자세히", "상세", "더 알려", "정보")
+    has_recommendations = bool(state.get("recommendations"))
+    
+    if any(kw in lowered for kw in exact_info_keywords):
+        return True
+    
+    if has_recommendations and any(kw in lowered for kw in detail_keywords):
+        return True
+    
+    return False
+
+
 def schedule_consumer_tool_async(state: AgentState) -> AgentState:
-    """도구 호출 스케줄링."""
+    """
+    도구 호출 스케줄링 (v11: 하이브리드 RAG + SQL).
+    
+    도구 선택 우선순위:
+    1. 실시간 정보 질문 (날씨 등) → web_search_async
+    2. 정확한 날짜/시간 정보 요청 → popup_sql_lookup_async
+    3. 일반 추천/검색 → consumer_retrieve_async (RAG)
+    """
     query_text = _get_query_for_search(state)
     
     # 실시간 정보 질문(날씨 등)이나 광주 일반 질문은 웹 검색 사용
@@ -293,9 +333,23 @@ def schedule_consumer_tool_async(state: AgentState) -> AgentState:
         or _is_gwangju_general_query(query_text)
     )
     
-    tool_name = "web_search_async" if use_web_search else "consumer_retrieve_async"
-    query = _resolve_tool_query(state, web_search=tool_name.startswith("web_search"))
-    tool_args = _structured_plan_args(state) if not use_web_search else None
+    # v11: 정확한 정보 요청 시 SQL 직접 조회
+    use_sql_lookup = not use_web_search and _should_use_sql_lookup(query_text, state)
+    
+    if use_web_search:
+        tool_name = "web_search_async"
+        query = _resolve_tool_query(state, web_search=True)
+        tool_args = None
+    elif use_sql_lookup:
+        tool_name = "popup_sql_lookup_async"
+        # SQL 조회 시 마켓 이름 추출
+        query = _resolve_tool_query(state, web_search=False)
+        tool_args = {"name": query, "limit": 3}
+    else:
+        tool_name = "consumer_retrieve_async"
+        query = _resolve_tool_query(state, web_search=False)
+        tool_args = _structured_plan_args(state)
+    
     return _schedule_tool(
         state, tool_name=tool_name, query=query, tool_args=tool_args or None
     )
@@ -572,7 +626,7 @@ async def full_classify_async(state: AgentState) -> AgentState:
         next_state["intent"] = "gwangju_general"
         next_state["risk_level"] = "low"
         next_state["is_gwangju_general"] = True
-    return next_state
+        return next_state
 
     # 1) 휴리스틱으로 명확한 케이스는 LLM 호출을 건너뛴다
     qtype = classify_query_type(query_text)

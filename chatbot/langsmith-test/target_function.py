@@ -198,13 +198,18 @@ async def run_itdaing_chatbot_multiturn_async(
       {
         "turns": [
           {"role": "user", "content": "첫 번째 질문"},
+          {"role": "assistant", "content": "첫 번째 응답 (컨텍스트용)"},
           {"role": "user", "content": "두 번째 질문 (컨텍스트 참조)"},
         ],
         "mode": "consumer" | "seller",
+        "inject_assistant_turns": true,  # assistant 턴을 컨텍스트로 주입
         ...
       }
     
     또는 기존 'message' 형식도 지원 (단일턴으로 처리)
+    
+    v11 변경: inject_assistant_turns=true이면 테스트 데이터의 assistant 턴을
+    이전 대화 컨텍스트로 주입하여 멀티턴 연속성을 보장한다.
     """
     
     turns = inputs.get("turns")
@@ -219,6 +224,9 @@ async def run_itdaing_chatbot_multiturn_async(
     
     user_id = str(inputs.get("user_id") or "eval-user")
     session_id = str(inputs.get("session_id") or "eval-session")
+    
+    # assistant 턴을 컨텍스트로 주입할지 여부 (기본: True)
+    inject_assistant = inputs.get("inject_assistant_turns", True)
     
     await _ensure_graphs()
     
@@ -245,6 +253,8 @@ async def run_itdaing_chatbot_multiturn_async(
     graph = _CONSUMER_GRAPH if mode == Mode.CONSUMER else _SELLER_GRAPH
     
     answers: list[str] = []
+    conversation_history: list[Dict[str, str]] = []  # 대화 히스토리 누적
+    current_summary = ""  # 이전 대화 요약 누적
     
     for turn_idx, turn in enumerate(turns):
         # turn이 dict이고 'content' 키가 있으면 사용, 아니면 문자열 그대로 사용
@@ -255,20 +265,35 @@ async def run_itdaing_chatbot_multiturn_async(
             role = "user"
             content = str(turn)
         
-        # assistant 턴은 건너뜀 (이미 이전 응답에 포함됨)
-        if role == "assistant":
-            continue
-        
         if not content:
             continue
         
+        # assistant 턴 처리
+        if role == "assistant":
+            if inject_assistant:
+                # 테스트 데이터의 assistant 응답을 히스토리에 추가
+                conversation_history.append({"role": "assistant", "content": content})
+                # 요약에도 추가
+                current_summary += f"\n[봇 응답]: {content[:200]}"
+            continue
+        
+        # user 턴 처리
+        # 현재 user 메시지를 히스토리에 추가
+        conversation_history.append({"role": "user", "content": content})
+        
+        # 이전 대화가 있으면 요약 생성
+        if turn_idx > 0 and conversation_history[:-1]:
+            prev_history = conversation_history[:-1]  # 현재 메시지 제외
+            summary_parts = []
+            for msg in prev_history[-4:]:  # 최근 4개만
+                prefix = "[사용자]" if msg["role"] == "user" else "[봇]"
+                summary_parts.append(f"{prefix}: {msg['content'][:100]}")
+            current_summary = "\n".join(summary_parts)
+        
+        # state에 현재 user 메시지와 summary 포함
         state = {
-            "messages": [
-                {
-                    "role": "user",
-                    "content": content,
-                }
-            ]
+            "messages": [{"role": "user", "content": content}],
+            "summary": current_summary if turn_idx > 0 else "",
         }
         
         # 각 턴에 turn_index 메타데이터 추가
@@ -283,6 +308,19 @@ async def run_itdaing_chatbot_multiturn_async(
         result = await graph.ainvoke(state, config=turn_cfg)
         answer_text = _extract_answer(result.get("messages", []))
         answers.append(answer_text)
+        
+        # 실제 그래프 응답을 히스토리에 추가 (다음 턴 컨텍스트용)
+        # 단, inject_assistant가 True이고 다음 턴에 assistant가 있으면 그것을 사용
+        next_turn_idx = turn_idx + 1
+        has_next_assistant = (
+            next_turn_idx < len(turns) and
+            isinstance(turns[next_turn_idx], dict) and
+            turns[next_turn_idx].get("role") == "assistant"
+        )
+        
+        if not (inject_assistant and has_next_assistant):
+            # 테스트 데이터에 assistant 턴이 없으면 실제 응답 사용
+            conversation_history.append({"role": "assistant", "content": answer_text})
     
     # 마지막 턴의 응답 반환 (모든 중간 응답도 포함)
     return {

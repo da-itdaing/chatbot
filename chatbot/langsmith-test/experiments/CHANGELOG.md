@@ -35,6 +35,43 @@
 
 ## 실험 기록
 
+### 2025-12-02 v11: 하이브리드 RAG + SQL 구현
+
+**주요 변경 사항**:
+
+1. **LangSmith Studio 설정**
+   - `langgraph.json` 설정 파일 추가
+   - 로컬 Studio와 연동 가능
+
+2. **멀티턴 컨텍스트 개선** (`target_function.py`)
+   - `inject_assistant_turns=True` 옵션 추가
+   - 이전 대화 요약을 직접 생성하여 state에 포함
+   - 테스트 데이터의 assistant 응답을 컨텍스트로 활용
+
+3. **SQL 조회 도구 추가** (`tools/sql_lookup.py`)
+   - `popup_sql_lookup_async`: 정형 DB에서 팝업/이벤트 조회
+   - `zone_sql_lookup_async`: 존/상권 정보 조회
+   - 정확한 날짜/시간/상태 정보가 필요할 때 SQL 직접 조회
+
+4. **도구 선택 로직** (`nodes.py`)
+   - 실시간 정보 → `web_search_async`
+   - 정확한 날짜/시간 요청 → `popup_sql_lookup_async`
+   - 일반 추천/검색 → `consumer_retrieve_async` (RAG)
+
+5. **서비스 범위 확장** (`prompts.py`)
+   - 플리마켓 → "플리마켓, 야시장, 축제, 팝업스토어, 전시회, 체험행사"
+   - 이전 대화 참조 강화
+   - 거절 응답 다양화
+
+6. **버그 수정**
+   - `full_classify_async`에서 조기 return 버그 수정
+
+**테스트 결과**:
+- 멀티턴 컨텍스트 참조: 이전 추천 마켓 언급 확인
+- SQL 조회: 정확한 정보 요청 시 DB 직접 조회
+
+---
+
 ### 2025-12-02 v10: 멀티턴 컨텍스트 관리 최적화
 
 **변경 사항**:

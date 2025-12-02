@@ -1,0 +1,17 @@
+{
+  "$schema": "https://langchain-ai.github.io/langgraph/schemas/langgraph.schema.json",
+  "graphs": {
+    "consumer": {
+      "file": "app/graphs/consumer/graph.py:build_consumer_graph_async",
+      "env": "chatbot.env"
+    },
+    "seller": {
+      "file": "app/graphs/seller/graph.py:build_seller_graph_async",
+      "env": "chatbot.env"
+    }
+  },
+  "env": "chatbot.env",
+  "python_version": "3.12",
+  "dependencies": ["requirements.txt"]
+}
+
