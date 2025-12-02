@@ -255,7 +255,7 @@ async def chat_consumer_async(
 
 @router.post(
     "/async/stream",
-    summary="소비자 챗봇 Async diff 스트림",
+    summary="소비자 챗봇 실시간 토큰 스트리밍",
     responses={
         200: {
             "description": '여러 JSON 라인 스트림, 예: {"delta":"...","thread_id":"consumer:..."}',
@@ -279,13 +279,17 @@ async def chat_consumer_async_stream(
     payload: ChatConsumerRequest,
 ) -> StreamingResponse:
     """
-    Async 그래프 + LangGraph `astream`을 사용한 SSE 스타일 스트리밍.
+    astream_events를 사용한 실시간 LLM 토큰 스트리밍.
 
-    현재는 메시지 단위 diff를 흘려보내며, LangGraph `events` 기반 토큰 스트림으로
-    확장할 여지를 남겨둔다.
+    - generate 노드의 LLM 토큰이 생성될 때마다 즉시 클라이언트로 전송
+    - TTFT(Time To First Token)를 크게 개선하여 체감 속도 향상
+    - 마지막에 recommendations 전송
     """
 
     import json
+    import logging
+
+    logger = logging.getLogger(__name__)
 
     app = request.app
     graph = app.state.consumer_graph_async
@@ -296,60 +300,92 @@ async def chat_consumer_async_stream(
 
     async def event_stream() -> AsyncGenerator[bytes, None]:
         """
-        LangGraph async 그래프에서 answer가 갱신될 때마다 diff를 받아,
-        작은 조각으로 잘라 여러 번 내려보냄으로써 토큰 스트리밍에 가까운 UX를 제공한다.
+        astream_events v2를 사용한 실제 토큰 스트리밍.
         
-        멀티턴 대화에서 이전 턴의 answer가 다시 스트리밍되지 않도록,
-        마지막으로 생성된 answer만 스트리밍한다.
+        generate 노드에서 LLM이 토큰을 생성할 때마다 즉시 클라이언트로 전송하여
+        TTFT를 크게 개선한다. 기존 방식(전체 응답 후 청킹)과 달리
+        첫 토큰이 ~1-2초 내에 도착한다.
         """
-
-        CHUNK_SIZE = 20
-        recommendations_sent = False
-        final_answer = ""
-        final_recommendations = None
-
-        # 먼저 전체 스트림을 소비하여 최종 answer를 얻음
-        async for chunk in graph.astream(state, config=config, stream_mode="values"):
-            if not isinstance(chunk, dict):
-                continue
-
-            chunk_recommendations = chunk.get("recommendations")
-            if isinstance(chunk_recommendations, list) and len(chunk_recommendations) > 0:
-                final_recommendations = chunk_recommendations
-
-            chunk_answer = chunk.get("answer")
-            if isinstance(chunk_answer, str) and chunk_answer.strip():
-                final_answer = chunk_answer.strip()
-
-        # 최종 answer를 청크 단위로 스트리밍
-        if final_answer:
-            text_chunks = [
-                final_answer[i : i + CHUNK_SIZE]
-                for i in range(0, len(final_answer), CHUNK_SIZE)
-            ]
-
-            for idx, piece in enumerate(text_chunks):
-                payload_dict: Dict[str, Any] = {"thread_id": thread_id}
-                if piece.strip():
-                    payload_dict["delta"] = piece
-                # 첫 청크에 추천 결과 포함 (없으면 빈 배열로 이전 추천 초기화)
-                if idx == 0 and not recommendations_sent:
-                    payload_dict["recommendations"] = final_recommendations if final_recommendations else []
-                    recommendations_sent = True
-
-                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode(
-                    "utf-8"
-                )
-                await asyncio.sleep(0)
-        elif final_recommendations:
-            # answer 없이 recommendations만 있는 경우
-            payload_dict: Dict[str, Any] = {
+        first_token_sent = False
+        final_recommendations: Optional[List[Dict[str, Any]]] = None
+        
+        # generate 노드에서만 스트리밍 (다른 노드의 LLM 호출은 무시)
+        STREAMING_NODES = {"generate", "basic_generate"}
+        
+        try:
+            async for event in graph.astream_events(state, config=config, version="v2"):
+                event_type = event.get("event")
+                event_name = event.get("name", "")
+                
+                # LLM 토큰 스트리밍 - generate/basic_generate 노드에서만
+                if event_type == "on_chat_model_stream":
+                    # 이벤트 메타데이터에서 노드 이름 확인
+                    langgraph_node = event.get("metadata", {}).get("langgraph_node", "")
+                    
+                    # generate 또는 basic_generate 노드의 스트리밍만 전송
+                    if langgraph_node in STREAMING_NODES:
+                        chunk = event.get("data", {}).get("chunk")
+                        if chunk:
+                            # AIMessageChunk에서 content 추출
+                            content = getattr(chunk, "content", None)
+                            if content:
+                                payload_dict: Dict[str, Any] = {
+                                    "delta": content,
+                                    "thread_id": thread_id,
+                                }
+                                # 첫 토큰에 빈 recommendations 보내기 (UI에서 이전 추천 초기화)
+                                if not first_token_sent:
+                                    payload_dict["recommendations"] = []
+                                    first_token_sent = True
+                                
+                                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+                
+                # 그래프 전체 종료 시 최종 state에서 recommendations 추출
+                elif event_type == "on_chain_end" and event_name == "LangGraph":
+                    output = event.get("data", {}).get("output", {})
+                    if isinstance(output, dict):
+                        recs = output.get("recommendations")
+                        if isinstance(recs, list) and len(recs) > 0:
+                            final_recommendations = recs
+            
+            # 마지막에 recommendations 전송 (있으면)
+            if final_recommendations:
+                payload_dict = {
+                    "thread_id": thread_id,
+                    "recommendations": final_recommendations,
+                }
+                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+            elif not first_token_sent:
+                # 스트리밍된 토큰이 없는 경우 (basic_generate 등에서 스트리밍이 안 된 경우)
+                # fallback: 전체 응답 가져오기
+                result = await graph.ainvoke(state, config=config)
+                answer = _extract_answer(result.get("messages", []))
+                recommendations = result.get("recommendations")
+                
+                payload_dict = {
+                    "delta": answer,
+                    "thread_id": thread_id,
+                    "recommendations": recommendations if recommendations else [],
+                }
+                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+                
+        except Exception as e:
+            logger.error(f"[chat_consumer_async_stream] Error: {e}")
+            error_payload = {
+                "error": "STREAM_ERROR",
+                "detail": str(e),
                 "thread_id": thread_id,
-                "recommendations": final_recommendations,
             }
-            yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+            yield (json.dumps(error_payload, ensure_ascii=False) + "\n").encode("utf-8")
 
-    return StreamingResponse(event_stream(), media_type="application/json")
+    return StreamingResponse(
+        event_stream(),
+        media_type="application/x-ndjson",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",  # Nginx 버퍼링 비활성화
+        },
+    )
 
 
 __all__ = ["router"]

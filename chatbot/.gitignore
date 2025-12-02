@@ -78,3 +78,5 @@ langsmith-test/input/archive/
 # 생성된 그래프 이미지 (mmd로 재생성 가능)
 artifacts/graphs/*.png
 
+# 서버 인프라 설정 문서 (배포 서버에서 직접 관리)
+docs/NGINX_STREAMING_CONFIG.md
