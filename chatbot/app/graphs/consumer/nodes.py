@@ -448,7 +448,7 @@ async def classify_and_assess_async(state: AgentState) -> AgentState:
         next_state["risk_level"] = "low"
         next_state.pop("fallback_code", None)
         next_state.pop("fallback_detail", None)
-    return next_state
+        return next_state
     elif qtype == "bot_about":
         next_state["intent"] = "bot_about"
         next_state["risk_level"] = "low"
@@ -497,10 +497,10 @@ async def classify_and_assess_async(state: AgentState) -> AgentState:
     # Feasibility 처리
     if decision.feasibility_code != "OK":
         next_state["fallback_code"] = decision.feasibility_code
-            next_state["fallback_detail"] = decision.detail
-        else:
-            next_state.pop("fallback_code", None)
-            next_state.pop("fallback_detail", None)
+        next_state["fallback_detail"] = decision.detail
+    else:
+        next_state.pop("fallback_code", None)
+        next_state.pop("fallback_detail", None)
 
     # normalized_query를 paraphrased_query로 저장
     if decision.normalized_query:
