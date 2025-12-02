@@ -45,3 +45,4 @@ chatbot/artifacts/graphs/*.pdf
 current_schema.sql
 
 cetc/
+.cursor/

@@ -39,9 +39,9 @@ from .state import AgentState
 
 settings = get_settings()
 
-# RAG 컨텍스트 길이 상한
-CONTEXT_DOC_MAX_CHARS = 800
-CONTEXT_TOTAL_MAX_CHARS = 3000
+# RAG 컨텍스트 길이 상한 (v9: 토큰 절감을 위해 축소)
+CONTEXT_DOC_MAX_CHARS = 500  # 800 → 500
+CONTEXT_TOTAL_MAX_CHARS = 2000  # 3000 → 2000
 
 
 # ---------------------------------------------------------------------------
@@ -448,7 +448,7 @@ async def classify_and_assess_async(state: AgentState) -> AgentState:
         next_state["risk_level"] = "low"
         next_state.pop("fallback_code", None)
         next_state.pop("fallback_detail", None)
-        return next_state
+    return next_state
     elif qtype == "bot_about":
         next_state["intent"] = "bot_about"
         next_state["risk_level"] = "low"
@@ -497,10 +497,10 @@ async def classify_and_assess_async(state: AgentState) -> AgentState:
     # Feasibility 처리
     if decision.feasibility_code != "OK":
         next_state["fallback_code"] = decision.feasibility_code
-        next_state["fallback_detail"] = decision.detail
-    else:
-        next_state.pop("fallback_code", None)
-        next_state.pop("fallback_detail", None)
+            next_state["fallback_detail"] = decision.detail
+        else:
+            next_state.pop("fallback_code", None)
+            next_state.pop("fallback_detail", None)
 
     # normalized_query를 paraphrased_query로 저장
     if decision.normalized_query:
@@ -572,7 +572,7 @@ async def full_classify_async(state: AgentState) -> AgentState:
         next_state["intent"] = "gwangju_general"
         next_state["risk_level"] = "low"
         next_state["is_gwangju_general"] = True
-        return next_state
+    return next_state
 
     # 1) 휴리스틱으로 명확한 케이스는 LLM 호출을 건너뛴다
     qtype = classify_query_type(query_text)
