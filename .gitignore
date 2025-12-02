@@ -46,3 +46,6 @@ current_schema.sql
 
 cetc/
 .cursor/
+
+# Sub-repository (별도 저장소로 관리)
+sub-repo/
