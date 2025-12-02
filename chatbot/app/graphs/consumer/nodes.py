@@ -221,7 +221,48 @@ def _parse_tool_payload(content: Any) -> Dict[str, Any]:
 
 
 def _documents_from_payload(payload: Dict[str, Any]) -> List[Document]:
+    """
+    도구 결과에서 문서 목록 추출.
+    
+    v13: SQL 도구(results) + RAG 도구(documents) 모두 지원
+    """
+    # RAG 도구: documents 필드
     docs_data = payload.get("documents") or []
+    
+    # SQL 도구: results 필드 (v13)
+    if not docs_data:
+        sql_results = payload.get("results") or []
+        for row in sql_results:
+            if not isinstance(row, dict):
+                continue
+            # SQL 결과를 문서 형식으로 변환
+            name = row.get("name", "")
+            start_date = row.get("start_date", "")
+            end_date = row.get("end_date", "")
+            operating_time = row.get("operating_time", "")
+            zone_area_name = row.get("zone_area_name", "")
+            
+            content = f"마켓명: {name}"
+            if start_date and end_date:
+                content += f"\n기간: {start_date} ~ {end_date}"
+            if operating_time:
+                content += f"\n운영시간: {operating_time}"
+            if zone_area_name:
+                content += f"\n위치: {zone_area_name}"
+            
+            docs_data.append({
+                "page_content": content,
+                "metadata": {
+                    "name": name,
+                    "market_name": name,
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "operating_time": operating_time,
+                    "zone_area_name": zone_area_name,
+                    "source": "sql_lookup",
+                }
+            })
+    
     documents: List[Document] = []
     for row in docs_data:
         if not isinstance(row, dict):
@@ -282,6 +323,46 @@ def extract_user_query(state: AgentState) -> AgentState:
     }
 
 
+def _extract_market_keyword(query: str) -> str:
+    """
+    쿼리에서 마켓 이름/지역 키워드를 추출 (v13).
+    
+    예:
+    - "양림동 플리마켓 언제 열어?" → "양림"
+    - "상무지구 플리마켓 시간" → "상무"
+    - "동명동 예술골목 마켓" → "동명동"
+    """
+    import re
+    
+    # 지역 키워드 패턴 (동/구 이름)
+    district_patterns = [
+        r"(양림동|양림)", r"(동명동|동명)", r"(충장로|충장)",
+        r"(상무지구|상무)", r"(첨단|첨단지구)", r"(금남로|금남)",
+        r"(봉선동|봉선)", r"(치평동|치평)", r"(운남동|운남)",
+        r"(송정)", r"(문화전당)", r"(아시아문화)",
+    ]
+    
+    for pattern in district_patterns:
+        match = re.search(pattern, query, re.IGNORECASE)
+        if match:
+            return match.group(1)
+    
+    # 마켓 유형 키워드
+    market_types = ["플리마켓", "야시장", "축제", "팝업", "전시", "마켓"]
+    for mt in market_types:
+        if mt in query:
+            # 마켓 유형 앞의 단어를 추출
+            idx = query.find(mt)
+            if idx > 0:
+                prefix = query[:idx].strip().split()
+                if prefix:
+                    return prefix[-1]
+    
+    # 추출 실패 시 첫 2-3단어 반환
+    words = query.split()[:3]
+    return " ".join(words) if words else query
+
+
 def _should_use_sql_lookup(query: str, state: AgentState) -> bool:
     """
     SQL 직접 조회가 필요한지 판단.
@@ -298,8 +379,8 @@ def _should_use_sql_lookup(query: str, state: AgentState) -> bool:
     # 정확한 정보 요청 키워드
     exact_info_keywords = (
         "언제 열", "몇 시", "정확한 날짜", "정확한 시간",
-        "운영 시간", "영업 시간", "오픈 시간",
-        "시작일", "종료일", "기간이",
+        "운영시간", "운영 시간", "영업시간", "영업 시간", "오픈 시간",
+        "시작일", "종료일", "기간이", "일정",
     )
     
     # 상세 정보 요청 + 이전 대화에서 마켓 추천이 있었을 때
@@ -342,9 +423,10 @@ def schedule_consumer_tool_async(state: AgentState) -> AgentState:
         tool_args = None
     elif use_sql_lookup:
         tool_name = "popup_sql_lookup_async"
-        # SQL 조회 시 마켓 이름 추출
+        # SQL 조회 시 마켓 이름/키워드 추출 (v13 수정)
         query = _resolve_tool_query(state, web_search=False)
-        tool_args = {"name": query, "limit": 3}
+        market_keyword = _extract_market_keyword(query_text)
+        tool_args = {"name": market_keyword, "limit": 5}
     else:
         tool_name = "consumer_retrieve_async"
         query = _resolve_tool_query(state, web_search=False)
