@@ -1,0 +1,4657 @@
+[
+  {
+    "crawl_id": "DUMMY-동-0001",
+    "name": "대인동 거리공연 페스타",
+    "description": "대인동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "동구",
+    "neighborhood": "대인동",
+    "address": "광주광역시 동구 대인동",
+    "lat": 35.141123,
+    "lon": 126.930501,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-10",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "공연",
+    "price_range": "무료",
+    "attributes": [
+      "반려동물가능",
+      "주차가능",
+      "실내",
+      "가족추천"
+    ],
+    "tags": [
+      "동구",
+      "대인동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-동-0003",
+    "name": "동구 빈티지마켓",
+    "description": "동구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "동구",
+    "neighborhood": "금남로",
+    "address": "광주광역시 동구 금남로",
+    "lat": 35.136044,
+    "lon": 126.924235,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-13",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "실내",
+      "포토존"
+    ],
+    "tags": [
+      "동구",
+      "금남로",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-동-0005",
+    "name": "동구 빈티지마켓",
+    "description": "동구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "동구",
+    "neighborhood": "동명동",
+    "address": "광주광역시 동구 동명동",
+    "lat": 35.156642,
+    "lon": 126.911043,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-10",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "주차가능",
+      "푸드존",
+      "야외"
+    ],
+    "tags": [
+      "동구",
+      "동명동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.0
+  },
+  {
+    "crawl_id": "DUMMY-동-0007",
+    "name": "계림동 야시장",
+    "description": "계림동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "동구",
+    "neighborhood": "계림동",
+    "address": "광주광역시 동구 계림동",
+    "lat": 35.14133,
+    "lon": 126.929072,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-18",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "반려동물가능",
+      "체험가능",
+      "무료입장"
+    ],
+    "tags": [
+      "동구",
+      "계림동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.0
+  },
+  {
+    "crawl_id": "DUMMY-동-0009",
+    "name": "대인동 문화축제",
+    "description": "대인동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "동구",
+    "neighborhood": "대인동",
+    "address": "광주광역시 동구 대인동",
+    "lat": 35.135832,
+    "lon": 126.917898,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-08",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "체험가능",
+      "가족추천",
+      "반려동물가능"
+    ],
+    "tags": [
+      "동구",
+      "대인동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.0
+  },
+  {
+    "crawl_id": "DUMMY-동-0011",
+    "name": "동명동 문화축제",
+    "description": "동명동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "동구",
+    "neighborhood": "동명동",
+    "address": "광주광역시 동구 동명동",
+    "lat": 35.151958,
+    "lon": 126.92439,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "실내",
+      "체험가능",
+      "가족추천"
+    ],
+    "tags": [
+      "동구",
+      "동명동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-동-0013",
+    "name": "충장로 아트마켓",
+    "description": "충장로에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "동구",
+    "neighborhood": "충장로",
+    "address": "광주광역시 동구 충장로",
+    "lat": 35.146063,
+    "lon": 126.922467,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-07",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "전시",
+    "price_range": "₩",
+    "attributes": [
+      "주차가능",
+      "푸드존",
+      "무료입장"
+    ],
+    "tags": [
+      "동구",
+      "충장로",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-동-0015",
+    "name": "금남로 야시장",
+    "description": "금남로에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "동구",
+    "neighborhood": "금남로",
+    "address": "광주광역시 동구 금남로",
+    "lat": 35.136145,
+    "lon": 126.917787,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "무료입장",
+      "야외",
+      "주차가능"
+    ],
+    "tags": [
+      "동구",
+      "금남로",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-동-0017",
+    "name": "지산동 야시장",
+    "description": "지산동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "동구",
+    "neighborhood": "지산동",
+    "address": "광주광역시 동구 지산동",
+    "lat": 35.137331,
+    "lon": 126.932794,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-10",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "체험가능",
+      "무료입장",
+      "반려동물가능"
+    ],
+    "tags": [
+      "동구",
+      "지산동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-동-0019",
+    "name": "충장로 플리마켓",
+    "description": "충장로에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "동구",
+    "neighborhood": "충장로",
+    "address": "광주광역시 동구 충장로",
+    "lat": 35.134127,
+    "lon": 126.937668,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "포토존",
+      "주차가능",
+      "무료입장"
+    ],
+    "tags": [
+      "동구",
+      "충장로",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-동-0021",
+    "name": "산수동 주말시장",
+    "description": "매주 주말 산수동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "동구",
+    "neighborhood": "산수동",
+    "address": "광주광역시 동구 산수동",
+    "lat": 35.140544,
+    "lon": 126.913738,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-10",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "실내",
+      "가족추천"
+    ],
+    "tags": [
+      "동구",
+      "산수동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.0
+  },
+  {
+    "crawl_id": "DUMMY-동-0023",
+    "name": "금남로 플리마켓",
+    "description": "금남로에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "동구",
+    "neighborhood": "금남로",
+    "address": "광주광역시 동구 금남로",
+    "lat": 35.147173,
+    "lon": 126.909324,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-18",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "무료입장",
+      "가족추천",
+      "야외",
+      "푸드존"
+    ],
+    "tags": [
+      "동구",
+      "금남로",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-동-0025",
+    "name": "충장로 문화축제",
+    "description": "충장로 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "동구",
+    "neighborhood": "충장로",
+    "address": "광주광역시 동구 충장로",
+    "lat": 35.151948,
+    "lon": 126.912151,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-13",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "반려동물가능",
+      "체험가능",
+      "무료입장",
+      "가족추천"
+    ],
+    "tags": [
+      "동구",
+      "충장로",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.0
+  },
+  {
+    "crawl_id": "DUMMY-동-0027",
+    "name": "지산동 문화축제",
+    "description": "지산동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "동구",
+    "neighborhood": "지산동",
+    "address": "광주광역시 동구 지산동",
+    "lat": 35.144117,
+    "lon": 126.919376,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-17",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "가족추천",
+      "푸드존",
+      "야외",
+      "체험가능"
+    ],
+    "tags": [
+      "동구",
+      "지산동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-동-0029",
+    "name": "동구 빈티지마켓",
+    "description": "동구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "동구",
+    "neighborhood": "산수동",
+    "address": "광주광역시 동구 산수동",
+    "lat": 35.145614,
+    "lon": 126.925962,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-09",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "체험가능",
+      "야외",
+      "가족추천"
+    ],
+    "tags": [
+      "동구",
+      "산수동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-동-0031",
+    "name": "금남로 아트마켓",
+    "description": "금남로에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "동구",
+    "neighborhood": "금남로",
+    "address": "광주광역시 동구 금남로",
+    "lat": 35.142818,
+    "lon": 126.911188,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "전시",
+    "price_range": "₩",
+    "attributes": [
+      "체험가능",
+      "반려동물가능"
+    ],
+    "tags": [
+      "동구",
+      "금남로",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-동-0033",
+    "name": "금남로 문화축제",
+    "description": "금남로 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "동구",
+    "neighborhood": "금남로",
+    "address": "광주광역시 동구 금남로",
+    "lat": 35.154938,
+    "lon": 126.912363,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-08",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "반려동물가능",
+      "야외",
+      "무료입장"
+    ],
+    "tags": [
+      "동구",
+      "금남로",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-동-0035",
+    "name": "대인동 야시장",
+    "description": "대인동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "동구",
+    "neighborhood": "대인동",
+    "address": "광주광역시 동구 대인동",
+    "lat": 35.158547,
+    "lon": 126.928489,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "야시장",
+    "price_range": "무료",
+    "attributes": [
+      "반려동물가능",
+      "야외",
+      "무료입장"
+    ],
+    "tags": [
+      "동구",
+      "대인동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-동-0037",
+    "name": "산수동 문화축제",
+    "description": "산수동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "동구",
+    "neighborhood": "산수동",
+    "address": "광주광역시 동구 산수동",
+    "lat": 35.13242,
+    "lon": 126.921898,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-18",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "무료입장",
+      "야외"
+    ],
+    "tags": [
+      "동구",
+      "산수동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-동-0039",
+    "name": "금남로 아트마켓",
+    "description": "금남로에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "동구",
+    "neighborhood": "금남로",
+    "address": "광주광역시 동구 금남로",
+    "lat": 35.138177,
+    "lon": 126.927137,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-17",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "전시",
+    "price_range": "₩",
+    "attributes": [
+      "무료입장",
+      "가족추천",
+      "반려동물가능",
+      "푸드존"
+    ],
+    "tags": [
+      "동구",
+      "금남로",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-동-0041",
+    "name": "지산동 문화축제",
+    "description": "지산동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "동구",
+    "neighborhood": "지산동",
+    "address": "광주광역시 동구 지산동",
+    "lat": 35.141596,
+    "lon": 126.926029,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "실내",
+      "무료입장",
+      "가족추천"
+    ],
+    "tags": [
+      "동구",
+      "지산동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-동-0043",
+    "name": "산수동 문화축제",
+    "description": "산수동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "동구",
+    "neighborhood": "산수동",
+    "address": "광주광역시 동구 산수동",
+    "lat": 35.145033,
+    "lon": 126.922096,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-14",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "무료입장",
+      "체험가능",
+      "실내"
+    ],
+    "tags": [
+      "동구",
+      "산수동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-동-0045",
+    "name": "충장로 야시장",
+    "description": "충장로에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "동구",
+    "neighborhood": "충장로",
+    "address": "광주광역시 동구 충장로",
+    "lat": 35.155798,
+    "lon": 126.922773,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-22",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "야시장",
+    "price_range": "무료",
+    "attributes": [
+      "가족추천",
+      "무료입장",
+      "포토존",
+      "주차가능"
+    ],
+    "tags": [
+      "동구",
+      "충장로",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-동-0047",
+    "name": "금남로 아트마켓",
+    "description": "금남로에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "동구",
+    "neighborhood": "금남로",
+    "address": "광주광역시 동구 금남로",
+    "lat": 35.155229,
+    "lon": 126.927929,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-17",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "전시",
+    "price_range": "₩",
+    "attributes": [
+      "포토존",
+      "주차가능",
+      "실내"
+    ],
+    "tags": [
+      "동구",
+      "금남로",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-동-0049",
+    "name": "계림동 주말시장",
+    "description": "매주 주말 계림동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "동구",
+    "neighborhood": "계림동",
+    "address": "광주광역시 동구 계림동",
+    "lat": 35.13185,
+    "lon": 126.928911,
+    "start_date": "2025-12-12",
+    "end_date": "2025-12-18",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "반려동물가능",
+      "체험가능",
+      "주차가능"
+    ],
+    "tags": [
+      "동구",
+      "계림동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-동-0051",
+    "name": "동명동 푸드페스타",
+    "description": "동명동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "동구",
+    "neighborhood": "동명동",
+    "address": "광주광역시 동구 동명동",
+    "lat": 35.146944,
+    "lon": 126.910705,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "주차가능",
+      "실내",
+      "야외",
+      "푸드존"
+    ],
+    "tags": [
+      "동구",
+      "동명동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-동-0053",
+    "name": "충장로 문화축제",
+    "description": "충장로 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "동구",
+    "neighborhood": "충장로",
+    "address": "광주광역시 동구 충장로",
+    "lat": 35.132833,
+    "lon": 126.928378,
+    "start_date": "2025-12-09",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "야외",
+      "반려동물가능",
+      "무료입장",
+      "체험가능"
+    ],
+    "tags": [
+      "동구",
+      "충장로",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-동-0055",
+    "name": "동명동 플리마켓",
+    "description": "동명동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "동구",
+    "neighborhood": "동명동",
+    "address": "광주광역시 동구 동명동",
+    "lat": 35.153866,
+    "lon": 126.924491,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-21",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "반려동물가능",
+      "체험가능"
+    ],
+    "tags": [
+      "동구",
+      "동명동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-동-0057",
+    "name": "계림동 거리공연 페스타",
+    "description": "계림동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "동구",
+    "neighborhood": "계림동",
+    "address": "광주광역시 동구 계림동",
+    "lat": 35.146761,
+    "lon": 126.914464,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "공연",
+    "price_range": "₩",
+    "attributes": [
+      "반려동물가능",
+      "포토존"
+    ],
+    "tags": [
+      "동구",
+      "계림동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-동-0059",
+    "name": "동명동 야시장",
+    "description": "동명동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "동구",
+    "neighborhood": "동명동",
+    "address": "광주광역시 동구 동명동",
+    "lat": 35.133703,
+    "lon": 126.910274,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-09",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "야외",
+      "포토존",
+      "가족추천"
+    ],
+    "tags": [
+      "동구",
+      "동명동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-서-0031",
+    "name": "화정동 거리공연 페스타",
+    "description": "화정동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "서구",
+    "neighborhood": "화정동",
+    "address": "광주광역시 서구 화정동",
+    "lat": 35.155104,
+    "lon": 126.901861,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "공연",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "반려동물가능",
+      "주차가능",
+      "체험가능"
+    ],
+    "tags": [
+      "서구",
+      "화정동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-서-0033",
+    "name": "농성동 거리공연 페스타",
+    "description": "농성동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "서구",
+    "neighborhood": "농성동",
+    "address": "광주광역시 서구 농성동",
+    "lat": 35.139488,
+    "lon": 126.879528,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "공연",
+    "price_range": "무료",
+    "attributes": [
+      "포토존",
+      "주차가능",
+      "무료입장",
+      "푸드존"
+    ],
+    "tags": [
+      "서구",
+      "농성동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-서-0035",
+    "name": "상무지구 문화축제",
+    "description": "상무지구 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "서구",
+    "neighborhood": "상무지구",
+    "address": "광주광역시 서구 상무지구",
+    "lat": 35.161805,
+    "lon": 126.888349,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-14",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "포토존",
+      "반려동물가능",
+      "체험가능"
+    ],
+    "tags": [
+      "서구",
+      "상무지구",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-서-0037",
+    "name": "양동 주말시장",
+    "description": "매주 주말 양동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "서구",
+    "neighborhood": "양동",
+    "address": "광주광역시 서구 양동",
+    "lat": 35.139035,
+    "lon": 126.890609,
+    "start_date": "2025-12-09",
+    "end_date": "2025-12-13",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "주차가능",
+      "무료입장",
+      "체험가능",
+      "실내"
+    ],
+    "tags": [
+      "서구",
+      "양동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-서-0039",
+    "name": "풍암동 플리마켓",
+    "description": "풍암동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "서구",
+    "neighborhood": "풍암동",
+    "address": "광주광역시 서구 풍암동",
+    "lat": 35.141854,
+    "lon": 126.894838,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "반려동물가능",
+      "주차가능",
+      "무료입장"
+    ],
+    "tags": [
+      "서구",
+      "풍암동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-서-0041",
+    "name": "화정동 문화축제",
+    "description": "화정동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "서구",
+    "neighborhood": "화정동",
+    "address": "광주광역시 서구 화정동",
+    "lat": 35.136942,
+    "lon": 126.903501,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "실내",
+      "체험가능"
+    ],
+    "tags": [
+      "서구",
+      "화정동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-서-0043",
+    "name": "서구 빈티지마켓",
+    "description": "서구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "서구",
+    "neighborhood": "화정동",
+    "address": "광주광역시 서구 화정동",
+    "lat": 35.161996,
+    "lon": 126.8774,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-21",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "주차가능",
+      "반려동물가능",
+      "포토존"
+    ],
+    "tags": [
+      "서구",
+      "화정동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-서-0045",
+    "name": "서구 빈티지마켓",
+    "description": "서구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "서구",
+    "neighborhood": "농성동",
+    "address": "광주광역시 서구 농성동",
+    "lat": 35.148711,
+    "lon": 126.897158,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-19",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "포토존",
+      "체험가능",
+      "가족추천"
+    ],
+    "tags": [
+      "서구",
+      "농성동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-서-0047",
+    "name": "풍암동 푸드페스타",
+    "description": "풍암동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "서구",
+    "neighborhood": "풍암동",
+    "address": "광주광역시 서구 풍암동",
+    "lat": 35.152272,
+    "lon": 126.904195,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-17",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "무료입장",
+      "실내",
+      "포토존"
+    ],
+    "tags": [
+      "서구",
+      "풍암동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-서-0049",
+    "name": "양동 문화축제",
+    "description": "양동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "서구",
+    "neighborhood": "양동",
+    "address": "광주광역시 서구 양동",
+    "lat": 35.140781,
+    "lon": 126.876367,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-18",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "반려동물가능"
+    ],
+    "tags": [
+      "서구",
+      "양동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-서-0051",
+    "name": "농성동 거리공연 페스타",
+    "description": "농성동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "서구",
+    "neighborhood": "농성동",
+    "address": "광주광역시 서구 농성동",
+    "lat": 35.145268,
+    "lon": 126.89075,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "공연",
+    "price_range": "무료",
+    "attributes": [
+      "주차가능",
+      "무료입장",
+      "실내"
+    ],
+    "tags": [
+      "서구",
+      "농성동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-서-0053",
+    "name": "상무지구 아트마켓",
+    "description": "상무지구에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "서구",
+    "neighborhood": "상무지구",
+    "address": "광주광역시 서구 상무지구",
+    "lat": 35.146279,
+    "lon": 126.89287,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-17",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "전시",
+    "price_range": "₩",
+    "attributes": [
+      "반려동물가능",
+      "가족추천"
+    ],
+    "tags": [
+      "서구",
+      "상무지구",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-서-0055",
+    "name": "양동 플리마켓",
+    "description": "양동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "서구",
+    "neighborhood": "양동",
+    "address": "광주광역시 서구 양동",
+    "lat": 35.143606,
+    "lon": 126.904237,
+    "start_date": "2025-12-09",
+    "end_date": "2025-12-14",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "무료입장",
+      "반려동물가능",
+      "체험가능"
+    ],
+    "tags": [
+      "서구",
+      "양동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-서-0057",
+    "name": "양동 주말시장",
+    "description": "매주 주말 양동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "서구",
+    "neighborhood": "양동",
+    "address": "광주광역시 서구 양동",
+    "lat": 35.137297,
+    "lon": 126.875579,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-18",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "체험가능"
+    ],
+    "tags": [
+      "서구",
+      "양동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-서-0059",
+    "name": "상무지구 아트마켓",
+    "description": "상무지구에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "서구",
+    "neighborhood": "상무지구",
+    "address": "광주광역시 서구 상무지구",
+    "lat": 35.146978,
+    "lon": 126.902228,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-17",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "전시",
+    "price_range": "무료",
+    "attributes": [
+      "무료입장",
+      "푸드존",
+      "포토존"
+    ],
+    "tags": [
+      "서구",
+      "상무지구",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-서-0061",
+    "name": "상무지구 문화축제",
+    "description": "상무지구 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "서구",
+    "neighborhood": "상무지구",
+    "address": "광주광역시 서구 상무지구",
+    "lat": 35.160751,
+    "lon": 126.883366,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "실내",
+      "야외",
+      "체험가능",
+      "포토존"
+    ],
+    "tags": [
+      "서구",
+      "상무지구",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-서-0063",
+    "name": "서구 빈티지마켓",
+    "description": "서구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "서구",
+    "neighborhood": "양동",
+    "address": "광주광역시 서구 양동",
+    "lat": 35.163859,
+    "lon": 126.874561,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-21",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "무료입장",
+      "야외",
+      "푸드존"
+    ],
+    "tags": [
+      "서구",
+      "양동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-서-0065",
+    "name": "치평동 아트마켓",
+    "description": "치평동에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "서구",
+    "neighborhood": "치평동",
+    "address": "광주광역시 서구 치평동",
+    "lat": 35.137294,
+    "lon": 126.884662,
+    "start_date": "2025-12-09",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "전시",
+    "price_range": "무료",
+    "attributes": [
+      "야외",
+      "포토존",
+      "주차가능"
+    ],
+    "tags": [
+      "서구",
+      "치평동",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-서-0067",
+    "name": "화정동 플리마켓",
+    "description": "화정동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "서구",
+    "neighborhood": "화정동",
+    "address": "광주광역시 서구 화정동",
+    "lat": 35.139818,
+    "lon": 126.888869,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-20",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "야외",
+      "무료입장",
+      "체험가능",
+      "푸드존"
+    ],
+    "tags": [
+      "서구",
+      "화정동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-서-0069",
+    "name": "양동 플리마켓",
+    "description": "양동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "서구",
+    "neighborhood": "양동",
+    "address": "광주광역시 서구 양동",
+    "lat": 35.158508,
+    "lon": 126.893921,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-21",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "실내",
+      "체험가능",
+      "야외"
+    ],
+    "tags": [
+      "서구",
+      "양동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-서-0071",
+    "name": "화정동 거리공연 페스타",
+    "description": "화정동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "서구",
+    "neighborhood": "화정동",
+    "address": "광주광역시 서구 화정동",
+    "lat": 35.143322,
+    "lon": 126.879141,
+    "start_date": "2025-12-12",
+    "end_date": "2025-12-14",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "공연",
+    "price_range": "₩",
+    "attributes": [
+      "실내",
+      "체험가능",
+      "가족추천"
+    ],
+    "tags": [
+      "서구",
+      "화정동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-서-0073",
+    "name": "치평동 주말시장",
+    "description": "매주 주말 치평동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "서구",
+    "neighborhood": "치평동",
+    "address": "광주광역시 서구 치평동",
+    "lat": 35.157501,
+    "lon": 126.888623,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "가족추천",
+      "주차가능",
+      "반려동물가능",
+      "체험가능"
+    ],
+    "tags": [
+      "서구",
+      "치평동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-서-0075",
+    "name": "풍암동 야시장",
+    "description": "풍암동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "서구",
+    "neighborhood": "풍암동",
+    "address": "광주광역시 서구 풍암동",
+    "lat": 35.151535,
+    "lon": 126.902462,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "야시장",
+    "price_range": "무료",
+    "attributes": [
+      "가족추천",
+      "주차가능"
+    ],
+    "tags": [
+      "서구",
+      "풍암동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-서-0077",
+    "name": "양동 야시장",
+    "description": "양동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "서구",
+    "neighborhood": "양동",
+    "address": "광주광역시 서구 양동",
+    "lat": 35.151681,
+    "lon": 126.879299,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-14",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "야시장",
+    "price_range": "무료",
+    "attributes": [
+      "반려동물가능",
+      "푸드존",
+      "무료입장",
+      "실내"
+    ],
+    "tags": [
+      "서구",
+      "양동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-서-0079",
+    "name": "상무지구 야시장",
+    "description": "상무지구에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "서구",
+    "neighborhood": "상무지구",
+    "address": "광주광역시 서구 상무지구",
+    "lat": 35.157783,
+    "lon": 126.885802,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-14",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "가족추천",
+      "무료입장",
+      "반려동물가능"
+    ],
+    "tags": [
+      "서구",
+      "상무지구",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-서-0081",
+    "name": "상무지구 플리마켓",
+    "description": "상무지구에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "서구",
+    "neighborhood": "상무지구",
+    "address": "광주광역시 서구 상무지구",
+    "lat": 35.15618,
+    "lon": 126.898671,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-22",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "포토존",
+      "가족추천",
+      "실내"
+    ],
+    "tags": [
+      "서구",
+      "상무지구",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-서-0083",
+    "name": "치평동 주말시장",
+    "description": "매주 주말 치평동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "서구",
+    "neighborhood": "치평동",
+    "address": "광주광역시 서구 치평동",
+    "lat": 35.150861,
+    "lon": 126.887228,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "주차가능"
+    ],
+    "tags": [
+      "서구",
+      "치평동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-서-0085",
+    "name": "양동 주말시장",
+    "description": "매주 주말 양동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "서구",
+    "neighborhood": "양동",
+    "address": "광주광역시 서구 양동",
+    "lat": 35.154331,
+    "lon": 126.87677,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "무료입장",
+      "실내"
+    ],
+    "tags": [
+      "서구",
+      "양동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-서-0087",
+    "name": "상무지구 주말시장",
+    "description": "매주 주말 상무지구에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "서구",
+    "neighborhood": "상무지구",
+    "address": "광주광역시 서구 상무지구",
+    "lat": 35.166572,
+    "lon": 126.90289,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-08",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "체험가능",
+      "실내",
+      "푸드존",
+      "주차가능"
+    ],
+    "tags": [
+      "서구",
+      "상무지구",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-서-0089",
+    "name": "양동 푸드페스타",
+    "description": "양동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "서구",
+    "neighborhood": "양동",
+    "address": "광주광역시 서구 양동",
+    "lat": 35.161091,
+    "lon": 126.888193,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "포토존",
+      "푸드존"
+    ],
+    "tags": [
+      "서구",
+      "양동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-남-0061",
+    "name": "양림동 문화축제",
+    "description": "양림동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "남구",
+    "neighborhood": "양림동",
+    "address": "광주광역시 남구 양림동",
+    "lat": 35.133801,
+    "lon": 126.905162,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "실내",
+      "체험가능",
+      "반려동물가능"
+    ],
+    "tags": [
+      "남구",
+      "양림동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-남-0063",
+    "name": "봉선동 푸드페스타",
+    "description": "봉선동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "남구",
+    "neighborhood": "봉선동",
+    "address": "광주광역시 남구 봉선동",
+    "lat": 35.14791,
+    "lon": 126.911262,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-20",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "반려동물가능",
+      "체험가능",
+      "가족추천"
+    ],
+    "tags": [
+      "남구",
+      "봉선동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-남-0065",
+    "name": "백운동 문화축제",
+    "description": "백운동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "남구",
+    "neighborhood": "백운동",
+    "address": "광주광역시 남구 백운동",
+    "lat": 35.135745,
+    "lon": 126.909892,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-14",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "주차가능",
+      "무료입장"
+    ],
+    "tags": [
+      "남구",
+      "백운동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-남-0067",
+    "name": "진월동 아트마켓",
+    "description": "진월동에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "남구",
+    "neighborhood": "진월동",
+    "address": "광주광역시 남구 진월동",
+    "lat": 35.126117,
+    "lon": 126.915572,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-21",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "전시",
+    "price_range": "₩",
+    "attributes": [
+      "반려동물가능",
+      "포토존",
+      "무료입장"
+    ],
+    "tags": [
+      "남구",
+      "진월동",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-남-0069",
+    "name": "양림동 플리마켓",
+    "description": "양림동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "남구",
+    "neighborhood": "양림동",
+    "address": "광주광역시 남구 양림동",
+    "lat": 35.139221,
+    "lon": 126.916393,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-09",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "반려동물가능",
+      "체험가능",
+      "주차가능",
+      "가족추천"
+    ],
+    "tags": [
+      "남구",
+      "양림동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.0
+  },
+  {
+    "crawl_id": "DUMMY-남-0071",
+    "name": "봉선동 주말시장",
+    "description": "매주 주말 봉선동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "남구",
+    "neighborhood": "봉선동",
+    "address": "광주광역시 남구 봉선동",
+    "lat": 35.121897,
+    "lon": 126.89291,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-21",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "가족추천",
+      "체험가능",
+      "야외"
+    ],
+    "tags": [
+      "남구",
+      "봉선동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-남-0073",
+    "name": "봉선동 거리공연 페스타",
+    "description": "봉선동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "남구",
+    "neighborhood": "봉선동",
+    "address": "광주광역시 남구 봉선동",
+    "lat": 35.131102,
+    "lon": 126.901713,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-09",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "공연",
+    "price_range": "무료",
+    "attributes": [
+      "반려동물가능",
+      "무료입장",
+      "가족추천",
+      "야외"
+    ],
+    "tags": [
+      "남구",
+      "봉선동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-남-0075",
+    "name": "백운동 푸드페스타",
+    "description": "백운동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "남구",
+    "neighborhood": "백운동",
+    "address": "광주광역시 남구 백운동",
+    "lat": 35.135567,
+    "lon": 126.907896,
+    "start_date": "2025-12-09",
+    "end_date": "2025-12-14",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "가족추천",
+      "포토존",
+      "무료입장",
+      "주차가능"
+    ],
+    "tags": [
+      "남구",
+      "백운동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-남-0077",
+    "name": "양림동 아트마켓",
+    "description": "양림동에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "남구",
+    "neighborhood": "양림동",
+    "address": "광주광역시 남구 양림동",
+    "lat": 35.142256,
+    "lon": 126.903475,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-08",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "전시",
+    "price_range": "무료",
+    "attributes": [
+      "야외",
+      "주차가능"
+    ],
+    "tags": [
+      "남구",
+      "양림동",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-남-0079",
+    "name": "방림동 야시장",
+    "description": "방림동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "남구",
+    "neighborhood": "방림동",
+    "address": "광주광역시 남구 방림동",
+    "lat": 35.127385,
+    "lon": 126.895514,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-13",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "야시장",
+    "price_range": "무료",
+    "attributes": [
+      "실내",
+      "야외",
+      "푸드존",
+      "체험가능"
+    ],
+    "tags": [
+      "남구",
+      "방림동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-남-0081",
+    "name": "남구 빈티지마켓",
+    "description": "남구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "남구",
+    "neighborhood": "주월동",
+    "address": "광주광역시 남구 주월동",
+    "lat": 35.138454,
+    "lon": 126.896988,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-07",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "반려동물가능",
+      "체험가능",
+      "실내",
+      "주차가능"
+    ],
+    "tags": [
+      "남구",
+      "주월동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.8
+  },
+  {
+    "crawl_id": "DUMMY-남-0083",
+    "name": "봉선동 거리공연 페스타",
+    "description": "봉선동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "남구",
+    "neighborhood": "봉선동",
+    "address": "광주광역시 남구 봉선동",
+    "lat": 35.124778,
+    "lon": 126.901674,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-14",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "공연",
+    "price_range": "무료",
+    "attributes": [
+      "가족추천",
+      "주차가능"
+    ],
+    "tags": [
+      "남구",
+      "봉선동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-남-0085",
+    "name": "백운동 문화축제",
+    "description": "백운동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "남구",
+    "neighborhood": "백운동",
+    "address": "광주광역시 남구 백운동",
+    "lat": 35.140255,
+    "lon": 126.889142,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "포토존",
+      "반려동물가능",
+      "푸드존"
+    ],
+    "tags": [
+      "남구",
+      "백운동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-남-0087",
+    "name": "주월동 플리마켓",
+    "description": "주월동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "남구",
+    "neighborhood": "주월동",
+    "address": "광주광역시 남구 주월동",
+    "lat": 35.135929,
+    "lon": 126.909432,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-21",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "푸드존",
+      "가족추천",
+      "반려동물가능"
+    ],
+    "tags": [
+      "남구",
+      "주월동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.8
+  },
+  {
+    "crawl_id": "DUMMY-남-0089",
+    "name": "백운동 주말시장",
+    "description": "매주 주말 백운동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "남구",
+    "neighborhood": "백운동",
+    "address": "광주광역시 남구 백운동",
+    "lat": 35.142595,
+    "lon": 126.917352,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "가족추천",
+      "체험가능",
+      "야외"
+    ],
+    "tags": [
+      "남구",
+      "백운동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-남-0091",
+    "name": "양림동 야시장",
+    "description": "양림동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "남구",
+    "neighborhood": "양림동",
+    "address": "광주광역시 남구 양림동",
+    "lat": 35.131911,
+    "lon": 126.897925,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-19",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "야시장",
+    "price_range": "무료",
+    "attributes": [
+      "반려동물가능",
+      "푸드존"
+    ],
+    "tags": [
+      "남구",
+      "양림동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-남-0093",
+    "name": "봉선동 야시장",
+    "description": "봉선동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "남구",
+    "neighborhood": "봉선동",
+    "address": "광주광역시 남구 봉선동",
+    "lat": 35.142785,
+    "lon": 126.890137,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-22",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "반려동물가능",
+      "무료입장",
+      "가족추천",
+      "실내"
+    ],
+    "tags": [
+      "남구",
+      "봉선동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-남-0095",
+    "name": "양림동 아트마켓",
+    "description": "양림동에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "남구",
+    "neighborhood": "양림동",
+    "address": "광주광역시 남구 양림동",
+    "lat": 35.121522,
+    "lon": 126.887737,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-08",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "전시",
+    "price_range": "무료",
+    "attributes": [
+      "무료입장",
+      "주차가능"
+    ],
+    "tags": [
+      "남구",
+      "양림동",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.0
+  },
+  {
+    "crawl_id": "DUMMY-남-0097",
+    "name": "양림동 거리공연 페스타",
+    "description": "양림동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "남구",
+    "neighborhood": "양림동",
+    "address": "광주광역시 남구 양림동",
+    "lat": 35.135494,
+    "lon": 126.888135,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "공연",
+    "price_range": "무료",
+    "attributes": [
+      "야외",
+      "체험가능",
+      "반려동물가능"
+    ],
+    "tags": [
+      "남구",
+      "양림동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-남-0099",
+    "name": "봉선동 주말시장",
+    "description": "매주 주말 봉선동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "남구",
+    "neighborhood": "봉선동",
+    "address": "광주광역시 남구 봉선동",
+    "lat": 35.143594,
+    "lon": 126.910141,
+    "start_date": "2025-12-12",
+    "end_date": "2025-12-18",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "푸드존",
+      "무료입장",
+      "체험가능"
+    ],
+    "tags": [
+      "남구",
+      "봉선동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-남-0101",
+    "name": "백운동 문화축제",
+    "description": "백운동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "남구",
+    "neighborhood": "백운동",
+    "address": "광주광역시 남구 백운동",
+    "lat": 35.137343,
+    "lon": 126.909709,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-14",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "체험가능",
+      "무료입장",
+      "반려동물가능"
+    ],
+    "tags": [
+      "남구",
+      "백운동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-남-0103",
+    "name": "봉선동 문화축제",
+    "description": "봉선동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "남구",
+    "neighborhood": "봉선동",
+    "address": "광주광역시 남구 봉선동",
+    "lat": 35.13168,
+    "lon": 126.888394,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "포토존",
+      "실내",
+      "푸드존",
+      "반려동물가능"
+    ],
+    "tags": [
+      "남구",
+      "봉선동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-남-0105",
+    "name": "진월동 거리공연 페스타",
+    "description": "진월동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "남구",
+    "neighborhood": "진월동",
+    "address": "광주광역시 남구 진월동",
+    "lat": 35.130113,
+    "lon": 126.908148,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-08",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "공연",
+    "price_range": "무료",
+    "attributes": [
+      "무료입장",
+      "가족추천",
+      "포토존"
+    ],
+    "tags": [
+      "남구",
+      "진월동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-남-0107",
+    "name": "백운동 야시장",
+    "description": "백운동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "남구",
+    "neighborhood": "백운동",
+    "address": "광주광역시 남구 백운동",
+    "lat": 35.129556,
+    "lon": 126.899391,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-17",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "가족추천",
+      "포토존",
+      "야외"
+    ],
+    "tags": [
+      "남구",
+      "백운동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-남-0109",
+    "name": "봉선동 아트마켓",
+    "description": "봉선동에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "남구",
+    "neighborhood": "봉선동",
+    "address": "광주광역시 남구 봉선동",
+    "lat": 35.13635,
+    "lon": 126.913297,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-13",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "전시",
+    "price_range": "₩",
+    "attributes": [
+      "체험가능",
+      "무료입장",
+      "주차가능"
+    ],
+    "tags": [
+      "남구",
+      "봉선동",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-남-0111",
+    "name": "진월동 푸드페스타",
+    "description": "진월동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "남구",
+    "neighborhood": "진월동",
+    "address": "광주광역시 남구 진월동",
+    "lat": 35.120941,
+    "lon": 126.901285,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-21",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "체험가능",
+      "무료입장"
+    ],
+    "tags": [
+      "남구",
+      "진월동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-남-0113",
+    "name": "진월동 주말시장",
+    "description": "매주 주말 진월동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "남구",
+    "neighborhood": "진월동",
+    "address": "광주광역시 남구 진월동",
+    "lat": 35.121936,
+    "lon": 126.895204,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-09",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "체험가능",
+      "무료입장",
+      "야외"
+    ],
+    "tags": [
+      "남구",
+      "진월동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-남-0115",
+    "name": "진월동 문화축제",
+    "description": "진월동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "남구",
+    "neighborhood": "진월동",
+    "address": "광주광역시 남구 진월동",
+    "lat": 35.145619,
+    "lon": 126.891084,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "야외",
+      "가족추천",
+      "실내",
+      "푸드존"
+    ],
+    "tags": [
+      "남구",
+      "진월동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-남-0117",
+    "name": "주월동 거리공연 페스타",
+    "description": "주월동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "남구",
+    "neighborhood": "주월동",
+    "address": "광주광역시 남구 주월동",
+    "lat": 35.122832,
+    "lon": 126.908518,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-08",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "공연",
+    "price_range": "₩",
+    "attributes": [
+      "반려동물가능",
+      "체험가능"
+    ],
+    "tags": [
+      "남구",
+      "주월동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-남-0119",
+    "name": "백운동 플리마켓",
+    "description": "백운동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "남구",
+    "neighborhood": "백운동",
+    "address": "광주광역시 남구 백운동",
+    "lat": 35.120578,
+    "lon": 126.911083,
+    "start_date": "2025-12-12",
+    "end_date": "2025-12-17",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "포토존",
+      "푸드존"
+    ],
+    "tags": [
+      "남구",
+      "백운동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-북-0091",
+    "name": "일곡동 야시장",
+    "description": "일곡동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "북구",
+    "neighborhood": "일곡동",
+    "address": "광주광역시 북구 일곡동",
+    "lat": 35.186645,
+    "lon": 126.923817,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-22",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "반려동물가능",
+      "푸드존",
+      "주차가능"
+    ],
+    "tags": [
+      "북구",
+      "일곡동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-북-0093",
+    "name": "오룡동 야시장",
+    "description": "오룡동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "북구",
+    "neighborhood": "오룡동",
+    "address": "광주광역시 북구 오룡동",
+    "lat": 35.170597,
+    "lon": 126.905813,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-21",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "무료입장",
+      "실내",
+      "야외",
+      "주차가능"
+    ],
+    "tags": [
+      "북구",
+      "오룡동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-북-0095",
+    "name": "일곡동 플리마켓",
+    "description": "일곡동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "북구",
+    "neighborhood": "일곡동",
+    "address": "광주광역시 북구 일곡동",
+    "lat": 35.167172,
+    "lon": 126.900967,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "야외",
+      "실내",
+      "포토존"
+    ],
+    "tags": [
+      "북구",
+      "일곡동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-북-0097",
+    "name": "용봉동 거리공연 페스타",
+    "description": "용봉동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "북구",
+    "neighborhood": "용봉동",
+    "address": "광주광역시 북구 용봉동",
+    "lat": 35.177518,
+    "lon": 126.927016,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "공연",
+    "price_range": "무료",
+    "attributes": [
+      "푸드존",
+      "가족추천"
+    ],
+    "tags": [
+      "북구",
+      "용봉동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-북-0099",
+    "name": "용봉동 푸드페스타",
+    "description": "용봉동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "북구",
+    "neighborhood": "용봉동",
+    "address": "광주광역시 북구 용봉동",
+    "lat": 35.171806,
+    "lon": 126.898823,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "포토존",
+      "반려동물가능",
+      "가족추천",
+      "체험가능"
+    ],
+    "tags": [
+      "북구",
+      "용봉동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.0
+  },
+  {
+    "crawl_id": "DUMMY-북-0101",
+    "name": "일곡동 문화축제",
+    "description": "일곡동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "북구",
+    "neighborhood": "일곡동",
+    "address": "광주광역시 북구 일곡동",
+    "lat": 35.169422,
+    "lon": 126.921715,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "무료입장",
+      "가족추천",
+      "포토존",
+      "야외"
+    ],
+    "tags": [
+      "북구",
+      "일곡동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-북-0103",
+    "name": "일곡동 주말시장",
+    "description": "매주 주말 일곡동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "북구",
+    "neighborhood": "일곡동",
+    "address": "광주광역시 북구 일곡동",
+    "lat": 35.184903,
+    "lon": 126.918261,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-08",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "가족추천",
+      "반려동물가능",
+      "야외",
+      "포토존"
+    ],
+    "tags": [
+      "북구",
+      "일곡동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-북-0105",
+    "name": "오룡동 주말시장",
+    "description": "매주 주말 오룡동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "북구",
+    "neighborhood": "오룡동",
+    "address": "광주광역시 북구 오룡동",
+    "lat": 35.171659,
+    "lon": 126.921829,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-13",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "푸드존",
+      "무료입장",
+      "야외"
+    ],
+    "tags": [
+      "북구",
+      "오룡동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-북-0107",
+    "name": "문흥동 문화축제",
+    "description": "문흥동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "북구",
+    "neighborhood": "문흥동",
+    "address": "광주광역시 북구 문흥동",
+    "lat": 35.178378,
+    "lon": 126.917974,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "실내",
+      "가족추천"
+    ],
+    "tags": [
+      "북구",
+      "문흥동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-북-0109",
+    "name": "오룡동 플리마켓",
+    "description": "오룡동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "북구",
+    "neighborhood": "오룡동",
+    "address": "광주광역시 북구 오룡동",
+    "lat": 35.188393,
+    "lon": 126.925505,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-20",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "가족추천",
+      "푸드존"
+    ],
+    "tags": [
+      "북구",
+      "오룡동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-북-0111",
+    "name": "오룡동 거리공연 페스타",
+    "description": "오룡동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "북구",
+    "neighborhood": "오룡동",
+    "address": "광주광역시 북구 오룡동",
+    "lat": 35.165493,
+    "lon": 126.912842,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-13",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "공연",
+    "price_range": "₩",
+    "attributes": [
+      "반려동물가능",
+      "주차가능",
+      "실내"
+    ],
+    "tags": [
+      "북구",
+      "오룡동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-북-0113",
+    "name": "문흥동 플리마켓",
+    "description": "문흥동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "북구",
+    "neighborhood": "문흥동",
+    "address": "광주광역시 북구 문흥동",
+    "lat": 35.187538,
+    "lon": 126.913122,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "야외",
+      "체험가능"
+    ],
+    "tags": [
+      "북구",
+      "문흥동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-북-0115",
+    "name": "오룡동 아트마켓",
+    "description": "오룡동에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "북구",
+    "neighborhood": "오룡동",
+    "address": "광주광역시 북구 오룡동",
+    "lat": 35.178588,
+    "lon": 126.905824,
+    "start_date": "2025-12-09",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "전시",
+    "price_range": "무료",
+    "attributes": [
+      "무료입장",
+      "반려동물가능",
+      "푸드존"
+    ],
+    "tags": [
+      "북구",
+      "오룡동",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-북-0117",
+    "name": "용봉동 아트마켓",
+    "description": "용봉동에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "북구",
+    "neighborhood": "용봉동",
+    "address": "광주광역시 북구 용봉동",
+    "lat": 35.183711,
+    "lon": 126.920737,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-18",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "전시",
+    "price_range": "₩",
+    "attributes": [
+      "무료입장",
+      "푸드존",
+      "야외"
+    ],
+    "tags": [
+      "북구",
+      "용봉동",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-북-0119",
+    "name": "운암동 푸드페스타",
+    "description": "운암동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "북구",
+    "neighborhood": "운암동",
+    "address": "광주광역시 북구 운암동",
+    "lat": 35.169898,
+    "lon": 126.918978,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-06",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "주차가능",
+      "무료입장",
+      "포토존"
+    ],
+    "tags": [
+      "북구",
+      "운암동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-북-0121",
+    "name": "용봉동 야시장",
+    "description": "용봉동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "북구",
+    "neighborhood": "용봉동",
+    "address": "광주광역시 북구 용봉동",
+    "lat": 35.160105,
+    "lon": 126.918059,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-20",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "무료입장",
+      "포토존",
+      "실내"
+    ],
+    "tags": [
+      "북구",
+      "용봉동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-북-0123",
+    "name": "운암동 야시장",
+    "description": "운암동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "북구",
+    "neighborhood": "운암동",
+    "address": "광주광역시 북구 운암동",
+    "lat": 35.168362,
+    "lon": 126.906326,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "가족추천",
+      "체험가능",
+      "야외",
+      "주차가능"
+    ],
+    "tags": [
+      "북구",
+      "운암동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-북-0125",
+    "name": "문흥동 푸드페스타",
+    "description": "문흥동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "북구",
+    "neighborhood": "문흥동",
+    "address": "광주광역시 북구 문흥동",
+    "lat": 35.186005,
+    "lon": 126.911672,
+    "start_date": "2025-12-15",
+    "end_date": "2025-12-17",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "포토존",
+      "푸드존",
+      "반려동물가능"
+    ],
+    "tags": [
+      "북구",
+      "문흥동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-북-0127",
+    "name": "문흥동 거리공연 페스타",
+    "description": "문흥동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "북구",
+    "neighborhood": "문흥동",
+    "address": "광주광역시 북구 문흥동",
+    "lat": 35.167894,
+    "lon": 126.902014,
+    "start_date": "2025-12-12",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "공연",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "가족추천"
+    ],
+    "tags": [
+      "북구",
+      "문흥동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-북-0129",
+    "name": "일곡동 야시장",
+    "description": "일곡동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "북구",
+    "neighborhood": "일곡동",
+    "address": "광주광역시 북구 일곡동",
+    "lat": 35.175428,
+    "lon": 126.903731,
+    "start_date": "2025-12-09",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "야시장",
+    "price_range": "무료",
+    "attributes": [
+      "푸드존",
+      "체험가능",
+      "포토존"
+    ],
+    "tags": [
+      "북구",
+      "일곡동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.0
+  },
+  {
+    "crawl_id": "DUMMY-북-0131",
+    "name": "일곡동 푸드페스타",
+    "description": "일곡동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "북구",
+    "neighborhood": "일곡동",
+    "address": "광주광역시 북구 일곡동",
+    "lat": 35.178816,
+    "lon": 126.90764,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "야외",
+      "반려동물가능",
+      "가족추천"
+    ],
+    "tags": [
+      "북구",
+      "일곡동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-북-0133",
+    "name": "문흥동 주말시장",
+    "description": "매주 주말 문흥동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "북구",
+    "neighborhood": "문흥동",
+    "address": "광주광역시 북구 문흥동",
+    "lat": 35.1785,
+    "lon": 126.926198,
+    "start_date": "2025-12-09",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "푸드존",
+      "가족추천"
+    ],
+    "tags": [
+      "북구",
+      "문흥동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-북-0135",
+    "name": "문흥동 푸드페스타",
+    "description": "문흥동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "북구",
+    "neighborhood": "문흥동",
+    "address": "광주광역시 북구 문흥동",
+    "lat": 35.176245,
+    "lon": 126.915028,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "야외",
+      "반려동물가능",
+      "체험가능",
+      "가족추천"
+    ],
+    "tags": [
+      "북구",
+      "문흥동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-북-0137",
+    "name": "북구 빈티지마켓",
+    "description": "북구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "북구",
+    "neighborhood": "오룡동",
+    "address": "광주광역시 북구 오룡동",
+    "lat": 35.163496,
+    "lon": 126.922456,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "실내",
+      "푸드존",
+      "가족추천"
+    ],
+    "tags": [
+      "북구",
+      "오룡동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-북-0139",
+    "name": "두암동 푸드페스타",
+    "description": "두암동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "북구",
+    "neighborhood": "두암동",
+    "address": "광주광역시 북구 두암동",
+    "lat": 35.177251,
+    "lon": 126.905372,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "야외"
+    ],
+    "tags": [
+      "북구",
+      "두암동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-북-0141",
+    "name": "용봉동 문화축제",
+    "description": "용봉동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "북구",
+    "neighborhood": "용봉동",
+    "address": "광주광역시 북구 용봉동",
+    "lat": 35.18825,
+    "lon": 126.912617,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "주차가능",
+      "야외",
+      "포토존",
+      "푸드존"
+    ],
+    "tags": [
+      "북구",
+      "용봉동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-북-0143",
+    "name": "오룡동 야시장",
+    "description": "오룡동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "북구",
+    "neighborhood": "오룡동",
+    "address": "광주광역시 북구 오룡동",
+    "lat": 35.187467,
+    "lon": 126.90509,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "야시장",
+    "price_range": "무료",
+    "attributes": [
+      "주차가능",
+      "체험가능",
+      "실내",
+      "반려동물가능"
+    ],
+    "tags": [
+      "북구",
+      "오룡동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-북-0145",
+    "name": "문흥동 플리마켓",
+    "description": "문흥동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "북구",
+    "neighborhood": "문흥동",
+    "address": "광주광역시 북구 문흥동",
+    "lat": 35.172807,
+    "lon": 126.918717,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "주차가능",
+      "체험가능",
+      "포토존"
+    ],
+    "tags": [
+      "북구",
+      "문흥동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.8
+  },
+  {
+    "crawl_id": "DUMMY-북-0147",
+    "name": "용봉동 주말시장",
+    "description": "매주 주말 용봉동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "북구",
+    "neighborhood": "용봉동",
+    "address": "광주광역시 북구 용봉동",
+    "lat": 35.18887,
+    "lon": 126.91716,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-14",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "포토존",
+      "무료입장",
+      "가족추천",
+      "푸드존"
+    ],
+    "tags": [
+      "북구",
+      "용봉동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-북-0149",
+    "name": "문흥동 문화축제",
+    "description": "문흥동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "북구",
+    "neighborhood": "문흥동",
+    "address": "광주광역시 북구 문흥동",
+    "lat": 35.179312,
+    "lon": 126.903463,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-18",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "반려동물가능",
+      "주차가능"
+    ],
+    "tags": [
+      "북구",
+      "문흥동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-광-0121",
+    "name": "신가동 주말시장",
+    "description": "매주 주말 신가동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "광산구",
+    "neighborhood": "신가동",
+    "address": "광주광역시 광산구 신가동",
+    "lat": 35.186026,
+    "lon": 126.803549,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "야외",
+      "체험가능",
+      "반려동물가능",
+      "푸드존"
+    ],
+    "tags": [
+      "광산구",
+      "신가동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-광-0123",
+    "name": "수완지구 야시장",
+    "description": "수완지구에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "광산구",
+    "neighborhood": "수완지구",
+    "address": "광주광역시 광산구 수완지구",
+    "lat": 35.186108,
+    "lon": 126.80997,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "야외",
+      "체험가능"
+    ],
+    "tags": [
+      "광산구",
+      "수완지구",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-광-0125",
+    "name": "광산구 빈티지마켓",
+    "description": "광산구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "광산구",
+    "neighborhood": "수완지구",
+    "address": "광주광역시 광산구 수완지구",
+    "lat": 35.197898,
+    "lon": 126.805987,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "주차가능",
+      "푸드존",
+      "체험가능"
+    ],
+    "tags": [
+      "광산구",
+      "수완지구",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-광-0127",
+    "name": "하남동 플리마켓",
+    "description": "하남동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "광산구",
+    "neighborhood": "하남동",
+    "address": "광주광역시 광산구 하남동",
+    "lat": 35.181884,
+    "lon": 126.821747,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-10",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "체험가능",
+      "반려동물가능",
+      "야외",
+      "주차가능"
+    ],
+    "tags": [
+      "광산구",
+      "하남동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-광-0129",
+    "name": "하남동 플리마켓",
+    "description": "하남동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "광산구",
+    "neighborhood": "하남동",
+    "address": "광주광역시 광산구 하남동",
+    "lat": 35.188602,
+    "lon": 126.822698,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-17",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "실내",
+      "무료입장"
+    ],
+    "tags": [
+      "광산구",
+      "하남동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-광-0131",
+    "name": "신가동 주말시장",
+    "description": "매주 주말 신가동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "광산구",
+    "neighborhood": "신가동",
+    "address": "광주광역시 광산구 신가동",
+    "lat": 35.206429,
+    "lon": 126.825493,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-17",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "반려동물가능",
+      "실내",
+      "무료입장",
+      "푸드존"
+    ],
+    "tags": [
+      "광산구",
+      "신가동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.8
+  },
+  {
+    "crawl_id": "DUMMY-광-0133",
+    "name": "하남동 푸드페스타",
+    "description": "하남동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "광산구",
+    "neighborhood": "하남동",
+    "address": "광주광역시 광산구 하남동",
+    "lat": 35.186197,
+    "lon": 126.804451,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "포토존",
+      "무료입장"
+    ],
+    "tags": [
+      "광산구",
+      "하남동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-광-0135",
+    "name": "첨단지구 아트마켓",
+    "description": "첨단지구에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "광산구",
+    "neighborhood": "첨단지구",
+    "address": "광주광역시 광산구 첨단지구",
+    "lat": 35.206621,
+    "lon": 126.802406,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-13",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "전시",
+    "price_range": "₩",
+    "attributes": [
+      "무료입장",
+      "야외",
+      "체험가능"
+    ],
+    "tags": [
+      "광산구",
+      "첨단지구",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-광-0137",
+    "name": "신가동 주말시장",
+    "description": "매주 주말 신가동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "광산구",
+    "neighborhood": "신가동",
+    "address": "광주광역시 광산구 신가동",
+    "lat": 35.191552,
+    "lon": 126.80759,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "푸드존",
+      "실내"
+    ],
+    "tags": [
+      "광산구",
+      "신가동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-광-0139",
+    "name": "하남동 푸드페스타",
+    "description": "하남동에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "광산구",
+    "neighborhood": "하남동",
+    "address": "광주광역시 광산구 하남동",
+    "lat": 35.201226,
+    "lon": 126.816115,
+    "start_date": "2025-12-14",
+    "end_date": "2025-12-21",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "실내",
+      "체험가능",
+      "반려동물가능"
+    ],
+    "tags": [
+      "광산구",
+      "하남동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-광-0141",
+    "name": "첨단지구 문화축제",
+    "description": "첨단지구 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "광산구",
+    "neighborhood": "첨단지구",
+    "address": "광주광역시 광산구 첨단지구",
+    "lat": 35.184097,
+    "lon": 126.821008,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-15",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "가족추천",
+      "실내",
+      "포토존"
+    ],
+    "tags": [
+      "광산구",
+      "첨단지구",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-광-0143",
+    "name": "운남동 문화축제",
+    "description": "운남동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "광산구",
+    "neighborhood": "운남동",
+    "address": "광주광역시 광산구 운남동",
+    "lat": 35.180544,
+    "lon": 126.800692,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-06",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "포토존",
+      "실내",
+      "반려동물가능"
+    ],
+    "tags": [
+      "광산구",
+      "운남동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.7
+  },
+  {
+    "crawl_id": "DUMMY-광-0145",
+    "name": "월곡동 주말시장",
+    "description": "매주 주말 월곡동에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "광산구",
+    "neighborhood": "월곡동",
+    "address": "광주광역시 광산구 월곡동",
+    "lat": 35.206209,
+    "lon": 126.807078,
+    "start_date": "2025-12-08",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "반려동물가능",
+      "포토존"
+    ],
+    "tags": [
+      "광산구",
+      "월곡동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-광-0147",
+    "name": "월곡동 플리마켓",
+    "description": "월곡동에서 열리는 핸드메이드 플리마켓입니다. 다양한 수공예품과 빈티지 아이템을 만나보세요.",
+    "district": "광산구",
+    "neighborhood": "월곡동",
+    "address": "광주광역시 광산구 월곡동",
+    "lat": 35.180068,
+    "lon": 126.820308,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-08",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "포토존",
+      "가족추천"
+    ],
+    "tags": [
+      "광산구",
+      "월곡동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-광-0149",
+    "name": "첨단지구 야시장",
+    "description": "첨단지구에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "광산구",
+    "neighborhood": "첨단지구",
+    "address": "광주광역시 광산구 첨단지구",
+    "lat": 35.18706,
+    "lon": 126.82566,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-11",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "체험가능",
+      "실내",
+      "반려동물가능"
+    ],
+    "tags": [
+      "광산구",
+      "첨단지구",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-광-0151",
+    "name": "광산구 빈티지마켓",
+    "description": "광산구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "광산구",
+    "neighborhood": "운남동",
+    "address": "광주광역시 광산구 운남동",
+    "lat": 35.178378,
+    "lon": 126.822624,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-20",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "가족추천",
+      "야외",
+      "반려동물가능"
+    ],
+    "tags": [
+      "광산구",
+      "운남동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-광-0153",
+    "name": "월곡동 문화축제",
+    "description": "월곡동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "광산구",
+    "neighborhood": "월곡동",
+    "address": "광주광역시 광산구 월곡동",
+    "lat": 35.188735,
+    "lon": 126.826989,
+    "start_date": "2025-12-06",
+    "end_date": "2025-12-10",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "주차가능",
+      "무료입장"
+    ],
+    "tags": [
+      "광산구",
+      "월곡동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-광-0155",
+    "name": "신가동 야시장",
+    "description": "신가동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "광산구",
+    "neighborhood": "신가동",
+    "address": "광주광역시 광산구 신가동",
+    "lat": 35.201502,
+    "lon": 126.799226,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "야시장",
+    "price_range": "₩",
+    "attributes": [
+      "푸드존",
+      "야외",
+      "포토존",
+      "무료입장"
+    ],
+    "tags": [
+      "광산구",
+      "신가동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.6
+  },
+  {
+    "crawl_id": "DUMMY-광-0157",
+    "name": "월곡동 야시장",
+    "description": "월곡동에서 저녁마다 열리는 야시장입니다. 맛있는 먹거리와 쇼핑을 한번에!",
+    "district": "광산구",
+    "neighborhood": "월곡동",
+    "address": "광주광역시 광산구 월곡동",
+    "lat": 35.203187,
+    "lon": 126.820516,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-12",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "야시장",
+    "price_range": "무료",
+    "attributes": [
+      "무료입장",
+      "가족추천",
+      "체험가능"
+    ],
+    "tags": [
+      "광산구",
+      "월곡동",
+      "야시장"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-광-0159",
+    "name": "운남동 거리공연 페스타",
+    "description": "운남동 거리에서 펼쳐지는 공연 페스타입니다. 다양한 버스킹과 거리공연!",
+    "district": "광산구",
+    "neighborhood": "운남동",
+    "address": "광주광역시 광산구 운남동",
+    "lat": 35.184944,
+    "lon": 126.801478,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "공연",
+    "price_range": "무료",
+    "attributes": [
+      "실내",
+      "체험가능",
+      "푸드존"
+    ],
+    "tags": [
+      "광산구",
+      "운남동",
+      "공연"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-광-0161",
+    "name": "하남동 아트마켓",
+    "description": "하남동에서 열리는 아트마켓입니다. 지역 작가들의 작품을 만나보세요.",
+    "district": "광산구",
+    "neighborhood": "하남동",
+    "address": "광주광역시 광산구 하남동",
+    "lat": 35.193559,
+    "lon": 126.806242,
+    "start_date": "2025-12-05",
+    "end_date": "2025-12-08",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "전시",
+    "price_range": "₩",
+    "attributes": [
+      "실내",
+      "반려동물가능"
+    ],
+    "tags": [
+      "광산구",
+      "하남동",
+      "전시"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  },
+  {
+    "crawl_id": "DUMMY-광-0163",
+    "name": "광산구 빈티지마켓",
+    "description": "광산구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "광산구",
+    "neighborhood": "수완지구",
+    "address": "광주광역시 광산구 수완지구",
+    "lat": 35.187248,
+    "lon": 126.820262,
+    "start_date": "2025-12-10",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "무료",
+    "attributes": [
+      "푸드존",
+      "포토존",
+      "가족추천"
+    ],
+    "tags": [
+      "광산구",
+      "수완지구",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-광-0165",
+    "name": "수완지구 푸드페스타",
+    "description": "수완지구에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "광산구",
+    "neighborhood": "수완지구",
+    "address": "광주광역시 광산구 수완지구",
+    "lat": 35.189726,
+    "lon": 126.813733,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-10",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "야외",
+      "포토존"
+    ],
+    "tags": [
+      "광산구",
+      "수완지구",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.3
+  },
+  {
+    "crawl_id": "DUMMY-광-0167",
+    "name": "광산구 빈티지마켓",
+    "description": "광산구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "광산구",
+    "neighborhood": "하남동",
+    "address": "광주광역시 광산구 하남동",
+    "lat": 35.202255,
+    "lon": 126.801248,
+    "start_date": "2025-12-11",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "가족추천",
+      "푸드존"
+    ],
+    "tags": [
+      "광산구",
+      "하남동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-광-0169",
+    "name": "수완지구 주말시장",
+    "description": "매주 주말 수완지구에서 열리는 주말시장입니다. 신선한 로컬 푸드와 수공예품!",
+    "district": "광산구",
+    "neighborhood": "수완지구",
+    "address": "광주광역시 광산구 수완지구",
+    "lat": 35.179431,
+    "lon": 126.799776,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-20",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "무료입장",
+      "야외"
+    ],
+    "tags": [
+      "광산구",
+      "수완지구",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-광-0171",
+    "name": "첨단지구 푸드페스타",
+    "description": "첨단지구에서 열리는 푸드페스타! 다양한 맛집과 푸드트럭이 함께해요.",
+    "district": "광산구",
+    "neighborhood": "첨단지구",
+    "address": "광주광역시 광산구 첨단지구",
+    "lat": 35.200987,
+    "lon": 126.820757,
+    "start_date": "2025-12-13",
+    "end_date": "2025-12-20",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "실내",
+      "포토존",
+      "반려동물가능",
+      "가족추천"
+    ],
+    "tags": [
+      "광산구",
+      "첨단지구",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.2
+  },
+  {
+    "crawl_id": "DUMMY-광-0173",
+    "name": "광산구 빈티지마켓",
+    "description": "광산구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "광산구",
+    "neighborhood": "운남동",
+    "address": "광주광역시 광산구 운남동",
+    "lat": 35.199547,
+    "lon": 126.811074,
+    "start_date": "2025-12-07",
+    "end_date": "2025-12-08",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "실내",
+      "주차가능",
+      "가족추천",
+      "푸드존"
+    ],
+    "tags": [
+      "광산구",
+      "운남동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.4
+  },
+  {
+    "crawl_id": "DUMMY-광-0175",
+    "name": "광산구 빈티지마켓",
+    "description": "광산구에서 열리는 빈티지마켓입니다. 레트로 감성의 아이템을 찾아보세요.",
+    "district": "광산구",
+    "neighborhood": "신가동",
+    "address": "광주광역시 광산구 신가동",
+    "lat": 35.201702,
+    "lon": 126.81851,
+    "start_date": "2025-12-12",
+    "end_date": "2025-12-19",
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "category": "플리마켓",
+    "price_range": "₩",
+    "attributes": [
+      "체험가능",
+      "반려동물가능",
+      "푸드존"
+    ],
+    "tags": [
+      "광산구",
+      "신가동",
+      "플리마켓"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.5
+  },
+  {
+    "crawl_id": "DUMMY-광-0177",
+    "name": "하남동 문화축제",
+    "description": "하남동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "광산구",
+    "neighborhood": "하남동",
+    "address": "광주광역시 광산구 하남동",
+    "lat": 35.180065,
+    "lon": 126.812547,
+    "start_date": "2025-12-09",
+    "end_date": "2025-12-16",
+    "operating_hours": {
+      "weekday": "11:00-19:00",
+      "weekend": "10:00-21:00"
+    },
+    "category": "축제",
+    "price_range": "₩",
+    "attributes": [
+      "포토존",
+      "야외",
+      "주차가능",
+      "푸드존"
+    ],
+    "tags": [
+      "광산구",
+      "하남동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.0
+  },
+  {
+    "crawl_id": "DUMMY-광-0179",
+    "name": "월곡동 문화축제",
+    "description": "월곡동 일대에서 열리는 문화축제입니다. 공연, 체험, 먹거리가 가득해요.",
+    "district": "광산구",
+    "neighborhood": "월곡동",
+    "address": "광주광역시 광산구 월곡동",
+    "lat": 35.180099,
+    "lon": 126.80164,
+    "start_date": "2025-12-12",
+    "end_date": "2025-12-14",
+    "operating_hours": {
+      "weekday": "18:00-23:00",
+      "weekend": "17:00-24:00"
+    },
+    "category": "축제",
+    "price_range": "무료",
+    "attributes": [
+      "푸드존",
+      "무료입장"
+    ],
+    "tags": [
+      "광산구",
+      "월곡동",
+      "축제"
+    ],
+    "images": [],
+    "source_url": "",
+    "rating": 4.1
+  }
+]
