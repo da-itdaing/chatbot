@@ -302,14 +302,15 @@ async def chat_consumer_async_stream(
         """
         astream_events v2를 사용한 실제 토큰 스트리밍.
         
-        v14.2: 버퍼링 제거, 토큰 즉시 전송
-        - LLM이 생성하는 토큰을 그대로 전송
-        - 프론트엔드에서 자연스럽게 조합
+        v14.3: 템플릿 응답(non-LLM)도 처리
+        - LLM 토큰은 즉시 전송
+        - basic_generate 템플릿 응답은 on_chain_end에서 추출
         """
         first_token_sent = False
+        final_answer: Optional[str] = None
         final_recommendations: Optional[List[Dict[str, Any]]] = None
         
-        # generate 노드에서만 스트리밍 (다른 노드의 LLM 호출은 무시)
+        # generate 노드에서만 스트리밍
         STREAMING_NODES = {"generate", "basic_generate"}
         
         try:
@@ -317,7 +318,7 @@ async def chat_consumer_async_stream(
                 event_type = event.get("event")
                 event_name = event.get("name", "")
                 
-                # LLM 토큰 스트리밍 - generate/basic_generate 노드에서만
+                # LLM 토큰 스트리밍
                 if event_type == "on_chat_model_stream":
                     langgraph_node = event.get("metadata", {}).get("langgraph_node", "")
                     
@@ -336,32 +337,38 @@ async def chat_consumer_async_stream(
                                 
                                 yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
                 
-                # 그래프 전체 종료 시 최종 state에서 recommendations 추출
+                # 그래프 전체 종료 시 최종 state 추출
                 elif event_type == "on_chain_end" and event_name == "LangGraph":
                     output = event.get("data", {}).get("output", {})
                     if isinstance(output, dict):
+                        # recommendations
                         recs = output.get("recommendations")
                         if isinstance(recs, list) and len(recs) > 0:
                             final_recommendations = recs
+                        
+                        # 템플릿 응답 (스트리밍 없이 생성된 answer)
+                        if not first_token_sent:
+                            answer = output.get("answer")
+                            if answer:
+                                final_answer = answer
+                            else:
+                                # messages에서 추출
+                                messages = output.get("messages", [])
+                                final_answer = _extract_answer(messages)
             
-            # 마지막에 recommendations 전송 (있으면)
-            if final_recommendations:
+            # 템플릿 응답 전송 (스트리밍이 없었던 경우)
+            if not first_token_sent and final_answer:
+                payload_dict = {
+                    "delta": final_answer,
+                    "thread_id": thread_id,
+                    "recommendations": final_recommendations or [],
+                }
+                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+            elif final_recommendations:
+                # 스트리밍 후 recommendations만 전송
                 payload_dict = {
                     "thread_id": thread_id,
                     "recommendations": final_recommendations,
-                }
-                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
-            elif not first_token_sent:
-                # 스트리밍된 토큰이 없는 경우 (basic_generate 등에서 스트리밍이 안 된 경우)
-                # fallback: 전체 응답 가져오기
-                result = await graph.ainvoke(state, config=config)
-                answer = _extract_answer(result.get("messages", []))
-                recommendations = result.get("recommendations")
-                
-                payload_dict = {
-                    "delta": answer,
-                    "thread_id": thread_id,
-                    "recommendations": recommendations if recommendations else [],
                 }
                 yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
                 
