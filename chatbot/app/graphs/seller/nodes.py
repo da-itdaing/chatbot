@@ -522,6 +522,53 @@ def _build_zone_recommendations(documents: List[Document], limit: int = 3) -> Li
     return recommendations
 
 
+def _apply_district_filter(documents: List[Document], state: AgentState) -> List[Document]:
+    """
+    structured_plan의 district 필터를 적용하여 문서를 필터링합니다.
+    
+    - keyword_filters에 district include가 있으면 해당 구만 반환
+    - exclude_districts가 있으면 해당 구 제외
+    """
+    plan = state.get("structured_plan")
+    if not isinstance(plan, dict):
+        return documents
+    
+    # 1) keyword_filters에서 district include 추출
+    include_districts: List[str] = []
+    keyword_filters = plan.get("keyword_filters", [])
+    for kf in keyword_filters:
+        if isinstance(kf, dict) and kf.get("field") == "district":
+            include_districts.extend(kf.get("include", []))
+    
+    # 2) exclude_districts 추출
+    exclude_districts: List[str] = plan.get("exclude_districts", [])
+    
+    # 필터가 없으면 원본 반환
+    if not include_districts and not exclude_districts:
+        return documents
+    
+    filtered: List[Document] = []
+    for doc in documents:
+        metadata = doc.metadata or {}
+        district = metadata.get("district", "")
+        
+        # include 필터: 지정된 구만 포함
+        if include_districts and district not in include_districts:
+            continue
+        
+        # exclude 필터: 지정된 구 제외
+        if exclude_districts and district in exclude_districts:
+            continue
+        
+        filtered.append(doc)
+    
+    # 필터링 후 결과가 없으면 원본 반환 (allow_broadening)
+    if not filtered and plan.get("allow_broadening", True):
+        return documents
+    
+    return filtered
+
+
 def consume_seller_tool_result(state: AgentState) -> AgentState:
     call_id = state.get("pending_tool_call_id")
     messages = state.get("messages", [])
@@ -531,6 +578,10 @@ def consume_seller_tool_result(state: AgentState) -> AgentState:
 
     payload = _parse_tool_payload(tool_message.content)
     documents = _documents_from_payload(payload)
+    
+    # district 후처리 필터 적용
+    documents = _apply_district_filter(documents, state)
+    
     next_state: AgentState = {
         **state,
         "context": documents,

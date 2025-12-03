@@ -18,6 +18,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from langchain_core.messages import AIMessage, ToolMessage
 
+from app.db.postgres import get_zone_cell_stats, get_zone_geometry
+
 router = APIRouter(prefix="/api/chat/seller", tags=["seller-chat"])
 logger = logging.getLogger(__name__)
 
@@ -132,15 +134,19 @@ def _initial_state(message: str) -> Dict[str, Any]:
     }
 
 
-def _enrich_zone_recommendations(recommendations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+async def _enrich_zone_recommendations_async(recommendations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     존 추천 결과에서 프론트엔드에 필요한 필드를 추출/변환합니다.
     
-    메타데이터에서 lat/lng, 상권 정보 등을 추출합니다.
+    메타데이터에서 lat/lng, 상권 정보 등을 추출하고,
+    DB에서 셀 가용성 정보와 폴리곤 데이터를 조회합니다.
     """
     enriched = []
     for rec in recommendations:
         metadata = rec.get("metadata", {}) or {}
+        
+        # zone_id 추출
+        zone_id = rec.get("zone_id") or metadata.get("zone_id")
         
         # 위도/경도: metadata에서 추출 또는 기존 값 유지
         lat = rec.get("lat") or metadata.get("lat")
@@ -148,7 +154,7 @@ def _enrich_zone_recommendations(recommendations: List[Dict[str, Any]]) -> List[
         
         enriched_rec = {
             "type": "zone",
-            "zone_id": rec.get("zone_id") or metadata.get("zone_id"),
+            "zone_id": zone_id,
             "name": rec.get("name") or metadata.get("zone_name") or metadata.get("name"),
             "address": rec.get("address") or metadata.get("address") or metadata.get("detailed_address"),
             "lat": lat,
@@ -165,6 +171,73 @@ def _enrich_zone_recommendations(recommendations: List[Dict[str, Any]]) -> List[
             "rent_per_day": metadata.get("rent_per_day"),
             "avg_sales": metadata.get("avg_sales"),
         }
+        
+        # DB에서 셀 가용성 정보 조회
+        if zone_id:
+            try:
+                zone_id_int = int(zone_id)
+                cell_stats = await get_zone_cell_stats(zone_id_int)
+                enriched_rec["total_cells"] = cell_stats.get("total_cells", 0)
+                enriched_rec["available_cells"] = cell_stats.get("available_cells", 0)
+                
+                # 폴리곤 데이터 조회
+                polygon_data = await get_zone_geometry(zone_id_int)
+                if polygon_data:
+                    try:
+                        enriched_rec["polygon"] = json.loads(polygon_data)
+                    except (json.JSONDecodeError, TypeError):
+                        enriched_rec["polygon"] = polygon_data
+                
+                # 팝업 등록 페이지 URL
+                enriched_rec["popup_register_url"] = f"/seller/popups/new?zoneId={zone_id_int}"
+                
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Failed to get cell stats for zone_id={zone_id}: {e}")
+        
+        # None 값 제거
+        enriched_rec = {k: v for k, v in enriched_rec.items() if v is not None}
+        enriched.append(enriched_rec)
+    
+    return enriched
+
+
+def _enrich_zone_recommendations(recommendations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    동기 버전: 존 추천 결과에서 기본 필드만 추출합니다.
+    셀 가용성 정보는 포함되지 않습니다.
+    """
+    enriched = []
+    for rec in recommendations:
+        metadata = rec.get("metadata", {}) or {}
+        zone_id = rec.get("zone_id") or metadata.get("zone_id")
+        
+        # 위도/경도: metadata에서 추출 또는 기존 값 유지
+        lat = rec.get("lat") or metadata.get("lat")
+        lng = rec.get("lon") or rec.get("lng") or metadata.get("lng") or metadata.get("lon")
+        
+        enriched_rec = {
+            "type": "zone",
+            "zone_id": zone_id,
+            "name": rec.get("name") or metadata.get("zone_name") or metadata.get("name"),
+            "address": rec.get("address") or metadata.get("address") or metadata.get("detailed_address"),
+            "lat": lat,
+            "lng": lng,
+            "district": rec.get("district") or metadata.get("district"),
+            "neighborhood": rec.get("neighborhood") or metadata.get("neighborhood"),
+            "commercial_grade": metadata.get("commercial_grade"),
+            "traffic_score": metadata.get("traffic_score"),
+            "competition_score": metadata.get("competition_score"),
+            "potential_score": metadata.get("potential_score"),
+            "weekday_traffic": metadata.get("weekday_traffic"),
+            "weekend_traffic": metadata.get("weekend_traffic"),
+            "best_products": metadata.get("best_products"),
+            "rent_per_day": metadata.get("rent_per_day"),
+            "avg_sales": metadata.get("avg_sales"),
+        }
+        
+        # 팝업 등록 페이지 URL (zone_id가 있을 경우)
+        if zone_id:
+            enriched_rec["popup_register_url"] = f"/seller/popups/new?zoneId={zone_id}"
         
         # None 값 제거
         enriched_rec = {k: v for k, v in enriched_rec.items() if v is not None}
@@ -295,6 +368,8 @@ async def chat_seller_async(
 ) -> ChatResponse:
     """
     존 추천 챗봇의 async 버전 (LangGraph async 그래프 사용).
+    
+    셀 가용성 정보와 폴리곤 데이터를 포함합니다.
     """
 
     app = request.app
@@ -311,8 +386,9 @@ async def chat_seller_async(
     answer = _extract_answer(result.get("messages", []))
     recommendations = result.get("recommendations")
     
+    # 셀 가용성 정보 포함 (async 버전)
     if recommendations:
-        recommendations = _enrich_zone_recommendations(recommendations)
+        recommendations = await _enrich_zone_recommendations_async(recommendations)
     
     return ChatResponse(answer=answer, thread_id=thread_id, recommendations=recommendations)
 
@@ -387,7 +463,7 @@ async def chat_seller_async_stream(
                         # recommendations 추출
                         recs = output.get("recommendations")
                         if isinstance(recs, list) and len(recs) > 0 and not recommendations_sent:
-                            final_recommendations = _enrich_zone_recommendations(recs)
+                            final_recommendations = await _enrich_zone_recommendations_async(recs)
                             recommendations_sent = True
                             
                             # recommendations만 먼저 전송

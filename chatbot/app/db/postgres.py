@@ -105,11 +105,87 @@ def get_zones_vectorstore(
     )
 
 
+async def get_zone_cell_stats(zone_id: int, pool: Optional[asyncpg.Pool] = None) -> dict:
+    """
+    존의 셀 통계를 조회합니다.
+    
+    Args:
+        zone_id: zone_area.id
+        pool: asyncpg 커넥션 풀 (없으면 새로 생성)
+    
+    Returns:
+        {
+            "total_cells": int,  # 전체 셀 수 (승인된 셀)
+            "available_cells": int,  # 빈 셀 수 (현재 승인된 팝업이 없는 셀)
+        }
+    
+    Note:
+        "빈 셀" = 현재 승인된 팝업이 없는 셀 (owner_id는 NOT NULL 제약이 있음)
+    """
+    close_pool = False
+    if pool is None:
+        pool = await create_async_pool()
+        close_pool = True
+    
+    try:
+        # 전체 셀 수 (승인된 셀만)
+        total_query = """
+            SELECT COUNT(*) FROM zone_cell 
+            WHERE zone_area_id = $1 AND status = 'APPROVED'
+        """
+        total_cells = await pool.fetchval(total_query, zone_id) or 0
+        
+        # 빈 셀 수: 승인된 팝업이 없는 셀
+        available_query = """
+            SELECT COUNT(*) FROM zone_cell zc
+            LEFT JOIN popup p ON zc.id = p.zone_cell_id AND p.approval_status = 'APPROVED'
+            WHERE zc.zone_area_id = $1 
+              AND zc.status = 'APPROVED'
+              AND p.id IS NULL
+        """
+        available_cells = await pool.fetchval(available_query, zone_id) or 0
+        
+        return {
+            "total_cells": total_cells,
+            "available_cells": available_cells,
+        }
+    finally:
+        if close_pool:
+            await pool.close()
+
+
+async def get_zone_geometry(zone_id: int, pool: Optional[asyncpg.Pool] = None) -> Optional[str]:
+    """
+    존의 geometry_data(GeoJSON 폴리곤)를 조회합니다.
+    
+    Args:
+        zone_id: zone_area.id
+        pool: asyncpg 커넥션 풀 (없으면 새로 생성)
+    
+    Returns:
+        geometry_data (JSON 문자열) 또는 None
+    """
+    close_pool = False
+    if pool is None:
+        pool = await create_async_pool()
+        close_pool = True
+    
+    try:
+        query = "SELECT geometry_data FROM zone_area WHERE id = $1"
+        row = await pool.fetchrow(query, zone_id)
+        return row["geometry_data"] if row else None
+    finally:
+        if close_pool:
+            await pool.close()
+
+
 __all__ = [
     "create_async_pool",
     "create_langgraph_checkpointer",
     "get_markets_vectorstore",
     "get_zones_vectorstore",
+    "get_zone_cell_stats",
+    "get_zone_geometry",
 ]
 
 

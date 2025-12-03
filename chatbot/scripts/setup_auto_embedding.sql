@@ -103,3 +103,4 @@ BEGIN
     RAISE NOTICE '   - zone_area 트리거 설정됨';
 END $$;
 
+
