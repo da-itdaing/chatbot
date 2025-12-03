@@ -217,8 +217,12 @@ def _schedule_tool(
     if tool_name.startswith("web_search"):
         next_state["web_search_attempted"] = True
         next_state.pop("needs_web_search", None)
-    else:
-        next_state.pop("web_search_attempted", None)
+    # NOTE: web_search_attempted는 유지 (리셋하지 않음) - 무한 루프 방지
+    
+    # 도구 호출 횟수 추적 (무한 루프 방지)
+    tool_call_count = state.get("tool_call_count", 0) + 1
+    next_state["tool_call_count"] = tool_call_count
+    
     return next_state
 
 
@@ -256,6 +260,13 @@ def schedule_seller_tool(state: AgentState) -> AgentState:
 
 
 def schedule_seller_tool_async(state: AgentState) -> AgentState:
+    # 도구 호출 횟수 제한 (무한 루프 방지)
+    tool_call_count = state.get("tool_call_count", 0)
+    MAX_TOOL_CALLS = 5
+    if tool_call_count >= MAX_TOOL_CALLS:
+        # 도구 호출 제한 초과 시 스킵 (generate로 바로 이동)
+        return {**state, "pending_tool_name": None}
+    
     tool_name = "web_search_async" if state.get("needs_web_search") else "seller_retrieve_async"
     query = _resolve_tool_query(state, web_search=tool_name.startswith("web_search"))
     tool_args = _structured_plan_args(state)
@@ -374,11 +385,16 @@ def consume_seller_tool_result(state: AgentState) -> AgentState:
     next_state.pop("pending_tool_name", None)
     next_state.pop("pending_tool_query", None)
 
+    # 도구 호출 횟수가 너무 많으면 추가 호출 차단 (무한 루프 방지)
+    tool_call_count = state.get("tool_call_count", 0)
+    MAX_TOOL_CALLS = 5  # 최대 도구 호출 횟수
+    
     should_retry_with_web = (
         payload.get("type") == "seller_retrieve"
         and not documents
         and bool(settings.websearch_enabled)
         and not state.get("web_search_attempted")
+        and tool_call_count < MAX_TOOL_CALLS  # 도구 호출 제한
     )
     if should_retry_with_web:
         next_state["needs_web_search"] = True
@@ -464,7 +480,10 @@ def check_allowed_categories(state: AgentState) -> AgentState:
 
 
 def seller_tool_followup_router(state: AgentState) -> Literal["more_tools", "continue"]:
-    return "more_tools" if state.get("needs_web_search") else "continue"
+    # NOTE: 웹 검색 루프 비활성화 (무한 루프 방지)
+    # 웹 검색이 필요하더라도 일단 continue로 진행
+    # return "more_tools" if state.get("needs_web_search") else "continue"
+    return "continue"
 
 
 # ---------------------------------------------------------------------------
@@ -520,11 +539,18 @@ feasibility_system_prompt = """
 당신은 광주 셀러 챗봇의 정책/기능 가드레일 평가자입니다.
 다음 코드 중 하나를 선택하세요.
 
-- OK: 정상 처리 가능
-- OUT_OF_SCOPE_REGION: 광주 외 지역이거나 셀러 서비스 범위 밖
-- NOT_IMPLEMENTED: 데이터 계산/정렬/통계 등 미구현 기능 요청
-- INSUFFICIENT_DATA: 보유 데이터가 부족해 신뢰도 있는 분석 불가
-- POLICY_RESTRICTED: 불법/편법/법규 위반 가능성이 있는 요청
+- OK: 정상 처리 가능 (존 추천, 상권 정보, 임대료, 유동인구, 운영 팁 등 셀러 관련 질문)
+- OUT_OF_SCOPE_REGION: 광주광역시 외 지역 명시적 요청 (서울, 부산, 대구 등)
+- NOT_IMPLEMENTED: 복잡한 데이터 계산/정렬/비교 분석 요청
+- INSUFFICIENT_DATA: 특정 날짜/시간대 정확한 수치 요청 등 데이터 없음
+- POLICY_RESTRICTED: 불법/편법/법규 위반 가능성 (위조품, 무허가 음식 등)
+
+중요: 다음은 모두 OK로 분류해야 합니다:
+- 존 추천, 상권 추천, 장사 좋은 곳
+- 임대료, 비용, 저렴한 곳
+- 유동인구, 연령대, 타겟 고객
+- 주말/평일/야간 장사
+- 특정 구(동구, 서구, 남구, 북구, 광산구) 관련 질문
 
 detail에는 짧은 이유를 한국어로 적고, risk_level은 low/medium/high 중 하나를 선택하세요.
 """.strip()
@@ -544,19 +570,33 @@ feasibility_chain = feasibility_prompt | feasibility_llm.with_structured_output(
 SELLER_STRUCTURED_PLAN_SYSTEM_PROMPT = """
 당신은 광주 존 추천을 위한 structured planner입니다.
 
-Keyword fields:
-- zone_style_tags, allowed_categories, search_keywords, recommended_items_detail, zone_type.
+사용 가능한 필드:
 
-Numeric fields:
-- tag_count, latitude, longitude,
-- age_ratio_10s, age_ratio_20s, age_ratio_30s, age_ratio_40s_plus,
-- group_ratio_couple, group_ratio_family, group_ratio_friends, group_ratio_solo,
-- evening_peak_score, night_peak_score.
+Keyword fields (keyword_filters 사용):
+- district: 광주광역시 구 (동구, 서구, 남구, 북구, 광산구)
+- neighborhood: 동네/지역명
+- best_products: 추천 판매 상품
+- commercial_grade: 상권 등급 (S, A, B+, B, C)
 
-Sort fields: latitude, longitude, age_ratio_40s_plus, tag_count.
+Numeric fields (numeric_filters 사용):
+- traffic_score: 유동인구 점수 (0-100)
+- competition_score: 경쟁도 점수 (0-100, 낮을수록 경쟁 적음)
+- potential_score: 성장 잠재력 점수 (0-100)
+- rent_per_day: 일일 임대료 (원)
+- weekday_traffic: 평일 유동인구
+- weekend_traffic: 주말 유동인구
+
+정렬 예시:
+- 임대료 저렴: rent_per_day 오름차순
+- 유동인구 많음: traffic_score 내림차순
+- 경쟁 적음: competition_score 오름차순
+
+지역 필터 사용법:
+- "동구에서 추천해줘" → keyword_filters에 district: include: ["동구"]
+- "광산구 제외" → exclude_districts에 ["광산구"]
+
 target_entity는 기본적으로 "zone"입니다.
-allow_broadening은 조건이 매우 명확한 경우에만 False로 설정하고,
-risk_level은 법규/안전/규제 관련 질문일 때 high로 설정하세요.
+allow_broadening은 true로 유지하세요 (검색 결과가 없을 때 확장 허용).
 """.strip()
 
 seller_structured_plan_prompt = ChatPromptTemplate.from_messages(
@@ -890,7 +930,15 @@ def check_hallucination(state: AgentState) -> AgentState:
 
 
 def hallucination_router(state: AgentState) -> Literal["hallucinated", "not hallucinated"]:
-    return state.get("hallucination_label", "not hallucinated")  # type: ignore[return-value]
+    """할루시네이션 검사 결과 라우팅 (무한 루프 방지: 최대 2회 재작성)."""
+    label = state.get("hallucination_label", "not hallucinated")
+    if label == "hallucinated":
+        rewrite_count = state.get("rewrite_count", 0)
+        if rewrite_count >= 2:
+            # 무한 루프 방지: 2회 이상 재작성 시도 시 강제 종료
+            return "not hallucinated"
+        return "hallucinated"
+    return "not hallucinated"  # type: ignore[return-value]
 
 
 def rewrite(state: AgentState) -> AgentState:
@@ -904,7 +952,9 @@ def rewrite(state: AgentState) -> AgentState:
             "hallucination_reason": state.get("hallucination_reason", ""),
         }
     )
-    return {**state, "query": new_query, "paraphrased_query": new_query}
+    # rewrite 횟수 증가 (무한 루프 방지)
+    rewrite_count = state.get("rewrite_count", 0) + 1
+    return {**state, "query": new_query, "paraphrased_query": new_query, "rewrite_count": rewrite_count}
 
 
 def basic_generate(state: AgentState) -> AgentState:
@@ -1200,7 +1250,9 @@ async def rewrite_async(state: AgentState) -> AgentState:
             "hallucination_reason": state.get("hallucination_reason", ""),
         }
     )
-    return {**state, "query": new_query, "paraphrased_query": new_query}
+    # rewrite 횟수 증가 (무한 루프 방지)
+    rewrite_count = state.get("rewrite_count", 0) + 1
+    return {**state, "query": new_query, "paraphrased_query": new_query, "rewrite_count": rewrite_count}
 
 
 async def basic_generate_async(state: AgentState) -> AgentState:

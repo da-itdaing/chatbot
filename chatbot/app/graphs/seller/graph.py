@@ -105,16 +105,8 @@ def build_seller_graph(checkpointer=None):
     )
     graph_builder.add_edge("analyze_zone_performance", "check_allowed_categories")
     graph_builder.add_edge("check_allowed_categories", "generate")
-    graph_builder.add_edge("generate", "check_hallucination")
-    graph_builder.add_conditional_edges(
-        "check_hallucination",
-        hallucination_router,
-        {
-            "not hallucinated": "format_answer",
-            "hallucinated": "rewrite",
-        },
-    )
-    graph_builder.add_edge("rewrite", "schedule_tool")
+    # NOTE: 판매자 챗봇은 hallucination 체크 없이 바로 format_answer로 연결 (무한 루프 방지)
+    graph_builder.add_edge("generate", "format_answer")
     graph_builder.add_edge("basic_generate", "format_answer")
     graph_builder.add_edge("format_answer", "summarize_messages")
     graph_builder.add_edge("summarize_messages", "truncate_messages")
@@ -181,16 +173,8 @@ def build_seller_graph_async(checkpointer=None):
     )
     graph_builder.add_edge("analyze_zone_performance", "check_allowed_categories")
     graph_builder.add_edge("check_allowed_categories", "generate")
-    graph_builder.add_edge("generate", "check_hallucination")
-    graph_builder.add_conditional_edges(
-        "check_hallucination",
-        hallucination_router,
-        {
-            "not hallucinated": "format_answer",
-            "hallucinated": "rewrite",
-        },
-    )
-    graph_builder.add_edge("rewrite", "schedule_tool")
+    # NOTE: 판매자 챗봇은 hallucination 체크 없이 바로 format_answer로 연결 (무한 루프 방지)
+    graph_builder.add_edge("generate", "format_answer")
     graph_builder.add_edge("basic_generate", "format_answer")
     graph_builder.add_edge("format_answer", "summarize_messages")
     graph_builder.add_edge("summarize_messages", "truncate_messages")

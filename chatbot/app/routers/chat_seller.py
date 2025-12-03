@@ -301,7 +301,10 @@ async def chat_seller_async(
     graph = app.state.seller_graph_async
 
     thread_id = _build_thread_id("seller", payload)
-    config: Dict[str, Any] = {"configurable": {"thread_id": thread_id}}
+    config: Dict[str, Any] = {
+        "configurable": {"thread_id": thread_id},
+        "recursion_limit": 50,  # 무한 루프 방지
+    }
     state = _initial_state(payload.message)
 
     result = await graph.ainvoke(state, config=config)
