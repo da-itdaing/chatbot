@@ -1,0 +1,131 @@
+{
+  "total_runs": 500,
+  "valid_runs": 500,
+  "latency": {
+    "mean": 0.72,
+    "median": 0.0,
+    "stdev": 1.08,
+    "min": 0.0,
+    "max": 6.52,
+    "p50": 0.0,
+    "p90": 2.19,
+    "p95": 2.88,
+    "p99": 4.17
+  },
+  "by_category": {
+    "unknown": {
+      "count": 500,
+      "mean": 0.72,
+      "p90": 2.19
+    }
+  },
+  "by_turns": {
+    "0_turns": {
+      "count": 500,
+      "mean": 0.72,
+      "p90": 2.19
+    }
+  },
+  "slow_cases": [
+    {
+      "run_id": "019adf16-86bc-7488-bb6c-107b56d06ee3",
+      "run_name": "AsyncTarget",
+      "latency": 6.518575,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 120,
+      "error": null
+    },
+    {
+      "run_id": "019adf16-b303-7792-9364-8e62c346e099",
+      "run_name": "AsyncTarget",
+      "latency": 5.054237,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 134,
+      "error": null
+    },
+    {
+      "run_id": "019adf16-31be-7364-b75c-5f2500bec9e9",
+      "run_name": "AsyncTarget",
+      "latency": 4.512411,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 96,
+      "error": null
+    },
+    {
+      "run_id": "019adf16-a7e2-72d4-be08-6ea6fa62f81f",
+      "run_name": "AsyncTarget",
+      "latency": 4.368607,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 144,
+      "error": null
+    },
+    {
+      "run_id": "019adf15-d1e0-728b-8d50-524157e79d2b",
+      "run_name": "AsyncTarget",
+      "latency": 4.169029,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 63,
+      "error": null
+    },
+    {
+      "run_id": "019adf17-1b38-70a2-98bf-a3c556b4c705",
+      "run_name": "AsyncTarget",
+      "latency": 3.948934,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 110,
+      "error": null
+    },
+    {
+      "run_id": "019adf16-7eb2-7659-859b-ad144d57101e",
+      "run_name": "AsyncTarget",
+      "latency": 3.866441,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 156,
+      "error": null
+    },
+    {
+      "run_id": "019adf16-f054-7317-86c7-12fe4d4f8077",
+      "run_name": "AsyncTarget",
+      "latency": 3.721403,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 96,
+      "error": null
+    },
+    {
+      "run_id": "12fab24e-0f02-4135-9df3-cf8745b4a88f",
+      "run_name": "LangGraph",
+      "latency": 3.641926,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 120,
+      "error": null
+    },
+    {
+      "run_id": "110e656a-9dbf-4fc9-8e93-95da0d849e8a",
+      "run_name": "basic_generate",
+      "latency": 3.63215,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 120,
+      "error": null
+    }
+  ]
+}

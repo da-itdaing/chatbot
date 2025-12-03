@@ -1,0 +1,131 @@
+{
+  "total_runs": 500,
+  "valid_runs": 500,
+  "latency": {
+    "mean": 0.81,
+    "median": 0.0,
+    "stdev": 1.08,
+    "min": 0.0,
+    "max": 3.93,
+    "p50": 0.0,
+    "p90": 2.43,
+    "p95": 2.56,
+    "p99": 3.92
+  },
+  "by_category": {
+    "unknown": {
+      "count": 500,
+      "mean": 0.81,
+      "p90": 2.43
+    }
+  },
+  "by_turns": {
+    "0_turns": {
+      "count": 500,
+      "mean": 0.81,
+      "p90": 2.43
+    }
+  },
+  "slow_cases": [
+    {
+      "run_id": "019adf0a-e288-728f-9c65-3ca984ab835f",
+      "run_name": "AsyncTarget",
+      "latency": 3.931572,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 135,
+      "error": null
+    },
+    {
+      "run_id": "d775caf7-ea19-4606-b72e-14f7c77dce86",
+      "run_name": "LangGraph",
+      "latency": 3.93068,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 135,
+      "error": null
+    },
+    {
+      "run_id": "ca5b1fc2-fbdb-482e-a232-6930be67e8e1",
+      "run_name": "basic_generate",
+      "latency": 3.921044,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 135,
+      "error": null
+    },
+    {
+      "run_id": "a0572f9e-7d5c-4f92-b025-2fac31f28478",
+      "run_name": "RunnableSequence",
+      "latency": 3.920243,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 0,
+      "error": null
+    },
+    {
+      "run_id": "a5e1d5c2-5261-48b9-9ae6-f11ac530cc88",
+      "run_name": "ChatOpenAI",
+      "latency": 3.916719,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 0,
+      "error": null
+    },
+    {
+      "run_id": "019adf0b-7b64-722f-bc67-ace4101a0351",
+      "run_name": "AsyncTarget",
+      "latency": 3.071946,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 130,
+      "error": null
+    },
+    {
+      "run_id": "38512f1c-e181-46de-aa18-ef2833261983",
+      "run_name": "LangGraph",
+      "latency": 3.071012,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 130,
+      "error": null
+    },
+    {
+      "run_id": "a310b696-d3ec-4057-94c4-426f5eb5e1bb",
+      "run_name": "basic_generate",
+      "latency": 3.061297,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 130,
+      "error": null
+    },
+    {
+      "run_id": "8b16140c-655d-4199-9c17-a8143514fe6d",
+      "run_name": "RunnableSequence",
+      "latency": 3.060425,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 0,
+      "error": null
+    },
+    {
+      "run_id": "10b54f83-f189-40f7-b357-6915d6e66070",
+      "run_name": "ChatOpenAI",
+      "latency": 3.056875,
+      "query": "",
+      "user_turns": 0,
+      "category": "unknown",
+      "answer_length": 0,
+      "error": null
+    }
+  ]
+}

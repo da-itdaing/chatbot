@@ -1,0 +1,14 @@
+{
+  "experiment_prefix": "multi-1202-v1",
+  "timestamp": "20251202_113333",
+  "num_repeats": 1,
+  "dataset_name": "consumer-multi-1202-v1",
+  "is_multiturn": true,
+  "runs": [
+    {
+      "experiment_name": "multi-1202-v1_run1_20251202_113333",
+      "elapsed_seconds": 423.8050353527069,
+      "results": "<AsyncExperimentResults multi-1202-v1_run1_20251202_113333-f3a0f3ea>"
+    }
+  ]
+}
