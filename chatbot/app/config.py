@@ -84,9 +84,26 @@ class Settings(BaseSettings):
 
     # --- LangSmith / LangChain tracing (optional) ---
     langsmith_api_key: Optional[str] = Field(None, alias="LANGSMITH_API_KEY")
+    # 백업 LangSmith 키 (우선 사용)
+    langsmith_api_key2: Optional[str] = Field(None, alias="LANGSMITH_API_KEY2")
     langsmith_project: Optional[str] = Field(None, alias="LANGSMITH_PROJECT")
     langsmith_tracing: bool = Field(True, alias="LANGSMITH_TRACING")
     langsmith_endpoint: Optional[str] = Field(None, alias="LANGCHAIN_ENDPOINT")
+    
+    # --- LangGraph AES encryption ---
+    langgraph_aes_key: Optional[str] = Field(None, alias="LANGGRAPH_AES_KEY")
+    # 백업 AES 키 (우선 사용)
+    langgraph_aes_key2: Optional[str] = Field(None, alias="LANGGRAPH_AES_KEY2")
+    
+    @property
+    def active_langsmith_key(self) -> Optional[str]:
+        """우선순위: langsmith_api_key2 > langsmith_api_key"""
+        return self.langsmith_api_key2 or self.langsmith_api_key
+    
+    @property
+    def active_aes_key(self) -> Optional[str]:
+        """우선순위: langgraph_aes_key2 > langgraph_aes_key"""
+        return self.langgraph_aes_key2 or self.langgraph_aes_key
 
     # --- Web search / external info ---
     websearch_enabled: bool = Field(False, alias="WEBSEARCH_ENABLED")
