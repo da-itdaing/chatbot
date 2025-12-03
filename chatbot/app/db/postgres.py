@@ -186,6 +186,79 @@ async def get_zone_geometry(zone_id: int, pool: Optional[asyncpg.Pool] = None) -
             await pool.close()
 
 
+def _calculate_polygon_center(geometry_data: str) -> tuple[Optional[float], Optional[float]]:
+    """
+    GeoJSON 폴리곤에서 중심점 좌표를 계산합니다.
+    
+    Args:
+        geometry_data: GeoJSON 문자열 (Polygon)
+    
+    Returns:
+        (lat, lng) 튜플 또는 (None, None)
+    """
+    import json
+    
+    try:
+        geo = json.loads(geometry_data)
+        
+        if geo.get("type") == "Polygon" and geo.get("coordinates"):
+            coords = geo["coordinates"][0]  # 외곽선 좌표
+            if coords:
+                # 단순 평균으로 중심점 계산
+                lngs = [c[0] for c in coords]
+                lats = [c[1] for c in coords]
+                center_lng = sum(lngs) / len(lngs)
+                center_lat = sum(lats) / len(lats)
+                return (center_lat, center_lng)
+        
+        return (None, None)
+    except (json.JSONDecodeError, KeyError, TypeError, IndexError):
+        return (None, None)
+
+
+async def get_zone_geometry_with_center(
+    zone_id: int, 
+    pool: Optional[asyncpg.Pool] = None
+) -> dict:
+    """
+    존의 geometry_data와 중심점 좌표를 함께 조회합니다.
+    
+    Args:
+        zone_id: zone_area.id
+        pool: asyncpg 커넥션 풀 (없으면 새로 생성)
+    
+    Returns:
+        {"polygon": ..., "lat": ..., "lng": ...} 또는 빈 딕셔너리
+    """
+    settings = get_settings()
+    dsn = settings.pgvector_connection.replace('postgresql+psycopg://', 'postgresql://')
+    
+    close_pool = False
+    if pool is None:
+        pool = await asyncpg.create_pool(dsn=dsn)
+        close_pool = True
+    
+    try:
+        query = "SELECT geometry_data FROM zone_area WHERE id = $1"
+        row = await pool.fetchrow(query, zone_id)
+        
+        if not row or not row["geometry_data"]:
+            return {}
+        
+        geometry_data = row["geometry_data"]
+        lat, lng = _calculate_polygon_center(geometry_data)
+        
+        result = {"polygon": geometry_data}
+        if lat is not None and lng is not None:
+            result["lat"] = lat
+            result["lng"] = lng
+        
+        return result
+    finally:
+        if close_pool:
+            await pool.close()
+
+
 __all__ = [
     "create_async_pool",
     "create_langgraph_checkpointer",
@@ -193,6 +266,7 @@ __all__ = [
     "get_zones_vectorstore",
     "get_zone_cell_stats",
     "get_zone_geometry",
+    "get_zone_geometry_with_center",
 ]
 
 

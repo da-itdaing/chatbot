@@ -18,7 +18,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from langchain_core.messages import AIMessage, ToolMessage
 
-from app.db.postgres import get_zone_cell_stats, get_zone_geometry
+from app.db.postgres import get_zone_cell_stats, get_zone_geometry, get_zone_geometry_with_center
 
 router = APIRouter(prefix="/api/chat/seller", tags=["seller-chat"])
 logger = logging.getLogger(__name__)
@@ -145,8 +145,15 @@ async def _enrich_zone_recommendations_async(recommendations: List[Dict[str, Any
     for rec in recommendations:
         metadata = rec.get("metadata", {}) or {}
         
-        # zone_id 추출
-        zone_id = rec.get("zone_id") or metadata.get("zone_id")
+        # zone_id 추출 (다양한 소스에서)
+        zone_id = (
+            rec.get("zone_id") or 
+            metadata.get("zone_id") or 
+            metadata.get("id") or
+            rec.get("id")
+        )
+        
+        logger.debug(f"[enrich] rec keys: {list(rec.keys())}, zone_id: {zone_id}, metadata keys: {list(metadata.keys())}")
         
         # 위도/경도: metadata에서 추출 또는 기존 값 유지
         lat = rec.get("lat") or metadata.get("lat")
@@ -172,7 +179,7 @@ async def _enrich_zone_recommendations_async(recommendations: List[Dict[str, Any
             "avg_sales": metadata.get("avg_sales"),
         }
         
-        # DB에서 셀 가용성 정보 조회
+        # DB에서 셀 가용성 정보 및 폴리곤/좌표 조회
         if zone_id:
             try:
                 zone_id_int = int(zone_id)
@@ -180,13 +187,20 @@ async def _enrich_zone_recommendations_async(recommendations: List[Dict[str, Any
                 enriched_rec["total_cells"] = cell_stats.get("total_cells", 0)
                 enriched_rec["available_cells"] = cell_stats.get("available_cells", 0)
                 
-                # 폴리곤 데이터 조회
-                polygon_data = await get_zone_geometry(zone_id_int)
-                if polygon_data:
-                    try:
-                        enriched_rec["polygon"] = json.loads(polygon_data)
-                    except (json.JSONDecodeError, TypeError):
-                        enriched_rec["polygon"] = polygon_data
+                # 폴리곤 + 중심점 좌표 조회
+                geo_data = await get_zone_geometry_with_center(zone_id_int)
+                if geo_data:
+                    polygon_str = geo_data.get("polygon")
+                    if polygon_str:
+                        try:
+                            enriched_rec["polygon"] = json.loads(polygon_str)
+                        except (json.JSONDecodeError, TypeError):
+                            enriched_rec["polygon"] = polygon_str
+                    
+                    # 중심점 좌표 (DB에서 계산된 값 우선)
+                    if geo_data.get("lat") and geo_data.get("lng"):
+                        enriched_rec["lat"] = geo_data["lat"]
+                        enriched_rec["lng"] = geo_data["lng"]
                 
                 # 팝업 등록 페이지 URL
                 enriched_rec["popup_register_url"] = f"/seller/popups/create?zoneId={zone_id_int}"
@@ -284,9 +298,9 @@ async def chat_seller(request: Request, payload: ChatSellerRequest) -> ChatRespo
     answer = _extract_answer(result.get("messages", []))
     recommendations = result.get("recommendations")
     
-    # 존 추천 정보 보강
+    # 존 추천 정보 보강 (비동기 버전으로 DB 조회 포함)
     if recommendations:
-        recommendations = _enrich_zone_recommendations(recommendations)
+        recommendations = await _enrich_zone_recommendations_async(recommendations)
 
     return ChatResponse(answer=answer, thread_id=thread_id, recommendations=recommendations)
 
