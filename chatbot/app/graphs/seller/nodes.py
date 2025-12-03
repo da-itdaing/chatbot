@@ -125,6 +125,162 @@ class AgentState(MessagesState):
     analysis_notes: NotRequired[str]
 
 
+# ---------------------------------------------------------------------------
+# FullSellerClassification: 통합 분류 스키마 (LLM 호출 4회 → 1회)
+# ---------------------------------------------------------------------------
+
+class KeywordFilterSchema(BaseModel):
+    """키워드 필터 스키마."""
+    field: str = Field(default="district", description="필터 대상 필드")
+    include: List[str] = Field(default_factory=list, description="포함할 값")
+    exclude: List[str] = Field(default_factory=list, description="제외할 값")
+
+
+class FullSellerClassification(BaseModel):
+    """
+    Intent + Feasibility + Case + Plan을 단일 LLM 호출로 통합한 스키마.
+    
+    classify_intent + assess_feasibility + case_classification + plan_structured_search를 병합.
+    LLM 호출 4회 → 1회로 감소 (~15초 → ~5초 예상)
+    """
+    
+    # === Intent/Feasibility (모든 경로에서 사용) ===
+    intent: Literal[
+        "greeting",
+        "bot_about",
+        "chitchat",
+        "seller_query",
+        "out_of_scope",
+        "safety_violation",
+        "noise",
+    ] = Field(default="seller_query", description="의도 분류")
+    
+    feasibility_code: Literal[
+        "OK",
+        "OUT_OF_SCOPE_REGION",
+        "NOT_IMPLEMENTED",
+        "INSUFFICIENT_DATA",
+        "POLICY_RESTRICTED",
+    ] = Field(default="OK", description="실행 가능성 코드")
+    
+    risk_level: Literal["low", "medium", "high"] = Field(
+        default="low",
+        description="위험 수준 (법규/안전 관련 high)",
+    )
+    
+    detail: str = Field(
+        default="",
+        description="짧은 한국어 이유/설명",
+    )
+    
+    # === Case/Plan (seller_query일 때만 유효) ===
+    case: Literal[
+        "zone_recommendation",
+        "commercial_info",
+        "operation_guide",
+        "seasonal_guide",
+        "target_customer",
+        "general",
+    ] = Field(
+        default="zone_recommendation",
+        description="질문 유형 분류",
+    )
+    
+    rewritten_query: str = Field(
+        default="",
+        description="검색에 최적화된 한국어 쿼리",
+    )
+    
+    target_entity: Literal["zone", "store", "either"] = Field(
+        default="zone",
+        description="판매자용이므로 기본 zone",
+    )
+    
+    keyword_filters: List[KeywordFilterSchema] = Field(
+        default_factory=list,
+        description="키워드 필터 (district, neighborhood 등)",
+    )
+    
+    exclude_districts: List[str] = Field(
+        default_factory=list,
+        description="제외할 구 (동구, 서구, 남구, 북구, 광산구)",
+    )
+    
+    allow_broadening: bool = Field(
+        default=True,
+        description="조건 완화 허용",
+    )
+
+
+# ---------------------------------------------------------------------------
+# FullSellerClassification 프롬프트 & 체인
+# ---------------------------------------------------------------------------
+
+FULL_SELLER_CLASSIFICATION_SYSTEM_PROMPT = """
+당신은 광주광역시 플리마켓 셀러 챗봇 '잇다잉'의 통합 분류기입니다.
+
+사용자 질문을 분석하여 **한 번에** 모든 판단을 수행하세요:
+
+## 1. Intent 분류
+- greeting: 인사 ("안녕", "고마워")
+- bot_about: 챗봇/서비스 소개 질문
+- chitchat: 가벼운 잡담
+- seller_query: 셀러 관련 질문 (존 추천, 상권 정보, 운영 팁, 임대료, 유동인구 등)
+- out_of_scope: 광주 외 지역 (서울, 부산 등)
+- safety_violation: 안전 위반 (불법, 위조품 등)
+- noise: 의미 없는 입력
+
+## 2. Feasibility 코드
+- OK: 셀러 관련 질문 (존 추천, 상권, 임대료, 유동인구, 운영 팁 등)
+- OUT_OF_SCOPE_REGION: 광주광역시 외 지역 명시적 요청
+- NOT_IMPLEMENTED: 복잡한 데이터 계산 요청
+- INSUFFICIENT_DATA: 특정 수치 요청
+- POLICY_RESTRICTED: 불법/위험 요청
+
+## 3. Case 분류 (seller_query일 때)
+- zone_recommendation: 존/장소 추천 (동구에서 추천, 임대료 저렴한 곳, 유동인구 많은 곳)
+- commercial_info: 상권/유동인구/임대료 정보 조회
+- operation_guide: 운영 팁/가이드
+- seasonal_guide: 계절/시즌 가이드
+- target_customer: 타겟 고객 관련
+- general: 기타
+
+## 4. 검색 계획 (seller_query일 때)
+- rewritten_query: "광주" 포함하여 검색에 적합하게 재작성
+- target_entity: 판매자용이므로 항상 "zone"
+- keyword_filters: 지역 필터
+  - "동구에서" → keyword_filters에 district include: ["동구"]
+  - "북구 말고" → exclude_districts: ["북구"]
+- allow_broadening: 항상 True
+
+## 사용 가능한 필터 필드
+- district: 광주광역시 구 (동구, 서구, 남구, 북구, 광산구)
+- neighborhood: 동네/지역명
+- commercial_grade: 상권 등급 (S, A, B+, B, C)
+
+## 핵심 규칙
+- **셀러 관련 모든 질문 → seller_query + OK**:
+  - "동구 존 추천" → (seller_query, OK, zone_recommendation)
+  - "임대료 저렴한 곳" → (seller_query, OK, zone_recommendation)
+  - "20대 많은 곳" → (seller_query, OK, zone_recommendation)
+  - "주말에 장사 좋은 곳" → (seller_query, OK, zone_recommendation)
+  - "충장로 유동인구" → (seller_query, OK, commercial_info)
+- "동구/서구/남구/북구/광산구" → 광주 구로 해석
+- "서울에서 플리마켓" → (out_of_scope, OUT_OF_SCOPE_REGION)
+""".strip()
+
+full_seller_classification_prompt = ChatPromptTemplate.from_messages([
+    ("system", FULL_SELLER_CLASSIFICATION_SYSTEM_PROMPT),
+    ("user", "이전 대화 요약:\n{summary}\n\n사용자 질문:\n{query}"),
+])
+
+full_seller_classification_llm = _llm(temperature=0)
+full_seller_classification_chain = (
+    full_seller_classification_prompt
+    | full_seller_classification_llm.with_structured_output(FullSellerClassification)
+)
+
+
 def _trim_text(text: str, max_chars: int) -> str:
     """Safely trim long zone descriptions to avoid huge prompts."""
 
@@ -1322,6 +1478,96 @@ async def summarize_messages_async(state: AgentState) -> AgentState:
     return {**state, "summary": new_summary}
 
 
+# ---------------------------------------------------------------------------
+# 통합 분류 노드: full_classify_seller_async
+# ---------------------------------------------------------------------------
+
+async def full_classify_seller_async(state: AgentState) -> AgentState:
+    """
+    완전 통합 노드: classify_intent + assess_feasibility + case_classification + plan_structured_search를 단일 LLM 호출로 처리.
+    
+    LLM 호출 4회 → 1회로 감소 (~15초 → ~5초 예상)
+    """
+    summary = state.get("summary", "").strip() or "요약 없음"
+    query = state.get("query", "")
+    query_text = query if isinstance(query, str) else ""
+
+    next_state: AgentState = {**state}
+
+    # 1) 휴리스틱으로 명확한 케이스는 LLM 호출을 건너뛴다
+    qtype = classify_query_type(query_text)
+    if qtype == "greeting":
+        next_state["intent"] = "greeting"
+        next_state["risk_level"] = "low"
+        return next_state
+    elif qtype == "noise":
+        next_state["intent"] = "noise"
+        next_state["risk_level"] = "low"
+        return next_state
+    elif qtype == "bot_about":
+        next_state["intent"] = "bot_about"
+        next_state["risk_level"] = "low"
+        return next_state
+
+    # 2) 휴리스틱 정책 위반 체크
+    violated, code, detail = detect_policy_violation(query_text)
+    if violated and code:
+        next_state["intent"] = "safety_violation"
+        next_state["fallback_code"] = code
+        next_state["fallback_detail"] = detail
+        next_state["risk_level"] = "high"
+        return next_state
+
+    # 3) LLM 기반 완전 통합 분류 (단일 호출)
+    result = cast(
+        FullSellerClassification,
+        await full_seller_classification_chain.ainvoke({"summary": summary, "query": query_text}),
+    )
+
+    next_state["intent"] = result.intent
+    next_state["risk_level"] = result.risk_level
+
+    # Feasibility 처리
+    if result.feasibility_code != "OK":
+        next_state["fallback_code"] = result.feasibility_code
+        next_state["fallback_detail"] = result.detail
+
+    # seller_query인 경우 Case/Plan 정보도 설정
+    if result.intent == "seller_query" and result.feasibility_code == "OK":
+        next_state["case"] = result.case
+        next_state["paraphrased_query"] = result.rewritten_query or query_text
+        
+        # StructuredRetrievalPlan 형식으로 변환
+        structured_plan = {
+            "target_entity": result.target_entity,
+            "keyword_filters": [f.model_dump() for f in result.keyword_filters],
+            "numeric_filters": [],
+            "exclude_districts": result.exclude_districts,
+            "sort": [],
+            "allow_broadening": result.allow_broadening,
+            "strict_filters": False,
+            "rationale": result.detail,
+            "risk_level": result.risk_level,
+        }
+        next_state["structured_plan"] = structured_plan
+        next_state["entity_target"] = result.target_entity
+
+    return next_state
+
+
+def full_seller_router(state: AgentState) -> Literal["rag_answer", "general_answer"]:
+    """full_classify_seller_async 결과를 기반으로 라우팅."""
+    fallback_code = state.get("fallback_code")
+    if fallback_code:
+        return "general_answer"
+    
+    intent = state.get("intent", "")
+    if intent == "seller_query":
+        return "rag_answer"
+    
+    return "general_answer"
+
+
 __all__ = [
     "AgentState",
     "extract_user_query",
@@ -1343,7 +1589,7 @@ __all__ = [
     "check_allowed_categories_async",
     "generate",
     "generate_async",
-        "check_hallucination",
+    "check_hallucination",
     "check_hallucination_async",
     "rewrite",
     "rewrite_async",
@@ -1353,6 +1599,12 @@ __all__ = [
     "summarize_messages",
     "summarize_messages_async",
     "truncate_messages",
+    "classify_intent_node",
+    "hallucination_router",
+    # 통합 노드
+    "full_classify_seller_async",
+    "full_seller_router",
+    "FullSellerClassification",
 ]
 
 
