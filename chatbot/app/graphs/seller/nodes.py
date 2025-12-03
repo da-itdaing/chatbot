@@ -66,6 +66,28 @@ structured_plan_llm = _llm(temperature=0)
 policy_llm = _llm(temperature=0)
 rag_chain = build_seller_rag_chain(settings)
 
+# Intent classification prompt & chain
+INTENT_SYSTEM_PROMPT = """
+당신은 광주 플리마켓 셀러 챗봇의 의도 분류기입니다.
+사용자의 질문을 다음 카테고리 중 하나로 분류하세요:
+
+- greeting: 인사 (안녕, 반가워, 고마워 등)
+- bot_about: 챗봇/서비스 소개 질문
+- chitchat: 일상적인 대화
+- seller_query: 셀러 관련 질문 (존 추천, 상권 정보, 운영 팁 등)
+- out_of_scope: 서비스 범위 밖 질문 (광주 외 지역, 관련 없는 주제)
+- safety_violation: 위험하거나 불법적인 요청
+- noise: 의미 없는 입력
+
+질문을 RAG/검색에 적합하도록 명확하게 다시 작성해서 normalized_query에 출력하세요.
+""".strip()
+
+intent_prompt = ChatPromptTemplate.from_messages([
+    ("system", INTENT_SYSTEM_PROMPT),
+    ("user", "이전 대화 요약:\n{summary}\n\n사용자 질문:\n{query}"),
+])
+intent_chain = intent_prompt | intent_llm.with_structured_output(IntentDecision)
+
 
 # ---------------------------------------------------------------------------
 # Conversation-aware state and helpers (ported from bot4s.AgentState)
@@ -708,15 +730,10 @@ def classify_intent_node(state: AgentState) -> AgentState:
         intent = "noise"
         normalized = query_text.strip()
     else:
+        # ChatPromptTemplate + 체인으로 LLM 호출 (버그 수정)
         decision = cast(
             IntentDecision,
-            # 판매자 그래프에서는 seller_query 와 기타 intent 위주로 분류한다.
-            intent_llm.with_structured_output(IntentDecision).invoke(
-                {
-                    "summary": summary,
-                    "query": query_text,
-                }
-            ),
+            intent_chain.invoke({"summary": summary, "query": query_text}),
         )
         intent = decision.intent
         normalized = decision.normalized_query.strip() or query_text.strip()
