@@ -1,6 +1,15 @@
 from __future__ import annotations
 
+"""
+판매자용 챗봇 API 라우터.
+
+소비자용 챗봇과 동일한 패턴으로 구현되어 있으며,
+데이터 소스만 itdaing_zone 컬렉션을 참조합니다.
+"""
+
 import asyncio
+import json
+import logging
 from typing import Any, AsyncGenerator, Dict, List, Optional
 from uuid import uuid4
 
@@ -9,8 +18,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from langchain_core.messages import AIMessage, ToolMessage
 
-
 router = APIRouter(prefix="/api/chat/seller", tags=["seller-chat"])
+logger = logging.getLogger(__name__)
 
 
 class ChatSellerRequest(BaseModel):
@@ -28,6 +37,25 @@ class ChatSellerRequest(BaseModel):
         default=False,
         description="이전 대화 상태가 손상된 경우 새 thread_id로 재시작",
     )
+
+
+class ZoneRecommendation(BaseModel):
+    """존 추천 응답 스키마"""
+    type: str = "zone"
+    zone_id: Optional[str] = None
+    name: Optional[str] = None
+    address: Optional[str] = None
+    lat: Optional[float] = None
+    lng: Optional[float] = None
+    district: Optional[str] = None
+    neighborhood: Optional[str] = None
+    commercial_grade: Optional[str] = None
+    traffic_score: Optional[int] = None
+    competition_score: Optional[int] = None
+    potential_score: Optional[int] = None
+    best_products: Optional[List[str]] = None
+    rent_per_day: Optional[int] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 
 class ChatResponse(BaseModel):
@@ -104,6 +132,47 @@ def _initial_state(message: str) -> Dict[str, Any]:
     }
 
 
+def _enrich_zone_recommendations(recommendations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    존 추천 결과에서 프론트엔드에 필요한 필드를 추출/변환합니다.
+    
+    메타데이터에서 lat/lng, 상권 정보 등을 추출합니다.
+    """
+    enriched = []
+    for rec in recommendations:
+        metadata = rec.get("metadata", {}) or {}
+        
+        # 위도/경도: metadata에서 추출 또는 기존 값 유지
+        lat = rec.get("lat") or metadata.get("lat")
+        lng = rec.get("lon") or rec.get("lng") or metadata.get("lng") or metadata.get("lon")
+        
+        enriched_rec = {
+            "type": "zone",
+            "zone_id": rec.get("zone_id") or metadata.get("zone_id"),
+            "name": rec.get("name") or metadata.get("zone_name") or metadata.get("name"),
+            "address": rec.get("address") or metadata.get("address") or metadata.get("detailed_address"),
+            "lat": lat,
+            "lng": lng,
+            "district": rec.get("district") or metadata.get("district"),
+            "neighborhood": rec.get("neighborhood") or metadata.get("neighborhood"),
+            "commercial_grade": metadata.get("commercial_grade"),
+            "traffic_score": metadata.get("traffic_score"),
+            "competition_score": metadata.get("competition_score"),
+            "potential_score": metadata.get("potential_score"),
+            "weekday_traffic": metadata.get("weekday_traffic"),
+            "weekend_traffic": metadata.get("weekend_traffic"),
+            "best_products": metadata.get("best_products"),
+            "rent_per_day": metadata.get("rent_per_day"),
+            "avg_sales": metadata.get("avg_sales"),
+        }
+        
+        # None 값 제거
+        enriched_rec = {k: v for k, v in enriched_rec.items() if v is not None}
+        enriched.append(enriched_rec)
+    
+    return enriched
+
+
 @router.post(
     "",
     response_model=ChatResponse,
@@ -128,6 +197,7 @@ async def chat_seller(request: Request, payload: ChatSellerRequest) -> ChatRespo
     Seller-facing multi-turn chat endpoint (zone RAG).
 
     - thread_id 기본값: `seller:{user_id}:{session_id or 'default'}`
+    - 데이터 소스: itdaing_zone 컬렉션 (소비자용 itdaing_popups와 분리)
     """
 
     app = request.app
@@ -140,6 +210,10 @@ async def chat_seller(request: Request, payload: ChatSellerRequest) -> ChatRespo
     result = await graph.ainvoke(state, config=config)
     answer = _extract_answer(result.get("messages", []))
     recommendations = result.get("recommendations")
+    
+    # 존 추천 정보 보강
+    if recommendations:
+        recommendations = _enrich_zone_recommendations(recommendations)
 
     return ChatResponse(answer=answer, thread_id=thread_id, recommendations=recommendations)
 
@@ -181,11 +255,16 @@ async def chat_seller_stream(
     state = _initial_state(payload.message)
 
     async def event_stream() -> AsyncGenerator[bytes, None]:
-        import json
-
         result = await graph.ainvoke(state, config=config)
         text = _extract_answer(result.get("messages", []))
+        recommendations = result.get("recommendations")
+        
+        if recommendations:
+            recommendations = _enrich_zone_recommendations(recommendations)
+        
         data = {"delta": text, "thread_id": thread_id}
+        if recommendations:
+            data["recommendations"] = recommendations
         yield (json.dumps(data, ensure_ascii=False) + "\n").encode("utf-8")
 
     return StreamingResponse(event_stream(), media_type="application/json")
@@ -228,12 +307,16 @@ async def chat_seller_async(
     result = await graph.ainvoke(state, config=config)
     answer = _extract_answer(result.get("messages", []))
     recommendations = result.get("recommendations")
+    
+    if recommendations:
+        recommendations = _enrich_zone_recommendations(recommendations)
+    
     return ChatResponse(answer=answer, thread_id=thread_id, recommendations=recommendations)
 
 
 @router.post(
     "/async/stream",
-    summary="판매자 챗봇 Async diff 스트림",
+    summary="판매자 챗봇 Async 토큰 스트림 (SSE)",
     responses={
         200: {
             "description": '여러 JSON 라인 스트림, 예: {"delta":"...","thread_id":"seller:..."}',
@@ -257,10 +340,10 @@ async def chat_seller_async_stream(
     payload: ChatSellerRequest,
 ) -> StreamingResponse:
     """
-    LangGraph `astream` 기반 SSE 응답.
+    LangGraph `astream_events` 기반 실시간 토큰 스트리밍.
+    
+    소비자용 챗봇과 동일한 스트리밍 방식을 사용합니다.
     """
-
-    import json
 
     app = request.app
     graph = app.state.seller_graph_async
@@ -271,76 +354,70 @@ async def chat_seller_async_stream(
 
     async def event_stream() -> AsyncGenerator[bytes, None]:
         """
-        Seller 그래프의 answer를 여러 조각으로 나눠 스트리밍해
-        토큰 스트리밍에 가까운 UX를 제공한다.
+        astream_events를 사용한 실시간 토큰 스트리밍.
         """
-
-        CHUNK_SIZE = 20
-        previous = ""
         recommendations_sent = False
+        final_answer = ""
+        final_recommendations = None
 
-        async for chunk in graph.astream(state, config=config, stream_mode="values"):
-            if not isinstance(chunk, dict):
-                continue
+        try:
+            async for event in graph.astream_events(state, config=config, version="v2"):
+                event_type = event.get("event")
+                
+                # 토큰 스트리밍
+                if event_type == "on_llm_new_token":
+                    token = event.get("data", {}).get("token", "")
+                    if token:
+                        payload_dict = {"delta": token, "thread_id": thread_id}
+                        yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+                        await asyncio.sleep(0)
+                
+                # 노드 완료 시 recommendations 추출
+                elif event_type == "on_chain_end":
+                    output = event.get("data", {}).get("output", {})
+                    if isinstance(output, dict):
+                        # 최종 답변 추출
+                        answer = output.get("answer")
+                        if isinstance(answer, str) and answer.strip():
+                            final_answer = answer
+                        
+                        # recommendations 추출
+                        recs = output.get("recommendations")
+                        if isinstance(recs, list) and len(recs) > 0 and not recommendations_sent:
+                            final_recommendations = _enrich_zone_recommendations(recs)
+                            recommendations_sent = True
+                            
+                            # recommendations만 먼저 전송
+                            payload_dict = {
+                                "thread_id": thread_id,
+                                "recommendations": final_recommendations
+                            }
+                            yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+            
+            # 스트리밍이 끝나면 최종 응답 전송 (토큰 스트리밍이 없었을 경우)
+            if final_answer and not recommendations_sent:
+                payload_dict = {"delta": final_answer, "thread_id": thread_id}
+                if final_recommendations:
+                    payload_dict["recommendations"] = final_recommendations
+                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+                
+        except Exception as e:
+            logger.exception(f"Seller stream error: {e}")
+            error_payload = {
+                "error": "STREAM_ERROR",
+                "detail": "스트리밍 중 오류가 발생했습니다.",
+                "thread_id": thread_id
+            }
+            yield (json.dumps(error_payload, ensure_ascii=False) + "\n").encode("utf-8")
 
-            chunk_recommendations = chunk.get("recommendations")
-            has_recommendations = (
-                not recommendations_sent
-                and isinstance(chunk_recommendations, list)
-                and len(chunk_recommendations) > 0
-            )
-
-            chunk_answer = chunk.get("answer")
-            if isinstance(chunk_answer, str) and chunk_answer.strip():
-                full_text = chunk_answer
-            else:
-                # answer가 아직 준비되지 않은 단계에서는 delta를 전송하지 않는다.
-                if not has_recommendations:
-                    continue
-                full_text = ""
-
-            if not full_text and not has_recommendations:
-                continue
-
-            if full_text:
-                if previous and full_text.startswith(previous):
-                    new_text = full_text[len(previous) :]
-                else:
-                    new_text = full_text
-                previous = full_text
-            else:
-                new_text = ""
-
-            if not new_text.strip() and not has_recommendations:
-                continue
-
-            if new_text:
-                text_chunks = [
-                    new_text[i : i + CHUNK_SIZE]
-                    for i in range(0, len(new_text), CHUNK_SIZE)
-                ]
-            else:
-                text_chunks = [""]
-
-            for idx, piece in enumerate(text_chunks):
-                if not piece.strip() and not has_recommendations:
-                    continue
-
-                payload_dict: Dict[str, Any] = {"thread_id": thread_id}
-                if piece.strip():
-                    payload_dict["delta"] = piece
-                if has_recommendations and idx == 0:
-                    payload_dict["recommendations"] = chunk_recommendations
-                    recommendations_sent = True
-
-                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode(
-                    "utf-8"
-                )
-                await asyncio.sleep(0)
-
-    return StreamingResponse(event_stream(), media_type="application/json")
+    return StreamingResponse(
+        event_stream(),
+        media_type="application/json",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",  # Nginx 버퍼링 비활성화
+        }
+    )
 
 
 __all__ = ["router"]
-
-

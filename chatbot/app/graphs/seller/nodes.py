@@ -285,28 +285,49 @@ def _documents_from_payload(payload: Dict[str, Any]) -> List[Document]:
 
 
 def _build_zone_recommendations(documents: List[Document], limit: int = 3) -> List[Dict[str, Any]]:
+    """
+    검색된 존 문서에서 프론트엔드용 추천 목록을 생성합니다.
+    
+    상권 정보, 유동인구, 위도/경도 등 판매자에게 유용한 정보를 포함합니다.
+    """
     recommendations: List[Dict[str, Any]] = []
     for doc in documents:
         metadata = doc.metadata or {}
         zone_id = metadata.get("zone_id")
-        name = metadata.get("zone_name") or metadata.get("zone_id")
+        name = metadata.get("zone_name") or metadata.get("name") or metadata.get("zone_id")
         if not (zone_id or name):
             continue
-        recommendations.append(
-            {
-                "type": "zone",
-                "zone_id": zone_id,
-                "name": name,
-                "address": metadata.get("address"),
-                "lat": metadata.get("lat"),
-                "lon": metadata.get("lon"),
-                "distance_km": metadata.get("distance_km"),
-                "category": metadata.get("zone_type"),
-                "style_tags": metadata.get("zone_style_tags"),
-                "allowed_categories": metadata.get("allowed_categories"),
-                "metadata": metadata,
-            }
-        )
+        
+        rec = {
+            "type": "zone",
+            "zone_id": zone_id,
+            "name": name,
+            "address": metadata.get("address") or metadata.get("detailed_address"),
+            "lat": metadata.get("lat"),
+            "lng": metadata.get("lng") or metadata.get("lon"),
+            "district": metadata.get("district"),
+            "neighborhood": metadata.get("neighborhood"),
+            # 상권 정보
+            "commercial_grade": metadata.get("commercial_grade"),
+            "traffic_score": metadata.get("traffic_score"),
+            "competition_score": metadata.get("competition_score"),
+            "potential_score": metadata.get("potential_score"),
+            "weekday_traffic": metadata.get("weekday_traffic"),
+            "weekend_traffic": metadata.get("weekend_traffic"),
+            "avg_sales": metadata.get("avg_sales"),
+            "rent_per_day": metadata.get("rent_per_day"),
+            "best_products": metadata.get("best_products"),
+            # 기존 필드
+            "category": metadata.get("zone_type") or metadata.get("type"),
+            "style_tags": metadata.get("zone_style_tags"),
+            "allowed_categories": metadata.get("allowed_categories"),
+            "metadata": metadata,
+        }
+        
+        # None 값 제거
+        rec = {k: v for k, v in rec.items() if v is not None}
+        recommendations.append(rec)
+        
         if len(recommendations) >= limit:
             break
     return recommendations
