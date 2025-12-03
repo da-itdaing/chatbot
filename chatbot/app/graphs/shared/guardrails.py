@@ -112,11 +112,19 @@ INPUT_GUARDRAIL_PROMPT = """당신은 광주 플리마켓 챗봇 '잇다잉'의 
 # ============================================================================
 
 def _get_guardrail_llm() -> ChatOpenAI:
-    """가드레일용 LLM (빠른 응답 위해 작은 모델)"""
-    return ChatOpenAI(
+    """가드레일용 LLM (빠른 응답 위해 작은 모델, 키 로테이션 지원)"""
+    from app.utils.key_rotation import get_key_manager
+
+    def _api_key_provider() -> str:
+        """키 매니저에서 현재 활성 키 반환 (로테이션)"""
+        key_manager = get_key_manager()
+        return key_manager.get_current_key()
+
+    return ChatOpenAI(  # type: ignore[call-arg]
         model="gpt-4o-mini",
         temperature=0,
-        max_tokens=300,
+        max_completion_tokens=300,
+        api_key=_api_key_provider,
     )
 
 

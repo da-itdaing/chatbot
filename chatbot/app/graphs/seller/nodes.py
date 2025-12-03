@@ -42,8 +42,13 @@ ZONE_CONTEXT_DOC_MAX_CHARS = 800
 ZONE_CONTEXT_TOTAL_MAX_CHARS = 3000
 
 def _llm(temperature: float = 0.0) -> ChatOpenAI:
+    """LLM 인스턴스 생성 헬퍼 (키 로테이션 지원)."""
+    from app.utils.key_rotation import get_key_manager
+
     def _api_key_provider() -> str:
-        return settings.openai_api_key
+        """키 매니저에서 현재 활성 키 반환 (로테이션)"""
+        key_manager = get_key_manager()
+        return key_manager.get_current_key()
 
     # Runtime 시그니처는 model / temperature / api_key를 지원하지만,
     # 타입 스텁이 오래된 경우 call-arg 오류가 날 수 있어 무시한다.

@@ -51,6 +51,13 @@ def create_app() -> FastAPI:
     async def health() -> dict:
         return {"status": "ok"}
 
+    @app.get("/api/key-status", include_in_schema=False)
+    async def key_status() -> dict:
+        """API 키 로테이션 상태 확인 (관리자용)"""
+        from app.utils.key_rotation import get_key_manager
+        key_manager = get_key_manager()
+        return key_manager.get_status_summary()
+
     app.include_router(chat_consumer.router)
     app.include_router(chat_seller.router)
     app.include_router(admin.router)

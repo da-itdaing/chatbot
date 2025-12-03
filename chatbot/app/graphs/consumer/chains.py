@@ -32,10 +32,13 @@ settings = get_settings()
 
 
 def _llm(temperature: float = 0.0) -> ChatOpenAI:
-    """LLM 인스턴스 생성 헬퍼."""
+    """LLM 인스턴스 생성 헬퍼 (키 로테이션 지원)."""
+    from app.utils.key_rotation import get_key_manager
 
     def _api_key_provider() -> str:
-        return settings.openai_api_key
+        """키 매니저에서 현재 활성 키 반환 (로테이션)"""
+        key_manager = get_key_manager()
+        return key_manager.get_current_key()
 
     return ChatOpenAI(  # type: ignore[call-arg]
         model=settings.openai_model,

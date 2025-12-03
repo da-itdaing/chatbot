@@ -13,12 +13,16 @@ def build_seller_rag_chain(settings: Optional[Settings] = None) -> Runnable:
     """
     Seller LangGraph에서 사용하던 RAG 생성 체인을 모듈화한 함수.
     프롬프트/LLM 구성은 기존 그래프 정의와 동일하다.
+    키 로테이션 지원.
     """
+    from app.utils.key_rotation import get_key_manager
 
     cfg = settings or get_settings()
 
     def _api_key_provider() -> str:
-        return cfg.openai_api_key
+        """키 매니저에서 현재 활성 키 반환 (로테이션)"""
+        key_manager = get_key_manager()
+        return key_manager.get_current_key()
 
     # NOTE:
     # Runtime ChatOpenAI __init__ signature(printed via inspect) supports

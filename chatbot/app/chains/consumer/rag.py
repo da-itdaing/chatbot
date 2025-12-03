@@ -13,12 +13,16 @@ def build_consumer_rag_chain(settings: Optional[Settings] = None) -> Runnable:
     """
     기존 consumer LangGraph에서 사용하던 RAG 응답 체인을 그대로 래핑한다.
     프롬프트/LLM/실행 순서를 변경하지 않고 모듈화만 수행한다.
+    키 로테이션 지원.
     """
+    from app.utils.key_rotation import get_key_manager
 
     cfg = settings or get_settings()
 
     def _api_key_provider() -> str:
-        return cfg.openai_api_key
+        """키 매니저에서 현재 활성 키 반환 (로테이션)"""
+        key_manager = get_key_manager()
+        return key_manager.get_current_key()
 
     # NOTE:
     # ChatOpenAI의 실제 __init__ 시그니처는 model / temperature / api_key /

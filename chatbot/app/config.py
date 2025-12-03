@@ -21,10 +21,20 @@ class Settings(BaseSettings):
 
     # --- OpenAI / models ---
     openai_api_key: str = Field(..., alias="OPENAI_API_KEY")
+    # 백업 키 (Tier4 - 키 로테이션용)
+    openai_api_key2: Optional[str] = Field(None, alias="OPENAI_API_KEY2")
     openai_model: str = Field("gpt-4o-mini", alias="OPENAI_MODEL")
     # RAG 전용 모델을 분리하고 싶을 때 사용 (없으면 openai_model 사용)
     openai_rag_model: Optional[str] = Field(None, alias="OPENAI_RAG_MODEL")
     openai_embedding_model: str = Field("text-embedding-3-small", alias="OPENAI_EMBEDDING_MODEL")
+    
+    @property
+    def openai_api_keys(self) -> list[str]:
+        """사용 가능한 모든 OpenAI API 키 목록 반환 (로테이션용)"""
+        keys = [self.openai_api_key]
+        if self.openai_api_key2:
+            keys.append(self.openai_api_key2)
+        return keys
 
     # --- PGVector (consumer markets RAG) ---
     pgvector_connection: str = Field(..., alias="PGVECTOR_CONNECTION")
