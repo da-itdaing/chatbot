@@ -189,7 +189,7 @@ async def _enrich_zone_recommendations_async(recommendations: List[Dict[str, Any
                         enriched_rec["polygon"] = polygon_data
                 
                 # 팝업 등록 페이지 URL
-                enriched_rec["popup_register_url"] = f"/seller/popups/new?zoneId={zone_id_int}"
+                enriched_rec["popup_register_url"] = f"/seller/popups/create?zoneId={zone_id_int}"
                 
             except (ValueError, TypeError) as e:
                 logger.warning(f"Failed to get cell stats for zone_id={zone_id}: {e}")
@@ -237,7 +237,7 @@ def _enrich_zone_recommendations(recommendations: List[Dict[str, Any]]) -> List[
         
         # 팝업 등록 페이지 URL (zone_id가 있을 경우)
         if zone_id:
-            enriched_rec["popup_register_url"] = f"/seller/popups/new?zoneId={zone_id}"
+            enriched_rec["popup_register_url"] = f"/seller/popups/create?zoneId={zone_id}"
         
         # None 값 제거
         enriched_rec = {k: v for k, v in enriched_rec.items() if v is not None}
