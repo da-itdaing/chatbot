@@ -419,72 +419,79 @@ async def chat_seller_async_stream(
     payload: ChatSellerRequest,
 ) -> StreamingResponse:
     """
-    LangGraph `astream_events` 기반 실시간 토큰 스트리밍.
+    LangGraph astream 기반 스트리밍.
     
-    소비자용 챗봇과 동일한 스트리밍 방식을 사용합니다.
+    - 토큰 스트리밍 대신 최종 응답을 한 번에 전송합니다.
+    - recommendations는 enrich 후 함께 전송됩니다.
     """
 
     app = request.app
     graph = app.state.seller_graph_async
 
     thread_id = _build_thread_id("seller", payload)
-    config: Dict[str, Any] = {"configurable": {"thread_id": thread_id}}
-    state = _initial_state(payload.message)
+    config: Dict[str, Any] = {
+        "configurable": {"thread_id": thread_id},
+        "recursion_limit": 50,
+    }
+    initial = _initial_state(payload.message)
 
     async def event_stream() -> AsyncGenerator[bytes, None]:
         """
-        astream_events를 사용한 실시간 토큰 스트리밍.
+        astream을 사용하여 최종 상태에서 answer를 추출합니다.
         """
-        recommendations_sent = False
-        final_answer = ""
-        final_recommendations = None
-
+        final_state = None
+        
         try:
-            async for event in graph.astream_events(state, config=config, version="v2"):
-                event_type = event.get("event")
-                
-                # 토큰 스트리밍
-                if event_type == "on_llm_new_token":
-                    token = event.get("data", {}).get("token", "")
-                    if token:
-                        payload_dict = {"delta": token, "thread_id": thread_id}
-                        yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
-                        await asyncio.sleep(0)
-                
-                # 노드 완료 시 recommendations 추출
-                elif event_type == "on_chain_end":
-                    output = event.get("data", {}).get("output", {})
-                    if isinstance(output, dict):
-                        # 최종 답변 추출
-                        answer = output.get("answer")
-                        if isinstance(answer, str) and answer.strip():
-                            final_answer = answer
-                        
-                        # recommendations 추출
-                        recs = output.get("recommendations")
-                        if isinstance(recs, list) and len(recs) > 0 and not recommendations_sent:
-                            final_recommendations = await _enrich_zone_recommendations_async(recs)
-                            recommendations_sent = True
-                            
-                            # recommendations만 먼저 전송
-                            payload_dict = {
-                                "thread_id": thread_id,
-                                "recommendations": final_recommendations
-                            }
-                            yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+            # astream으로 최종 상태 가져오기
+            async for state_chunk in graph.astream(initial, config=config):
+                final_state = state_chunk
             
-            # 스트리밍이 끝나면 최종 응답 전송 (토큰 스트리밍이 없었을 경우)
-            if final_answer and not recommendations_sent:
-                payload_dict = {"delta": final_answer, "thread_id": thread_id}
-                if final_recommendations:
-                    payload_dict["recommendations"] = final_recommendations
-                yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
+            # 최종 상태에서 answer, recommendations 추출
+            answer = ""
+            recommendations = None
+            
+            if final_state:
+                # final_state가 dict인 경우 (노드별 출력)
+                if isinstance(final_state, dict):
+                    # 노드 이름이 키로 포함된 경우 마지막 노드의 출력 가져오기
+                    for node_name, node_output in final_state.items():
+                        if isinstance(node_output, dict):
+                            if "answer" in node_output:
+                                answer = node_output.get("answer", "")
+                            if "recommendations" in node_output:
+                                recommendations = node_output.get("recommendations")
+                    
+                    # 직접 접근 시도
+                    if not answer:
+                        answer = final_state.get("answer", "")
+                    if not recommendations:
+                        recommendations = final_state.get("recommendations")
+            
+            # 답변이 없으면 그래프 직접 실행하여 가져오기
+            if not answer:
+                result = await graph.ainvoke(initial, config=config)
+                answer = result.get("answer", "")
+                recommendations = result.get("recommendations")
+            
+            # recommendations 보강
+            if recommendations:
+                recommendations = await _enrich_zone_recommendations_async(recommendations)
+            
+            # 최종 응답 전송
+            payload_dict = {
+                "delta": answer,
+                "thread_id": thread_id,
+            }
+            if recommendations:
+                payload_dict["recommendations"] = recommendations
+            
+            yield (json.dumps(payload_dict, ensure_ascii=False) + "\n").encode("utf-8")
                 
         except Exception as e:
             logger.exception(f"Seller stream error: {e}")
             error_payload = {
                 "error": "STREAM_ERROR",
-                "detail": "스트리밍 중 오류가 발생했습니다.",
+                "detail": f"스트리밍 중 오류가 발생했습니다: {str(e)}",
                 "thread_id": thread_id
             }
             yield (json.dumps(error_payload, ensure_ascii=False) + "\n").encode("utf-8")
