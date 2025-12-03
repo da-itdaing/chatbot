@@ -1,0 +1,435 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created_at": "2025-12-02",
+    "description": "존(Zone) 상세 상권 정보 - 판매자용 챗봇 존 추천 활용",
+    "note": "zone_area 테이블의 id와 매핑됨"
+  },
+  "zones": {
+    "51": {
+      "name": "광주 동구 무등산 플리마켓존",
+      "district": "동구",
+      "neighborhood": "용연동",
+      "commercial_grade": "B",
+      "traffic_score": 65,
+      "competition_score": 30,
+      "potential_score": 75,
+      "weekday_traffic": 3500,
+      "weekend_traffic": 8000,
+      "peak_hours": ["09:00-12:00", "14:00-17:00"],
+      "age_distribution": {
+        "20대": 15,
+        "30대": 18,
+        "40대": 22,
+        "50대": 28,
+        "60대이상": 17
+      },
+      "best_products": ["등산용품", "간식", "음료", "기념품", "건강식품"],
+      "avg_sales_per_day": 350000,
+      "rent_per_day": 30000,
+      "parking": "주차장 있음",
+      "restroom": "공용화장실",
+      "electricity": "제한적",
+      "nearby_stores": 8,
+      "tips": [
+        "등산객 대상 간편 간식류 인기",
+        "오전 시간대 집중 공략",
+        "자연친화적 포장 선호",
+        "현금 준비 필수"
+      ],
+      "reviews": {
+        "avg_rating": 4.2,
+        "count": 23,
+        "highlights": ["경치 좋음", "주차 편리", "공기 좋음"]
+      }
+    },
+    "52": {
+      "name": "광주 동구 충장로 플리마켓존",
+      "district": "동구",
+      "neighborhood": "충장동",
+      "commercial_grade": "S",
+      "traffic_score": 95,
+      "competition_score": 85,
+      "potential_score": 90,
+      "weekday_traffic": 45000,
+      "weekend_traffic": 65000,
+      "peak_hours": ["12:00-14:00", "17:00-21:00"],
+      "age_distribution": {
+        "10대": 8,
+        "20대": 30,
+        "30대": 25,
+        "40대": 20,
+        "50대이상": 17
+      },
+      "best_products": ["패션의류", "액세서리", "스트리트푸드", "화장품", "핸드메이드"],
+      "avg_sales_per_day": 850000,
+      "rent_per_day": 80000,
+      "parking": "유료주차장",
+      "restroom": "다수 있음",
+      "electricity": "가능",
+      "nearby_stores": 150,
+      "tips": [
+        "트렌디한 상품 필수",
+        "경쟁 치열하므로 차별화 전략 중요",
+        "야간 영업 유리",
+        "카드결제 필수"
+      ],
+      "reviews": {
+        "avg_rating": 4.5,
+        "count": 156,
+        "highlights": ["유동인구 많음", "젊은층 집중", "교통 편리"]
+      }
+    },
+    "53": {
+      "name": "광주 동구 문화전당 플리마켓존",
+      "district": "동구",
+      "neighborhood": "금남로",
+      "commercial_grade": "A",
+      "traffic_score": 80,
+      "competition_score": 50,
+      "potential_score": 85,
+      "weekday_traffic": 25000,
+      "weekend_traffic": 40000,
+      "peak_hours": ["11:00-14:00", "15:00-19:00"],
+      "age_distribution": {
+        "20대": 28,
+        "30대": 30,
+        "40대": 22,
+        "50대이상": 20
+      },
+      "best_products": ["아트/공예품", "책/문구", "디자인소품", "디저트", "문화상품"],
+      "avg_sales_per_day": 550000,
+      "rent_per_day": 50000,
+      "parking": "지하주차장",
+      "restroom": "문화전당 내 시설",
+      "electricity": "가능",
+      "nearby_stores": 35,
+      "tips": [
+        "문화예술 관련 상품 적합",
+        "전시/공연과 연계 마케팅",
+        "고급스러운 디스플레이",
+        "외국인 관광객 대응"
+      ],
+      "reviews": {
+        "avg_rating": 4.4,
+        "count": 89,
+        "highlights": ["분위기 좋음", "문화향유", "깨끗함"]
+      }
+    },
+    "54": {
+      "name": "광주 동구 대인시장 플리마켓존",
+      "district": "동구",
+      "neighborhood": "대인동",
+      "commercial_grade": "A",
+      "traffic_score": 75,
+      "competition_score": 55,
+      "potential_score": 80,
+      "weekday_traffic": 15000,
+      "weekend_traffic": 25000,
+      "peak_hours": ["10:00-12:00", "18:00-22:00"],
+      "age_distribution": {
+        "20대": 22,
+        "30대": 25,
+        "40대": 25,
+        "50대이상": 28
+      },
+      "best_products": ["먹거리", "전통식품", "빈티지", "공예품", "야시장형"],
+      "avg_sales_per_day": 480000,
+      "rent_per_day": 35000,
+      "parking": "인근 주차장",
+      "restroom": "시장 내 있음",
+      "electricity": "가능",
+      "nearby_stores": 80,
+      "tips": [
+        "야시장 분위기 활용",
+        "전통+현대 융합 컨셉",
+        "금토 야시장 시간 공략",
+        "먹거리와 함께 운영 효과적"
+      ],
+      "reviews": {
+        "avg_rating": 4.3,
+        "count": 67,
+        "highlights": ["야시장 분위기", "먹거리 다양", "감성적"]
+      }
+    },
+    "55": {
+      "name": "광주 동구 금남로 플리마켓존",
+      "district": "동구",
+      "neighborhood": "금남로",
+      "commercial_grade": "A",
+      "traffic_score": 85,
+      "competition_score": 60,
+      "potential_score": 82,
+      "weekday_traffic": 38000,
+      "weekend_traffic": 50000,
+      "peak_hours": ["11:00-13:00", "18:00-21:00"],
+      "age_distribution": {
+        "20대": 28,
+        "30대": 26,
+        "40대": 22,
+        "50대이상": 24
+      },
+      "best_products": ["오피스용품", "간편식", "디저트", "음료", "선물용품"],
+      "avg_sales_per_day": 620000,
+      "rent_per_day": 60000,
+      "parking": "유료주차장",
+      "restroom": "있음",
+      "electricity": "가능",
+      "nearby_stores": 65,
+      "tips": [
+        "직장인 점심시간 공략",
+        "테이크아웃 위주",
+        "간편하고 빠른 서비스",
+        "5.18 광장 행사 연계"
+      ],
+      "reviews": {
+        "avg_rating": 4.1,
+        "count": 54,
+        "highlights": ["직장인 많음", "교통 편리", "점심특화"]
+      }
+    },
+    "56": {
+      "name": "광주 서구 첨단 플리마켓존",
+      "district": "서구",
+      "neighborhood": "치평동",
+      "commercial_grade": "A",
+      "traffic_score": 82,
+      "competition_score": 65,
+      "potential_score": 85,
+      "weekday_traffic": 32000,
+      "weekend_traffic": 45000,
+      "peak_hours": ["12:00-14:00", "19:00-23:00"],
+      "age_distribution": {
+        "20대": 32,
+        "30대": 28,
+        "40대": 22,
+        "50대이상": 18
+      },
+      "best_products": ["트렌디푸드", "주류", "패션", "뷰티", "야간상품"],
+      "avg_sales_per_day": 720000,
+      "rent_per_day": 70000,
+      "parking": "유료주차장",
+      "restroom": "있음",
+      "electricity": "가능",
+      "nearby_stores": 120,
+      "tips": [
+        "야간 영업 필수",
+        "20-30대 타깃 필수",
+        "SNS 홍보 효과적",
+        "경쟁 치열하므로 퀄리티 중요"
+      ],
+      "reviews": {
+        "avg_rating": 4.3,
+        "count": 112,
+        "highlights": ["밤 분위기 좋음", "젊은층", "먹거리 풍부"]
+      }
+    },
+    "57": {
+      "name": "광주 서구 상무지구 플리마켓존",
+      "district": "서구",
+      "neighborhood": "상무1동",
+      "commercial_grade": "S",
+      "traffic_score": 90,
+      "competition_score": 75,
+      "potential_score": 88,
+      "weekday_traffic": 42000,
+      "weekend_traffic": 38000,
+      "peak_hours": ["11:00-14:00", "17:00-19:00"],
+      "age_distribution": {
+        "20대": 22,
+        "30대": 32,
+        "40대": 28,
+        "50대이상": 18
+      },
+      "best_products": ["비즈니스간식", "건강식품", "선물세트", "프리미엄푸드", "커피"],
+      "avg_sales_per_day": 680000,
+      "rent_per_day": 75000,
+      "parking": "빌딩주차장",
+      "restroom": "있음",
+      "electricity": "가능",
+      "nearby_stores": 90,
+      "tips": [
+        "직장인 타깃 필수",
+        "점심시간 집중 공략",
+        "고급스러운 포장",
+        "평일 매출이 주말보다 높음"
+      ],
+      "reviews": {
+        "avg_rating": 4.2,
+        "count": 78,
+        "highlights": ["오피스상권", "점심시간 북적", "깔끔함"]
+      }
+    },
+    "61": {
+      "name": "광주 남구 양림동 플리마켓존",
+      "district": "남구",
+      "neighborhood": "양림동",
+      "commercial_grade": "A",
+      "traffic_score": 72,
+      "competition_score": 40,
+      "potential_score": 85,
+      "weekday_traffic": 8000,
+      "weekend_traffic": 18000,
+      "peak_hours": ["11:00-17:00"],
+      "age_distribution": {
+        "20대": 30,
+        "30대": 28,
+        "40대": 22,
+        "50대이상": 20
+      },
+      "best_products": ["핸드메이드", "전통공예", "카페음료", "빈티지", "포토상품"],
+      "avg_sales_per_day": 420000,
+      "rent_per_day": 40000,
+      "parking": "공영주차장",
+      "restroom": "마을 내 있음",
+      "electricity": "제한적",
+      "nearby_stores": 45,
+      "tips": [
+        "감성적인 스토리텔링 중요",
+        "포토존 연출",
+        "전통+현대 융합",
+        "주말 집중 운영"
+      ],
+      "reviews": {
+        "avg_rating": 4.6,
+        "count": 92,
+        "highlights": ["분위기 최고", "사진찍기 좋음", "골목투어"]
+      }
+    },
+    "66": {
+      "name": "광주 북구 용봉동 플리마켓존",
+      "district": "북구",
+      "neighborhood": "용봉동",
+      "commercial_grade": "A",
+      "traffic_score": 88,
+      "competition_score": 70,
+      "potential_score": 82,
+      "weekday_traffic": 45000,
+      "weekend_traffic": 25000,
+      "peak_hours": ["11:00-14:00", "17:00-21:00"],
+      "age_distribution": {
+        "10대": 5,
+        "20대": 55,
+        "30대": 20,
+        "40대": 12,
+        "50대이상": 8
+      },
+      "best_products": ["가성비푸드", "학생용품", "빈티지의류", "액세서리", "술안주"],
+      "avg_sales_per_day": 520000,
+      "rent_per_day": 45000,
+      "parking": "대학 주차장",
+      "restroom": "있음",
+      "electricity": "가능",
+      "nearby_stores": 100,
+      "tips": [
+        "학생 타깃 가격대 필수",
+        "대동제 시즌 특수",
+        "SNS 바이럴 중요",
+        "야간 영업 효과적"
+      ],
+      "reviews": {
+        "avg_rating": 4.1,
+        "count": 134,
+        "highlights": ["대학생 많음", "가성비", "활기참"]
+      }
+    },
+    "71": {
+      "name": "광주 광산구 수완지구 플리마켓존",
+      "district": "광산구",
+      "neighborhood": "수완동",
+      "commercial_grade": "S",
+      "traffic_score": 88,
+      "competition_score": 60,
+      "potential_score": 92,
+      "weekday_traffic": 35000,
+      "weekend_traffic": 48000,
+      "peak_hours": ["12:00-14:00", "16:00-20:00"],
+      "age_distribution": {
+        "10대": 15,
+        "20대": 18,
+        "30대": 30,
+        "40대": 25,
+        "50대이상": 12
+      },
+      "best_products": ["키즈용품", "가족먹거리", "생활소품", "반려동물", "유기농식품"],
+      "avg_sales_per_day": 750000,
+      "rent_per_day": 65000,
+      "parking": "대형주차장",
+      "restroom": "다수 있음",
+      "electricity": "가능",
+      "nearby_stores": 85,
+      "tips": [
+        "가족단위 상품 필수",
+        "키즈 친화적 디스플레이",
+        "주차 편의 홍보",
+        "주말 집중 운영"
+      ],
+      "reviews": {
+        "avg_rating": 4.5,
+        "count": 108,
+        "highlights": ["가족친화적", "넓고 쾌적", "주차 편리"]
+      }
+    },
+    "72": {
+      "name": "광주 광산구 하남동 플리마켓존",
+      "district": "광산구",
+      "neighborhood": "하남동",
+      "commercial_grade": "B+",
+      "traffic_score": 75,
+      "competition_score": 45,
+      "potential_score": 80,
+      "weekday_traffic": 20000,
+      "weekend_traffic": 28000,
+      "peak_hours": ["11:00-13:00", "17:00-20:00"],
+      "age_distribution": {
+        "10대": 16,
+        "20대": 16,
+        "30대": 26,
+        "40대": 24,
+        "50대이상": 18
+      },
+      "best_products": ["생활용품", "가족먹거리", "학용품", "간식", "반찬류"],
+      "avg_sales_per_day": 420000,
+      "rent_per_day": 40000,
+      "parking": "마트 주차장",
+      "restroom": "있음",
+      "electricity": "가능",
+      "nearby_stores": 55,
+      "tips": [
+        "실용적인 상품 구성",
+        "가족 타깃",
+        "학원가 학생도 고려",
+        "배달 연계 가능"
+      ],
+      "reviews": {
+        "avg_rating": 4.2,
+        "count": 67,
+        "highlights": ["가족 많음", "접근성 좋음", "편리함"]
+      }
+    }
+  },
+  "zone_comparison": {
+    "by_traffic": [
+      {"rank": 1, "zone_id": "52", "name": "충장로", "weekend_traffic": 65000},
+      {"rank": 2, "zone_id": "57", "name": "상무지구", "weekend_traffic": 50000},
+      {"rank": 3, "zone_id": "71", "name": "수완지구", "weekend_traffic": 48000},
+      {"rank": 4, "zone_id": "56", "name": "서구 첨단", "weekend_traffic": 45000},
+      {"rank": 5, "zone_id": "53", "name": "문화전당", "weekend_traffic": 40000}
+    ],
+    "by_rent_efficiency": [
+      {"rank": 1, "zone_id": "61", "name": "양림동", "sales_per_rent": 10.5},
+      {"rank": 2, "zone_id": "71", "name": "수완지구", "sales_per_rent": 11.5},
+      {"rank": 3, "zone_id": "54", "name": "대인시장", "sales_per_rent": 13.7},
+      {"rank": 4, "zone_id": "66", "name": "용봉동", "sales_per_rent": 11.6},
+      {"rank": 5, "zone_id": "51", "name": "무등산", "sales_per_rent": 11.7}
+    ],
+    "by_beginner_friendly": [
+      {"rank": 1, "zone_id": "61", "name": "양림동", "reason": "경쟁 낮음, 분위기 좋음"},
+      {"rank": 2, "zone_id": "51", "name": "무등산", "reason": "관광객 위주, 단순 상품"},
+      {"rank": 3, "zone_id": "72", "name": "하남동", "reason": "가족상권, 안정적"},
+      {"rank": 4, "zone_id": "54", "name": "대인시장", "reason": "야시장 분위기, 먹거리 특화"},
+      {"rank": 5, "zone_id": "71", "name": "수완지구", "reason": "높은 매출, 가족친화"}
+    ]
+  }
+}
+

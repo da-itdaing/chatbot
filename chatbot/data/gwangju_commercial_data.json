@@ -1,0 +1,1462 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created_at": "2025-12-02",
+    "description": "광주광역시 구/동별 상권 정보 - 판매자용 챗봇 활용",
+    "source": "광주광역시 통계, 소상공인진흥공단, 행정안전부 주민등록 인구통계 기반 추정",
+    "disclaimer": "일부 데이터는 추정치이며, 실제 현황과 다를 수 있습니다."
+  },
+  "districts": {
+    "동구": {
+      "region_id": 26,
+      "total_population": 94000,
+      "area_km2": 49.24,
+      "characteristics": ["역사/문화 중심지", "전통시장", "예술골목", "관광지"],
+      "main_commercial_areas": ["충장로", "금남로", "대인시장", "동명동 예술골목"],
+      "neighborhoods": {
+        "충장동": {
+          "population": 3200,
+          "floating_population": {
+            "weekday_avg": 45000,
+            "weekend_avg": 65000,
+            "peak_hours": ["12:00-14:00", "17:00-21:00"]
+          },
+          "age_distribution": {
+            "10대": 8,
+            "20대": 25,
+            "30대": 22,
+            "40대": 20,
+            "50대": 15,
+            "60대_이상": 10
+          },
+          "commercial_info": {
+            "main_industries": ["의류/패션", "음식점", "카페", "화장품"],
+            "avg_rent_per_pyeong": 85000,
+            "vacancy_rate": 12,
+            "recommended_business": ["의류", "액세서리", "푸드트럭", "핸드메이드"],
+            "competition_level": "높음"
+          },
+          "characteristics": ["광주 최대 번화가", "젊은층 유동인구 많음", "주말 방문객 증가"],
+          "nearby_facilities": ["충장로 지하상가", "금남로역", "버스터미널"],
+          "events": ["충장축제(10월)", "충장로 야시장(상시)"]
+        },
+        "금남로": {
+          "population": 2800,
+          "floating_population": {
+            "weekday_avg": 38000,
+            "weekend_avg": 55000,
+            "peak_hours": ["11:00-13:00", "18:00-21:00"]
+          },
+          "age_distribution": {
+            "10대": 6,
+            "20대": 28,
+            "30대": 24,
+            "40대": 18,
+            "50대": 14,
+            "60대_이상": 10
+          },
+          "commercial_info": {
+            "main_industries": ["금융", "사무실", "음식점", "카페"],
+            "avg_rent_per_pyeong": 75000,
+            "vacancy_rate": 8,
+            "recommended_business": ["점심특화 음식", "테이크아웃", "디저트"],
+            "competition_level": "높음"
+          },
+          "characteristics": ["오피스 상권", "점심시간 유동인구 집중", "5.18 민주광장"],
+          "nearby_facilities": ["국립아시아문화전당", "금남로역", "5.18민주광장"],
+          "events": ["5.18 기념행사", "문화전당 공연"]
+        },
+        "동명동": {
+          "population": 4500,
+          "floating_population": {
+            "weekday_avg": 12000,
+            "weekend_avg": 25000,
+            "peak_hours": ["14:00-18:00", "19:00-22:00"]
+          },
+          "age_distribution": {
+            "10대": 5,
+            "20대": 35,
+            "30대": 30,
+            "40대": 15,
+            "50대": 10,
+            "60대_이상": 5
+          },
+          "commercial_info": {
+            "main_industries": ["카페", "갤러리", "공방", "맛집"],
+            "avg_rent_per_pyeong": 45000,
+            "vacancy_rate": 5,
+            "recommended_business": ["수제품", "아트마켓", "빈티지", "특색있는 F&B"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["예술골목", "감성 카페거리", "젊은 예술가 집중", "인스타 핫플"],
+          "nearby_facilities": ["동명동 예술골목", "카페거리"],
+          "events": ["동명동 플리마켓(주말)", "아트페어"]
+        },
+        "대인동": {
+          "population": 5200,
+          "floating_population": {
+            "weekday_avg": 15000,
+            "weekend_avg": 22000,
+            "peak_hours": ["10:00-12:00", "17:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 5,
+            "20대": 15,
+            "30대": 18,
+            "40대": 22,
+            "50대": 25,
+            "60대_이상": 15
+          },
+          "commercial_info": {
+            "main_industries": ["전통시장", "음식점", "농수산물"],
+            "avg_rent_per_pyeong": 35000,
+            "vacancy_rate": 10,
+            "recommended_business": ["먹거리", "전통식품", "야시장형 판매"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["대인시장", "야시장 활성화", "전통과 현대의 조화"],
+          "nearby_facilities": ["대인시장", "대인예술시장"],
+          "events": ["대인야시장(금-토)", "예술시장"]
+        },
+        "산수동": {
+          "population": 8500,
+          "floating_population": {
+            "weekday_avg": 8000,
+            "weekend_avg": 12000,
+            "peak_hours": ["11:00-13:00", "18:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 12,
+            "20대": 18,
+            "30대": 20,
+            "40대": 22,
+            "50대": 18,
+            "60대_이상": 10
+          },
+          "commercial_info": {
+            "main_industries": ["음식점", "학원", "생활편의"],
+            "avg_rent_per_pyeong": 40000,
+            "vacancy_rate": 7,
+            "recommended_business": ["분식", "학생타겟", "편의점형"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["주거+상업 혼합", "학교 인근"],
+          "nearby_facilities": ["산수시장", "학교"],
+          "events": []
+        },
+        "지산동": {
+          "population": 12000,
+          "floating_population": {
+            "weekday_avg": 6000,
+            "weekend_avg": 8000,
+            "peak_hours": ["17:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 15,
+            "20대": 12,
+            "30대": 18,
+            "40대": 25,
+            "50대": 18,
+            "60대_이상": 12
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "음식점", "마트"],
+            "avg_rent_per_pyeong": 30000,
+            "vacancy_rate": 8,
+            "recommended_business": ["배달음식", "생활용품"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역", "가족단위"],
+          "nearby_facilities": ["지산유원지"],
+          "events": []
+        },
+        "학동": {
+          "population": 15000,
+          "floating_population": {
+            "weekday_avg": 7000,
+            "weekend_avg": 10000,
+            "peak_hours": ["12:00-14:00", "18:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 14,
+            "20대": 15,
+            "30대": 20,
+            "40대": 22,
+            "50대": 17,
+            "60대_이상": 12
+          },
+          "commercial_info": {
+            "main_industries": ["음식점", "카페", "학원"],
+            "avg_rent_per_pyeong": 38000,
+            "vacancy_rate": 6,
+            "recommended_business": ["브런치", "디저트", "학생타겟"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["조선대 인근", "대학가 상권"],
+          "nearby_facilities": ["조선대학교", "학동시장"],
+          "events": ["대학축제 시즌"]
+        },
+        "계림동": {
+          "population": 9000,
+          "floating_population": {
+            "weekday_avg": 5500,
+            "weekend_avg": 7000,
+            "peak_hours": ["11:00-13:00", "17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 10,
+            "20대": 14,
+            "30대": 18,
+            "40대": 24,
+            "50대": 20,
+            "60대_이상": 14
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "음식점", "편의시설"],
+            "avg_rent_per_pyeong": 32000,
+            "vacancy_rate": 9,
+            "recommended_business": ["동네음식점", "생활서비스"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역", "조용한 동네"],
+          "nearby_facilities": ["계림초등학교"],
+          "events": []
+        },
+        "소태동": {
+          "population": 6500,
+          "floating_population": {
+            "weekday_avg": 4000,
+            "weekend_avg": 6000,
+            "peak_hours": ["10:00-12:00", "17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 8,
+            "20대": 12,
+            "30대": 16,
+            "40대": 22,
+            "50대": 24,
+            "60대_이상": 18
+          },
+          "commercial_info": {
+            "main_industries": ["농수산물", "전통시장"],
+            "avg_rent_per_pyeong": 25000,
+            "vacancy_rate": 12,
+            "recommended_business": ["신선식품", "전통먹거리"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["광주천 인근", "전통시장"],
+          "nearby_facilities": ["소태역", "광주천"],
+          "events": []
+        },
+        "용연동": {
+          "population": 4800,
+          "floating_population": {
+            "weekday_avg": 3500,
+            "weekend_avg": 8000,
+            "peak_hours": ["09:00-12:00", "14:00-17:00"]
+          },
+          "age_distribution": {
+            "10대": 8,
+            "20대": 15,
+            "30대": 18,
+            "40대": 20,
+            "50대": 22,
+            "60대_이상": 17
+          },
+          "commercial_info": {
+            "main_industries": ["관광", "음식점", "펜션"],
+            "avg_rent_per_pyeong": 28000,
+            "vacancy_rate": 15,
+            "recommended_business": ["등산용품", "간식", "기념품"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["무등산 입구", "관광객 유입"],
+          "nearby_facilities": ["무등산국립공원", "증심사"],
+          "events": ["무등산 축제", "등산시즌"]
+        }
+      }
+    },
+    "서구": {
+      "region_id": 27,
+      "total_population": 285000,
+      "area_km2": 47.79,
+      "characteristics": ["신도심", "업무지구", "쇼핑몰", "유흥가"],
+      "main_commercial_areas": ["상무지구", "치평동", "풍암동", "유스퀘어"],
+      "neighborhoods": {
+        "치평동": {
+          "population": 18000,
+          "floating_population": {
+            "weekday_avg": 35000,
+            "weekend_avg": 48000,
+            "peak_hours": ["12:00-14:00", "18:00-22:00"]
+          },
+          "age_distribution": {
+            "10대": 8,
+            "20대": 28,
+            "30대": 26,
+            "40대": 20,
+            "50대": 12,
+            "60대_이상": 6
+          },
+          "commercial_info": {
+            "main_industries": ["음식점", "카페", "주점", "클럽"],
+            "avg_rent_per_pyeong": 70000,
+            "vacancy_rate": 8,
+            "recommended_business": ["트렌디 F&B", "야간영업", "프랜차이즈"],
+            "competition_level": "매우높음"
+          },
+          "characteristics": ["광주 최대 유흥가", "20-30대 집중", "야간 상권"],
+          "nearby_facilities": ["상무지구", "유스퀘어"],
+          "events": ["각종 콘서트", "페스티벌"]
+        },
+        "상무1동": {
+          "population": 22000,
+          "floating_population": {
+            "weekday_avg": 42000,
+            "weekend_avg": 35000,
+            "peak_hours": ["11:00-14:00", "17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 5,
+            "20대": 22,
+            "30대": 30,
+            "40대": 25,
+            "50대": 12,
+            "60대_이상": 6
+          },
+          "commercial_info": {
+            "main_industries": ["사무실", "금융", "음식점", "카페"],
+            "avg_rent_per_pyeong": 80000,
+            "vacancy_rate": 6,
+            "recommended_business": ["점심특화", "회의용간식", "테이크아웃"],
+            "competition_level": "높음"
+          },
+          "characteristics": ["광주 CBD", "오피스 밀집", "직장인 상권"],
+          "nearby_facilities": ["시청", "법원", "검찰청"],
+          "events": []
+        },
+        "상무2동": {
+          "population": 25000,
+          "floating_population": {
+            "weekday_avg": 38000,
+            "weekend_avg": 45000,
+            "peak_hours": ["12:00-14:00", "18:00-21:00"]
+          },
+          "age_distribution": {
+            "10대": 6,
+            "20대": 24,
+            "30대": 28,
+            "40대": 22,
+            "50대": 14,
+            "60대_이상": 6
+          },
+          "commercial_info": {
+            "main_industries": ["쇼핑몰", "음식점", "영화관", "카페"],
+            "avg_rent_per_pyeong": 75000,
+            "vacancy_rate": 7,
+            "recommended_business": ["패밀리레스토랑", "카페", "디저트"],
+            "competition_level": "높음"
+          },
+          "characteristics": ["복합쇼핑몰", "가족단위 방문"],
+          "nearby_facilities": ["신세계백화점", "롯데마트", "CGV"],
+          "events": ["백화점 세일"]
+        },
+        "화정동": {
+          "population": 32000,
+          "floating_population": {
+            "weekday_avg": 18000,
+            "weekend_avg": 25000,
+            "peak_hours": ["11:00-13:00", "17:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 12,
+            "20대": 18,
+            "30대": 22,
+            "40대": 24,
+            "50대": 15,
+            "60대_이상": 9
+          },
+          "commercial_info": {
+            "main_industries": ["근린상가", "음식점", "학원", "마트"],
+            "avg_rent_per_pyeong": 45000,
+            "vacancy_rate": 8,
+            "recommended_business": ["분식", "배달음식", "학원상권"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["아파트 밀집", "학원가", "가족상권"],
+          "nearby_facilities": ["화정역", "이마트"],
+          "events": []
+        },
+        "풍암동": {
+          "population": 28000,
+          "floating_population": {
+            "weekday_avg": 12000,
+            "weekend_avg": 20000,
+            "peak_hours": ["10:00-12:00", "16:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 14,
+            "20대": 15,
+            "30대": 22,
+            "40대": 25,
+            "50대": 16,
+            "60대_이상": 8
+          },
+          "commercial_info": {
+            "main_industries": ["근린상가", "카페", "음식점"],
+            "avg_rent_per_pyeong": 40000,
+            "vacancy_rate": 6,
+            "recommended_business": ["호수공원 연계", "피크닉", "테이크아웃"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["풍암호수공원", "산책로", "여유로운 분위기"],
+          "nearby_facilities": ["풍암호수공원", "풍암저수지"],
+          "events": ["호수공원 행사", "플라워마켓"]
+        },
+        "농성동": {
+          "population": 15000,
+          "floating_population": {
+            "weekday_avg": 9000,
+            "weekend_avg": 11000,
+            "peak_hours": ["12:00-14:00", "18:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 10,
+            "20대": 16,
+            "30대": 20,
+            "40대": 22,
+            "50대": 18,
+            "60대_이상": 14
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "음식점", "마트"],
+            "avg_rent_per_pyeong": 35000,
+            "vacancy_rate": 10,
+            "recommended_business": ["동네음식점", "편의점"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역", "오래된 동네"],
+          "nearby_facilities": ["농성역", "5.18기념공원"],
+          "events": []
+        },
+        "양동": {
+          "population": 8000,
+          "floating_population": {
+            "weekday_avg": 20000,
+            "weekend_avg": 15000,
+            "peak_hours": ["09:00-12:00", "14:00-17:00"]
+          },
+          "age_distribution": {
+            "10대": 5,
+            "20대": 12,
+            "30대": 18,
+            "40대": 25,
+            "50대": 25,
+            "60대_이상": 15
+          },
+          "commercial_info": {
+            "main_industries": ["전통시장", "의류도매", "식자재"],
+            "avg_rent_per_pyeong": 30000,
+            "vacancy_rate": 12,
+            "recommended_business": ["도매", "전통식품", "식자재"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["양동시장", "도매상권", "새벽시장"],
+          "nearby_facilities": ["양동시장", "광주역"],
+          "events": ["시장축제"]
+        },
+        "광천동": {
+          "population": 12000,
+          "floating_population": {
+            "weekday_avg": 25000,
+            "weekend_avg": 20000,
+            "peak_hours": ["07:00-09:00", "17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 8,
+            "20대": 20,
+            "30대": 22,
+            "40대": 22,
+            "50대": 18,
+            "60대_이상": 10
+          },
+          "commercial_info": {
+            "main_industries": ["교통허브", "음식점", "편의점"],
+            "avg_rent_per_pyeong": 55000,
+            "vacancy_rate": 5,
+            "recommended_business": ["테이크아웃", "간편식", "여행용품"],
+            "competition_level": "높음"
+          },
+          "characteristics": ["유스퀘어(종합버스터미널)", "교통요지"],
+          "nearby_facilities": ["유스퀘어", "광주송정역"],
+          "events": []
+        },
+        "유촌동": {
+          "population": 16000,
+          "floating_population": {
+            "weekday_avg": 7000,
+            "weekend_avg": 9000,
+            "peak_hours": ["17:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 13,
+            "20대": 14,
+            "30대": 20,
+            "40대": 24,
+            "50대": 18,
+            "60대_이상": 11
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "음식점"],
+            "avg_rent_per_pyeong": 32000,
+            "vacancy_rate": 9,
+            "recommended_business": ["배달음식", "동네카페"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역", "신축아파트"],
+          "nearby_facilities": [],
+          "events": []
+        },
+        "동천동": {
+          "population": 20000,
+          "floating_population": {
+            "weekday_avg": 8000,
+            "weekend_avg": 12000,
+            "peak_hours": ["11:00-13:00", "18:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 14,
+            "20대": 15,
+            "30대": 22,
+            "40대": 24,
+            "50대": 16,
+            "60대_이상": 9
+          },
+          "commercial_info": {
+            "main_industries": ["근린상가", "학원", "음식점"],
+            "avg_rent_per_pyeong": 38000,
+            "vacancy_rate": 7,
+            "recommended_business": ["학생타겟", "분식"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["주거+상업", "학원가"],
+          "nearby_facilities": ["마륵역"],
+          "events": []
+        }
+      }
+    },
+    "남구": {
+      "region_id": 28,
+      "total_population": 215000,
+      "area_km2": 61.13,
+      "characteristics": ["역사마을", "주거지역", "대학가"],
+      "main_commercial_areas": ["양림동", "봉선동", "주월동"],
+      "neighborhoods": {
+        "양림동": {
+          "population": 6500,
+          "floating_population": {
+            "weekday_avg": 8000,
+            "weekend_avg": 18000,
+            "peak_hours": ["11:00-17:00"]
+          },
+          "age_distribution": {
+            "10대": 5,
+            "20대": 30,
+            "30대": 28,
+            "40대": 18,
+            "50대": 12,
+            "60대_이상": 7
+          },
+          "commercial_info": {
+            "main_industries": ["카페", "갤러리", "한옥체험", "공방"],
+            "avg_rent_per_pyeong": 40000,
+            "vacancy_rate": 5,
+            "recommended_business": ["전통+현대", "체험형", "포토존"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["양림역사문화마을", "근대역사", "인스타 핫플", "골목투어"],
+          "nearby_facilities": ["양림역사문화마을", "펭귄마을", "사직공원"],
+          "events": ["양림동 골목축제", "펭귄마을 플리마켓"]
+        },
+        "봉선동": {
+          "population": 35000,
+          "floating_population": {
+            "weekday_avg": 22000,
+            "weekend_avg": 28000,
+            "peak_hours": ["12:00-14:00", "18:00-21:00"]
+          },
+          "age_distribution": {
+            "10대": 12,
+            "20대": 20,
+            "30대": 24,
+            "40대": 22,
+            "50대": 14,
+            "60대_이상": 8
+          },
+          "commercial_info": {
+            "main_industries": ["음식점", "카페", "학원", "마트"],
+            "avg_rent_per_pyeong": 50000,
+            "vacancy_rate": 6,
+            "recommended_business": ["가족음식점", "프랜차이즈", "카페"],
+            "competition_level": "높음"
+          },
+          "characteristics": ["남구 중심상권", "아파트 밀집", "먹자골목"],
+          "nearby_facilities": ["봉선시장", "롯데마트"],
+          "events": []
+        },
+        "주월동": {
+          "population": 28000,
+          "floating_population": {
+            "weekday_avg": 15000,
+            "weekend_avg": 20000,
+            "peak_hours": ["11:00-14:00", "17:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 14,
+            "20대": 16,
+            "30대": 22,
+            "40대": 24,
+            "50대": 16,
+            "60대_이상": 8
+          },
+          "commercial_info": {
+            "main_industries": ["근린상가", "음식점", "학원"],
+            "avg_rent_per_pyeong": 42000,
+            "vacancy_rate": 7,
+            "recommended_business": ["가족타겟", "배달음식"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["주거지역", "학원가"],
+          "nearby_facilities": ["주월시장"],
+          "events": []
+        },
+        "진월동": {
+          "population": 22000,
+          "floating_population": {
+            "weekday_avg": 10000,
+            "weekend_avg": 14000,
+            "peak_hours": ["17:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 15,
+            "20대": 14,
+            "30대": 20,
+            "40대": 25,
+            "50대": 17,
+            "60대_이상": 9
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "음식점"],
+            "avg_rent_per_pyeong": 35000,
+            "vacancy_rate": 8,
+            "recommended_business": ["동네음식점", "배달"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역", "신축아파트"],
+          "nearby_facilities": [],
+          "events": []
+        },
+        "송하동": {
+          "population": 18000,
+          "floating_population": {
+            "weekday_avg": 8000,
+            "weekend_avg": 10000,
+            "peak_hours": ["17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 13,
+            "20대": 14,
+            "30대": 20,
+            "40대": 25,
+            "50대": 18,
+            "60대_이상": 10
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "마트"],
+            "avg_rent_per_pyeong": 32000,
+            "vacancy_rate": 9,
+            "recommended_business": ["생활밀착형"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역"],
+          "nearby_facilities": [],
+          "events": []
+        },
+        "백운동": {
+          "population": 25000,
+          "floating_population": {
+            "weekday_avg": 12000,
+            "weekend_avg": 15000,
+            "peak_hours": ["12:00-14:00", "18:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 12,
+            "20대": 16,
+            "30대": 22,
+            "40대": 24,
+            "50대": 16,
+            "60대_이상": 10
+          },
+          "commercial_info": {
+            "main_industries": ["근린상가", "음식점", "학원"],
+            "avg_rent_per_pyeong": 38000,
+            "vacancy_rate": 7,
+            "recommended_business": ["가족음식점", "학원"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["아파트 단지", "학교 인근"],
+          "nearby_facilities": ["백운광장"],
+          "events": []
+        },
+        "월산동": {
+          "population": 12000,
+          "floating_population": {
+            "weekday_avg": 6000,
+            "weekend_avg": 8000,
+            "peak_hours": ["11:00-13:00", "17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 8,
+            "20대": 12,
+            "30대": 18,
+            "40대": 24,
+            "50대": 22,
+            "60대_이상": 16
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "시장"],
+            "avg_rent_per_pyeong": 28000,
+            "vacancy_rate": 12,
+            "recommended_business": ["전통먹거리", "생활용품"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["오래된 동네", "전통시장"],
+          "nearby_facilities": ["월산시장"],
+          "events": []
+        },
+        "방림동": {
+          "population": 8500,
+          "floating_population": {
+            "weekday_avg": 4500,
+            "weekend_avg": 6000,
+            "peak_hours": ["17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 10,
+            "20대": 14,
+            "30대": 18,
+            "40대": 22,
+            "50대": 20,
+            "60대_이상": 16
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활"],
+            "avg_rent_per_pyeong": 25000,
+            "vacancy_rate": 14,
+            "recommended_business": ["동네상점"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역", "조용한 동네"],
+          "nearby_facilities": [],
+          "events": []
+        },
+        "사직동": {
+          "population": 10000,
+          "floating_population": {
+            "weekday_avg": 7000,
+            "weekend_avg": 12000,
+            "peak_hours": ["10:00-17:00"]
+          },
+          "age_distribution": {
+            "10대": 8,
+            "20대": 18,
+            "30대": 22,
+            "40대": 22,
+            "50대": 18,
+            "60대_이상": 12
+          },
+          "commercial_info": {
+            "main_industries": ["카페", "음식점", "공원연계"],
+            "avg_rent_per_pyeong": 35000,
+            "vacancy_rate": 8,
+            "recommended_business": ["공원연계", "피크닉"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["사직공원", "산책로"],
+          "nearby_facilities": ["사직공원", "사직야구장"],
+          "events": ["야구시즌", "공원행사"]
+        },
+        "노대동": {
+          "population": 6000,
+          "floating_population": {
+            "weekday_avg": 3000,
+            "weekend_avg": 4000,
+            "peak_hours": ["17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 10,
+            "20대": 12,
+            "30대": 16,
+            "40대": 22,
+            "50대": 24,
+            "60대_이상": 16
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활"],
+            "avg_rent_per_pyeong": 22000,
+            "vacancy_rate": 15,
+            "recommended_business": ["생활밀착형"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역", "외곽"],
+          "nearby_facilities": [],
+          "events": []
+        }
+      }
+    },
+    "북구": {
+      "region_id": 29,
+      "total_population": 440000,
+      "area_km2": 120.67,
+      "characteristics": ["대학가", "신도시", "자연환경"],
+      "main_commercial_areas": ["전남대상권", "첨단지구", "문흥동"],
+      "neighborhoods": {
+        "용봉동": {
+          "population": 25000,
+          "floating_population": {
+            "weekday_avg": 45000,
+            "weekend_avg": 25000,
+            "peak_hours": ["11:00-14:00", "17:00-21:00"]
+          },
+          "age_distribution": {
+            "10대": 5,
+            "20대": 45,
+            "30대": 20,
+            "40대": 15,
+            "50대": 10,
+            "60대_이상": 5
+          },
+          "commercial_info": {
+            "main_industries": ["음식점", "카페", "주점", "PC방"],
+            "avg_rent_per_pyeong": 55000,
+            "vacancy_rate": 5,
+            "recommended_business": ["학생타겟", "가성비", "야간영업"],
+            "competition_level": "높음"
+          },
+          "characteristics": ["전남대 정문", "대학가 최대상권", "20대 집중"],
+          "nearby_facilities": ["전남대학교", "용봉시장"],
+          "events": ["대동제", "축제시즌"]
+        },
+        "문흥동": {
+          "population": 38000,
+          "floating_population": {
+            "weekday_avg": 20000,
+            "weekend_avg": 28000,
+            "peak_hours": ["12:00-14:00", "18:00-21:00"]
+          },
+          "age_distribution": {
+            "10대": 14,
+            "20대": 18,
+            "30대": 24,
+            "40대": 22,
+            "50대": 14,
+            "60대_이상": 8
+          },
+          "commercial_info": {
+            "main_industries": ["음식점", "카페", "마트", "학원"],
+            "avg_rent_per_pyeong": 45000,
+            "vacancy_rate": 6,
+            "recommended_business": ["가족음식점", "프랜차이즈"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["신흥 주거지", "아파트 밀집", "젊은 가족"],
+          "nearby_facilities": ["문흥시장", "이마트"],
+          "events": []
+        },
+        "일곡동": {
+          "population": 42000,
+          "floating_population": {
+            "weekday_avg": 18000,
+            "weekend_avg": 22000,
+            "peak_hours": ["11:00-14:00", "17:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 15,
+            "20대": 16,
+            "30대": 22,
+            "40대": 24,
+            "50대": 15,
+            "60대_이상": 8
+          },
+          "commercial_info": {
+            "main_industries": ["근린상가", "음식점", "학원", "마트"],
+            "avg_rent_per_pyeong": 40000,
+            "vacancy_rate": 7,
+            "recommended_business": ["가족타겟", "학원상권"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["대단지 아파트", "학원가"],
+          "nearby_facilities": ["일곡중앙시장"],
+          "events": []
+        },
+        "오룡동": {
+          "population": 35000,
+          "floating_population": {
+            "weekday_avg": 15000,
+            "weekend_avg": 18000,
+            "peak_hours": ["17:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 16,
+            "20대": 14,
+            "30대": 22,
+            "40대": 25,
+            "50대": 15,
+            "60대_이상": 8
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "음식점", "학원"],
+            "avg_rent_per_pyeong": 38000,
+            "vacancy_rate": 8,
+            "recommended_business": ["배달음식", "학생타겟"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["신축아파트", "젊은 가족"],
+          "nearby_facilities": [],
+          "events": []
+        },
+        "신안동": {
+          "population": 18000,
+          "floating_population": {
+            "weekday_avg": 8000,
+            "weekend_avg": 10000,
+            "peak_hours": ["12:00-14:00", "17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 12,
+            "20대": 14,
+            "30대": 18,
+            "40대": 24,
+            "50대": 20,
+            "60대_이상": 12
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "음식점"],
+            "avg_rent_per_pyeong": 30000,
+            "vacancy_rate": 10,
+            "recommended_business": ["동네음식점", "편의점"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역", "오래된 동네"],
+          "nearby_facilities": [],
+          "events": []
+        },
+        "두암동": {
+          "population": 30000,
+          "floating_population": {
+            "weekday_avg": 12000,
+            "weekend_avg": 15000,
+            "peak_hours": ["11:00-13:00", "17:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 12,
+            "20대": 16,
+            "30대": 20,
+            "40대": 24,
+            "50대": 18,
+            "60대_이상": 10
+          },
+          "commercial_info": {
+            "main_industries": ["근린상가", "음식점", "학원"],
+            "avg_rent_per_pyeong": 35000,
+            "vacancy_rate": 8,
+            "recommended_business": ["가족타겟", "배달"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["아파트 단지", "학교 인근"],
+          "nearby_facilities": ["두암시장"],
+          "events": []
+        },
+        "운암동": {
+          "population": 28000,
+          "floating_population": {
+            "weekday_avg": 14000,
+            "weekend_avg": 18000,
+            "peak_hours": ["11:00-14:00", "17:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 13,
+            "20대": 16,
+            "30대": 22,
+            "40대": 24,
+            "50대": 16,
+            "60대_이상": 9
+          },
+          "commercial_info": {
+            "main_industries": ["음식점", "카페", "학원"],
+            "avg_rent_per_pyeong": 38000,
+            "vacancy_rate": 7,
+            "recommended_business": ["가족음식점", "디저트"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["주거+상업 혼합"],
+          "nearby_facilities": ["운암시장"],
+          "events": []
+        },
+        "매곡동": {
+          "population": 15000,
+          "floating_population": {
+            "weekday_avg": 6000,
+            "weekend_avg": 12000,
+            "peak_hours": ["10:00-17:00"]
+          },
+          "age_distribution": {
+            "10대": 10,
+            "20대": 14,
+            "30대": 18,
+            "40대": 22,
+            "50대": 22,
+            "60대_이상": 14
+          },
+          "commercial_info": {
+            "main_industries": ["관광", "카페", "음식점"],
+            "avg_rent_per_pyeong": 28000,
+            "vacancy_rate": 12,
+            "recommended_business": ["관광연계", "피크닉"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["무등산 방면", "자연환경"],
+          "nearby_facilities": ["무등산"],
+          "events": ["등산시즌"]
+        },
+        "삼각동": {
+          "population": 12000,
+          "floating_population": {
+            "weekday_avg": 5000,
+            "weekend_avg": 7000,
+            "peak_hours": ["17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 10,
+            "20대": 12,
+            "30대": 16,
+            "40대": 24,
+            "50대": 22,
+            "60대_이상": 16
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활"],
+            "avg_rent_per_pyeong": 25000,
+            "vacancy_rate": 12,
+            "recommended_business": ["생활밀착형"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역", "외곽"],
+          "nearby_facilities": [],
+          "events": []
+        },
+        "우산동": {
+          "population": 20000,
+          "floating_population": {
+            "weekday_avg": 8000,
+            "weekend_avg": 10000,
+            "peak_hours": ["12:00-14:00", "17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 12,
+            "20대": 14,
+            "30대": 18,
+            "40대": 24,
+            "50대": 20,
+            "60대_이상": 12
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "음식점"],
+            "avg_rent_per_pyeong": 30000,
+            "vacancy_rate": 10,
+            "recommended_business": ["동네상점", "배달"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역"],
+          "nearby_facilities": [],
+          "events": []
+        }
+      }
+    },
+    "광산구": {
+      "region_id": 30,
+      "total_population": 410000,
+      "area_km2": 222.73,
+      "characteristics": ["신도시", "산업단지", "공항"],
+      "main_commercial_areas": ["수완지구", "첨단지구", "하남동"],
+      "neighborhoods": {
+        "수완동": {
+          "population": 55000,
+          "floating_population": {
+            "weekday_avg": 35000,
+            "weekend_avg": 48000,
+            "peak_hours": ["12:00-14:00", "18:00-22:00"]
+          },
+          "age_distribution": {
+            "10대": 14,
+            "20대": 20,
+            "30대": 28,
+            "40대": 22,
+            "50대": 12,
+            "60대_이상": 4
+          },
+          "commercial_info": {
+            "main_industries": ["음식점", "카페", "쇼핑", "영화관"],
+            "avg_rent_per_pyeong": 65000,
+            "vacancy_rate": 5,
+            "recommended_business": ["트렌디F&B", "프랜차이즈", "키즈카페"],
+            "competition_level": "높음"
+          },
+          "characteristics": ["광산구 중심상권", "젊은 가족", "신도시"],
+          "nearby_facilities": ["수완지구 상업지역", "영화관", "대형마트"],
+          "events": ["수완지구 축제"]
+        },
+        "첨단동": {
+          "population": 48000,
+          "floating_population": {
+            "weekday_avg": 55000,
+            "weekend_avg": 30000,
+            "peak_hours": ["11:00-14:00", "17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 8,
+            "20대": 25,
+            "30대": 32,
+            "40대": 22,
+            "50대": 10,
+            "60대_이상": 3
+          },
+          "commercial_info": {
+            "main_industries": ["오피스", "음식점", "카페", "IT"],
+            "avg_rent_per_pyeong": 60000,
+            "vacancy_rate": 6,
+            "recommended_business": ["점심특화", "테이크아웃", "미팅룸"],
+            "competition_level": "높음"
+          },
+          "characteristics": ["첨단과학단지", "IT기업", "직장인 상권"],
+          "nearby_facilities": ["첨단과학단지", "광주과학기술원", "연구소"],
+          "events": []
+        },
+        "하남동": {
+          "population": 42000,
+          "floating_population": {
+            "weekday_avg": 20000,
+            "weekend_avg": 28000,
+            "peak_hours": ["12:00-14:00", "18:00-21:00"]
+          },
+          "age_distribution": {
+            "10대": 15,
+            "20대": 18,
+            "30대": 24,
+            "40대": 22,
+            "50대": 14,
+            "60대_이상": 7
+          },
+          "commercial_info": {
+            "main_industries": ["음식점", "마트", "학원", "생활편의"],
+            "avg_rent_per_pyeong": 45000,
+            "vacancy_rate": 7,
+            "recommended_business": ["가족음식점", "학원상권"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["대규모 아파트", "젊은 가족"],
+          "nearby_facilities": ["하남시장", "이마트"],
+          "events": []
+        },
+        "신가동": {
+          "population": 35000,
+          "floating_population": {
+            "weekday_avg": 15000,
+            "weekend_avg": 18000,
+            "peak_hours": ["17:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 16,
+            "20대": 16,
+            "30대": 24,
+            "40대": 24,
+            "50대": 14,
+            "60대_이상": 6
+          },
+          "commercial_info": {
+            "main_industries": ["근린상가", "음식점", "학원"],
+            "avg_rent_per_pyeong": 40000,
+            "vacancy_rate": 8,
+            "recommended_business": ["배달음식", "학생타겟"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["신축아파트", "가족단위"],
+          "nearby_facilities": [],
+          "events": []
+        },
+        "운남동": {
+          "population": 30000,
+          "floating_population": {
+            "weekday_avg": 12000,
+            "weekend_avg": 15000,
+            "peak_hours": ["17:00-20:00"]
+          },
+          "age_distribution": {
+            "10대": 15,
+            "20대": 14,
+            "30대": 22,
+            "40대": 26,
+            "50대": 15,
+            "60대_이상": 8
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "음식점"],
+            "avg_rent_per_pyeong": 35000,
+            "vacancy_rate": 9,
+            "recommended_business": ["동네음식점", "편의점"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역", "신도시"],
+          "nearby_facilities": [],
+          "events": []
+        },
+        "월곡동": {
+          "population": 28000,
+          "floating_population": {
+            "weekday_avg": 10000,
+            "weekend_avg": 14000,
+            "peak_hours": ["12:00-14:00", "17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 14,
+            "20대": 15,
+            "30대": 22,
+            "40대": 25,
+            "50대": 16,
+            "60대_이상": 8
+          },
+          "commercial_info": {
+            "main_industries": ["근린상가", "음식점"],
+            "avg_rent_per_pyeong": 32000,
+            "vacancy_rate": 9,
+            "recommended_business": ["가족타겟", "배달"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역", "아파트"],
+          "nearby_facilities": [],
+          "events": []
+        },
+        "어룡동": {
+          "population": 22000,
+          "floating_population": {
+            "weekday_avg": 25000,
+            "weekend_avg": 15000,
+            "peak_hours": ["08:00-10:00", "17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 8,
+            "20대": 18,
+            "30대": 28,
+            "40대": 26,
+            "50대": 14,
+            "60대_이상": 6
+          },
+          "commercial_info": {
+            "main_industries": ["산업단지", "음식점", "편의점"],
+            "avg_rent_per_pyeong": 30000,
+            "vacancy_rate": 8,
+            "recommended_business": ["점심특화", "구내식당형"],
+            "competition_level": "중간"
+          },
+          "characteristics": ["평동산업단지 인근", "공장근로자"],
+          "nearby_facilities": ["평동산업단지"],
+          "events": []
+        },
+        "송정동": {
+          "population": 18000,
+          "floating_population": {
+            "weekday_avg": 35000,
+            "weekend_avg": 25000,
+            "peak_hours": ["07:00-10:00", "16:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 8,
+            "20대": 22,
+            "30대": 24,
+            "40대": 22,
+            "50대": 16,
+            "60대_이상": 8
+          },
+          "commercial_info": {
+            "main_industries": ["교통", "음식점", "편의점", "숙박"],
+            "avg_rent_per_pyeong": 50000,
+            "vacancy_rate": 6,
+            "recommended_business": ["테이크아웃", "여행용품", "숙박연계"],
+            "competition_level": "높음"
+          },
+          "characteristics": ["KTX 광주송정역", "교통요지"],
+          "nearby_facilities": ["광주송정역", "송정시장"],
+          "events": ["송정떡갈비축제"]
+        },
+        "도산동": {
+          "population": 15000,
+          "floating_population": {
+            "weekday_avg": 5000,
+            "weekend_avg": 8000,
+            "peak_hours": ["17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 12,
+            "20대": 12,
+            "30대": 18,
+            "40대": 24,
+            "50대": 22,
+            "60대_이상": 12
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "농업"],
+            "avg_rent_per_pyeong": 20000,
+            "vacancy_rate": 15,
+            "recommended_business": ["농산물직거래", "로컬푸드"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["농촌지역", "외곽"],
+          "nearby_facilities": [],
+          "events": []
+        },
+        "비아동": {
+          "population": 20000,
+          "floating_population": {
+            "weekday_avg": 8000,
+            "weekend_avg": 10000,
+            "peak_hours": ["12:00-14:00", "17:00-19:00"]
+          },
+          "age_distribution": {
+            "10대": 14,
+            "20대": 14,
+            "30대": 20,
+            "40대": 24,
+            "50대": 18,
+            "60대_이상": 10
+          },
+          "commercial_info": {
+            "main_industries": ["근린생활", "음식점"],
+            "avg_rent_per_pyeong": 28000,
+            "vacancy_rate": 10,
+            "recommended_business": ["동네음식점", "편의점"],
+            "competition_level": "낮음"
+          },
+          "characteristics": ["주거지역", "오래된 동네"],
+          "nearby_facilities": ["비아시장"],
+          "events": []
+        }
+      }
+    }
+  },
+  "seasonal_trends": {
+    "봄(3-5월)": {
+      "peak_events": ["벚꽃축제", "아트마켓", "골목축제"],
+      "recommended_products": ["봄옷", "피크닉용품", "꽃", "디저트"],
+      "customer_behavior": "야외활동 증가, 나들이 수요"
+    },
+    "여름(6-8월)": {
+      "peak_events": ["야시장", "비어페스타", "충장축제"],
+      "recommended_products": ["음료", "빙수", "여름의류", "부채"],
+      "customer_behavior": "야간 활동 증가, 시원한 장소 선호"
+    },
+    "가을(9-11월)": {
+      "peak_events": ["충장축제", "김치축제", "무등산축제", "빛고을축제"],
+      "recommended_products": ["가을옷", "핫초코", "공예품", "먹거리"],
+      "customer_behavior": "축제 참여 활발, 문화활동 증가"
+    },
+    "겨울(12-2월)": {
+      "peak_events": ["연말행사", "크리스마스마켓", "설맞이행사"],
+      "recommended_products": ["겨울용품", "선물", "따뜻한 음료", "호떡"],
+      "customer_behavior": "실내활동 선호, 선물 수요 증가"
+    }
+  },
+  "target_customer_guide": {
+    "20대": {
+      "characteristics": ["가성비 중시", "SNS 활발", "트렌드 민감"],
+      "preferred_locations": ["충장로", "동명동", "전남대", "상무지구"],
+      "spending_pattern": "소액 다빈도 소비",
+      "peak_times": ["금요일 저녁", "주말 오후"]
+    },
+    "30대": {
+      "characteristics": ["품질 중시", "경험 소비", "온오프라인 병행"],
+      "preferred_locations": ["수완지구", "봉선동", "상무지구"],
+      "spending_pattern": "중간 가격대, 가치 소비",
+      "peak_times": ["주말 오전-오후", "퇴근 후"]
+    },
+    "40대_가족": {
+      "characteristics": ["가족단위 소비", "안전/편의 중시", "교육투자"],
+      "preferred_locations": ["수완지구", "문흥동", "봉선동"],
+      "spending_pattern": "아이용품, 교육, 외식",
+      "peak_times": ["주말 전일"]
+    },
+    "50대_이상": {
+      "characteristics": ["전통 선호", "건강 관심", "시장 이용"],
+      "preferred_locations": ["충장로", "양동시장", "대인시장"],
+      "spending_pattern": "실용적 소비, 식품 위주",
+      "peak_times": ["오전 시간대", "평일"]
+    }
+  },
+  "flea_market_guide": {
+    "recommended_locations": [
+      {
+        "name": "동명동 예술골목",
+        "district": "동구",
+        "type": "아트/핸드메이드",
+        "target": "20-30대",
+        "rent_estimate": "일 3-5만원",
+        "peak_days": ["토", "일"],
+        "tips": "감성적인 디스플레이 중요, 작가 스토리 강조"
+      },
+      {
+        "name": "충장로",
+        "district": "동구",
+        "type": "패션/잡화",
+        "target": "10-30대",
+        "rent_estimate": "일 5-10만원",
+        "peak_days": ["금", "토", "일"],
+        "tips": "트렌디한 아이템, 가격경쟁력 필요"
+      },
+      {
+        "name": "양림동 역사마을",
+        "district": "남구",
+        "type": "전통/문화체험",
+        "target": "전연령",
+        "rent_estimate": "일 3-5만원",
+        "peak_days": ["토", "일"],
+        "tips": "전통+현대 융합, 체험 프로그램 연계"
+      },
+      {
+        "name": "수완지구",
+        "district": "광산구",
+        "type": "키즈/가족",
+        "target": "30-40대 가족",
+        "rent_estimate": "일 4-7만원",
+        "peak_days": ["토", "일"],
+        "tips": "가족친화적 아이템, 안전한 환경"
+      },
+      {
+        "name": "전남대 앞",
+        "district": "북구",
+        "type": "빈티지/학생타겟",
+        "target": "20대",
+        "rent_estimate": "일 2-4만원",
+        "peak_days": ["평일 점심", "금"],
+        "tips": "가성비 좋은 아이템, 학생 할인"
+      }
+    ],
+    "success_tips": [
+      "주변 상권 분석 필수 - 경쟁업체, 유동인구 파악",
+      "타깃 고객층에 맞는 상품 구성",
+      "SNS 마케팅 적극 활용 (인스타그램, 네이버 블로그)",
+      "결제 편의성 - 카드, 간편결제 필수",
+      "날씨 대비 - 우천시 대비책, 그늘막 준비",
+      "디스플레이 - 시선을 끄는 진열, 포토존 연출"
+    ]
+  }
+}
+
