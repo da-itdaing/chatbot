@@ -324,6 +324,58 @@
   },
   {
     "market_id": "REAL-007",
+    "market_name": "[청년] 청년 목요 미식회 : 주제별 원데이 클래스",
+    "market_description": "[청년] 청년 목요 미식회 : 주제별 원데이 클래스 - 광주광역시 동구에서 열리는 문화 행사입니다.",
+    "market_category": "문화행사",
+    "market_attribute": [
+      "체험가능"
+    ],
+    "market_ameni": [],
+    "market_rating": 4.7,
+    "market_location": [
+      {
+        "address": "광주광역시 동구",
+        "lat": 35.1416,
+        "lon": 126.9219,
+        "distance_km": 1.5,
+        "zone_id": "east-001"
+      }
+    ],
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "operating_days": [
+      "금",
+      "토",
+      "일"
+    ],
+    "price_range": "₩₩",
+    "event_type": "regular",
+    "event_dates": [
+      {
+        "date": "2025-12-02",
+        "day_of_week": "화",
+        "time": "10:00-18:00",
+        "type": "regular"
+      }
+    ],
+    "contact_phone": "",
+    "search_tags": [
+      "문화",
+      "동구",
+      "문화행사"
+    ],
+    "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/bce0614e69fff4c9.jpg",
+    "sns_links": {
+      "instagram": null,
+      "naver_blog": null
+    },
+    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1664&page=3",
+    "source": "playgwangju.co.kr"
+  },
+  {
+    "market_id": "REAL-008",
     "market_name": "소상공인 플리마켓 x 유스퀘어",
     "market_description": "소상공인 플리마켓 x 유스퀘어 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "플리마켓",
@@ -331,13 +383,13 @@
       "무료입장"
     ],
     "market_ameni": [],
-    "market_rating": 4.7,
+    "market_rating": 4.8,
     "market_location": [
       {
         "address": "광주광역시 서구",
-        "lat": 35.1552,
-        "lon": 126.8783,
-        "distance_km": 1.5,
+        "lat": 35.1569,
+        "lon": 126.8806,
+        "distance_km": 2.0,
         "zone_id": "west-001"
       }
     ],
@@ -373,59 +425,7 @@
       "instagram": null,
       "naver_blog": null
     },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1672&page=2",
-    "source": "playgwangju.co.kr"
-  },
-  {
-    "market_id": "REAL-008",
-    "market_name": "[청년] 청년 목요 미식회 : 주제별 원데이 클래스",
-    "market_description": "[청년] 청년 목요 미식회 : 주제별 원데이 클래스 - 광주광역시 동구에서 열리는 문화 행사입니다.",
-    "market_category": "문화행사",
-    "market_attribute": [
-      "체험가능"
-    ],
-    "market_ameni": [],
-    "market_rating": 4.8,
-    "market_location": [
-      {
-        "address": "광주광역시 동구",
-        "lat": 35.1433,
-        "lon": 126.9242,
-        "distance_km": 2.0,
-        "zone_id": "east-001"
-      }
-    ],
-    "operating_hours": {
-      "weekday": "10:00-18:00",
-      "weekend": "10:00-20:00"
-    },
-    "operating_days": [
-      "금",
-      "토",
-      "일"
-    ],
-    "price_range": "₩₩",
-    "event_type": "regular",
-    "event_dates": [
-      {
-        "date": "2025-12-02",
-        "day_of_week": "화",
-        "time": "10:00-18:00",
-        "type": "regular"
-      }
-    ],
-    "contact_phone": "",
-    "search_tags": [
-      "문화",
-      "동구",
-      "문화행사"
-    ],
-    "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/bce0614e69fff4c9.jpg",
-    "sns_links": {
-      "instagram": null,
-      "naver_blog": null
-    },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1664&page=3",
+    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1672&page=3",
     "source": "playgwangju.co.kr"
   },
   {
@@ -849,7 +849,7 @@
       "instagram": null,
       "naver_blog": null
     },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1621&page=5",
+    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1621&page=6",
     "source": "playgwangju.co.kr"
   },
   {
@@ -901,7 +901,7 @@
       "instagram": null,
       "naver_blog": null
     },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1613&page=5",
+    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1613&page=6",
     "source": "playgwangju.co.kr"
   },
   {
@@ -1540,7 +1540,7 @@
       "instagram": null,
       "naver_blog": null
     },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1547&page=7",
+    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1547&page=8",
     "source": "playgwangju.co.kr"
   },
   {
@@ -1863,7 +1863,7 @@
       "instagram": null,
       "naver_blog": null
     },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1591&page=8",
+    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1591&page=9",
     "source": "playgwangju.co.kr"
   },
   {
@@ -2076,7 +2076,7 @@
       "instagram": null,
       "naver_blog": null
     },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1544&page=9",
+    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1544&page=10",
     "source": "playgwangju.co.kr"
   },
   {
@@ -2241,20 +2241,19 @@
   },
   {
     "market_id": "REAL-043",
-    "market_name": "동명동 예술골목 플리마켓(08.16) - 유명DJ초청 음악행사 병행",
-    "market_description": "동명동 예술골목 플리마켓(08.16) - 유명DJ초청 음악행사 병행 - 광주광역시 동구에서 열리는 문화 행사입니다.",
-    "market_category": "플리마켓",
+    "market_name": "무료새나 개인전 'Hello, 깨알이!'",
+    "market_description": "무료새나 개인전 'Hello, 깨알이!' - 광주광역시 동구에서 열리는 문화 행사입니다.",
+    "market_category": "문화행사",
     "market_attribute": [
-      "무료입장",
-      "감성적인"
+      "무료입장"
     ],
     "market_ameni": [],
     "market_rating": 4.3,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1509,
-        "lon": 126.9216,
+        "lat": 35.1428,
+        "lon": 126.9247,
         "distance_km": 2.0,
         "zone_id": "east-001"
       }
@@ -2280,28 +2279,25 @@
     ],
     "contact_phone": "",
     "search_tags": [
-      "플리마켓",
       "문화",
       "동구",
-      "마켓",
-      "동명동"
+      "문화행사"
     ],
-    "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/142638632eead2b6.jpg",
+    "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/d3aa4abffafaec95.jpg",
     "sns_links": {
       "instagram": null,
       "naver_blog": null
     },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1538&page=10",
+    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=exhibition&wr_id=1025&page=1",
     "source": "playgwangju.co.kr"
   },
   {
     "market_id": "REAL-044",
-    "market_name": "2025 G-Summer 파크닉 (아트피크닉)",
-    "market_description": "2025 G-Summer 파크닉 (아트피크닉) - 광주광역시 동구에서 열리는 문화 행사입니다.",
-    "market_category": "아트",
+    "market_name": "무료선영현 13번째 개인전 <환영과 실재>",
+    "market_description": "무료선영현 13번째 개인전 <환영과 실재> - 광주광역시 동구에서 열리는 문화 행사입니다.",
+    "market_category": "문화행사",
     "market_attribute": [
-      "무료입장",
-      "감성적인"
+      "무료입장"
     ],
     "market_ameni": [],
     "market_rating": 4.4,
@@ -2311,58 +2307,6 @@
         "lat": 35.1445,
         "lon": 126.927,
         "distance_km": 2.5,
-        "zone_id": "east-001"
-      }
-    ],
-    "operating_hours": {
-      "weekday": "10:00-18:00",
-      "weekend": "10:00-20:00"
-    },
-    "operating_days": [
-      "금",
-      "토",
-      "일"
-    ],
-    "price_range": "무료",
-    "event_type": "regular",
-    "event_dates": [
-      {
-        "date": "2025-12-02",
-        "day_of_week": "화",
-        "time": "10:00-18:00",
-        "type": "regular"
-      }
-    ],
-    "contact_phone": "",
-    "search_tags": [
-      "문화",
-      "동구",
-      "아트"
-    ],
-    "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/2fae8736ca522dfb.png",
-    "sns_links": {
-      "instagram": null,
-      "naver_blog": null
-    },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=festival&wr_id=1537&page=10",
-    "source": "playgwangju.co.kr"
-  },
-  {
-    "market_id": "REAL-045",
-    "market_name": "무료선영현 13번째 개인전 <환영과 실재>",
-    "market_description": "무료선영현 13번째 개인전 <환영과 실재> - 광주광역시 동구에서 열리는 문화 행사입니다.",
-    "market_category": "문화행사",
-    "market_attribute": [
-      "무료입장"
-    ],
-    "market_ameni": [],
-    "market_rating": 4.5,
-    "market_location": [
-      {
-        "address": "광주광역시 동구",
-        "lat": 35.1462,
-        "lon": 126.9193,
-        "distance_km": 3.0,
         "zone_id": "east-001"
       }
     ],
@@ -2400,7 +2344,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-046",
+    "market_id": "REAL-045",
     "market_name": "무료2025 예술공간 집 기획초대 <밤을 딛고, 켜켜이> 윤준영展",
     "market_description": "무료2025 예술공간 집 기획초대 <밤을 딛고, 켜켜이> 윤준영展 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "문화행사",
@@ -2409,13 +2353,13 @@
       "감성적인"
     ],
     "market_ameni": [],
-    "market_rating": 4.6,
+    "market_rating": 4.5,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1479,
-        "lon": 126.9216,
-        "distance_km": 1.0,
+        "lat": 35.1462,
+        "lon": 126.9193,
+        "distance_km": 3.0,
         "zone_id": "east-001"
       }
     ],
@@ -2453,9 +2397,61 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-047",
+    "market_id": "REAL-046",
     "market_name": "무료2024 오지호미술상 수상작가전 [방정아: 묻다, 묻다]",
     "market_description": "무료2024 오지호미술상 수상작가전 [방정아: 묻다, 묻다] - 광주광역시 동구에서 열리는 문화 행사입니다.",
+    "market_category": "문화행사",
+    "market_attribute": [
+      "무료입장"
+    ],
+    "market_ameni": [],
+    "market_rating": 4.6,
+    "market_location": [
+      {
+        "address": "광주광역시 동구",
+        "lat": 35.1479,
+        "lon": 126.9216,
+        "distance_km": 1.0,
+        "zone_id": "east-001"
+      }
+    ],
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "operating_days": [
+      "금",
+      "토",
+      "일"
+    ],
+    "price_range": "무료",
+    "event_type": "regular",
+    "event_dates": [
+      {
+        "date": "2025-12-02",
+        "day_of_week": "화",
+        "time": "10:00-18:00",
+        "type": "regular"
+      }
+    ],
+    "contact_phone": "",
+    "search_tags": [
+      "문화",
+      "동구",
+      "문화행사"
+    ],
+    "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/dfee30017f769c7e.jpg",
+    "sns_links": {
+      "instagram": null,
+      "naver_blog": null
+    },
+    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=exhibition&wr_id=1022&page=1",
+    "source": "playgwangju.co.kr"
+  },
+  {
+    "market_id": "REAL-047",
+    "market_name": "무료하정웅청년작가초대전 [빛 2025]",
+    "market_description": "무료하정웅청년작가초대전 [빛 2025] - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "문화행사",
     "market_attribute": [
       "무료입장"
@@ -2496,58 +2492,6 @@
       "동구",
       "문화행사"
     ],
-    "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/dfee30017f769c7e.jpg",
-    "sns_links": {
-      "instagram": null,
-      "naver_blog": null
-    },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=exhibition&wr_id=1022&page=1",
-    "source": "playgwangju.co.kr"
-  },
-  {
-    "market_id": "REAL-048",
-    "market_name": "무료하정웅청년작가초대전 [빛 2025]",
-    "market_description": "무료하정웅청년작가초대전 [빛 2025] - 광주광역시 동구에서 열리는 문화 행사입니다.",
-    "market_category": "문화행사",
-    "market_attribute": [
-      "무료입장"
-    ],
-    "market_ameni": [],
-    "market_rating": 4.8,
-    "market_location": [
-      {
-        "address": "광주광역시 동구",
-        "lat": 35.1513,
-        "lon": 126.9262,
-        "distance_km": 2.0,
-        "zone_id": "east-001"
-      }
-    ],
-    "operating_hours": {
-      "weekday": "10:00-18:00",
-      "weekend": "10:00-20:00"
-    },
-    "operating_days": [
-      "금",
-      "토",
-      "일"
-    ],
-    "price_range": "무료",
-    "event_type": "regular",
-    "event_dates": [
-      {
-        "date": "2025-12-02",
-        "day_of_week": "화",
-        "time": "10:00-18:00",
-        "type": "regular"
-      }
-    ],
-    "contact_phone": "",
-    "search_tags": [
-      "문화",
-      "동구",
-      "문화행사"
-    ],
     "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/b144322d5ce93131.jpg",
     "sns_links": {
       "instagram": null,
@@ -2557,7 +2501,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-049",
+    "market_id": "REAL-048",
     "market_name": "영은미술관 순회전 <박승순: 선 그리고 색, 선율추상>전",
     "market_description": "영은미술관 순회전 <박승순: 선 그리고 색, 선율추상>전 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "문화행사",
@@ -2565,13 +2509,13 @@
       "실내"
     ],
     "market_ameni": [],
-    "market_rating": 4.9,
+    "market_rating": 4.8,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.143,
-        "lon": 126.9185,
-        "distance_km": 2.5,
+        "lat": 35.1513,
+        "lon": 126.9262,
+        "distance_km": 2.0,
         "zone_id": "east-001"
       }
     ],
@@ -2609,60 +2553,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-050",
-    "market_name": "무료은암미술관 결과보고전 <함께 걸어요 : 공생의 미학>",
-    "market_description": "무료은암미술관 결과보고전 <함께 걸어요 : 공생의 미학> - 광주광역시 동구에서 열리는 문화 행사입니다.",
-    "market_category": "문화행사",
-    "market_attribute": [
-      "실내",
-      "무료입장"
-    ],
-    "market_ameni": [],
-    "market_rating": 4.0,
-    "market_location": [
-      {
-        "address": "광주광역시 동구",
-        "lat": 35.1447,
-        "lon": 126.9208,
-        "distance_km": 3.0,
-        "zone_id": "east-001"
-      }
-    ],
-    "operating_hours": {
-      "weekday": "10:00-18:00",
-      "weekend": "10:00-20:00"
-    },
-    "operating_days": [
-      "금",
-      "토",
-      "일"
-    ],
-    "price_range": "무료",
-    "event_type": "regular",
-    "event_dates": [
-      {
-        "date": "2025-12-02",
-        "day_of_week": "화",
-        "time": "10:00-18:00",
-        "type": "regular"
-      }
-    ],
-    "contact_phone": "",
-    "search_tags": [
-      "문화",
-      "동구",
-      "문화행사"
-    ],
-    "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/327e3a12749512dc.jpg",
-    "sns_links": {
-      "instagram": null,
-      "naver_blog": null
-    },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=exhibition&wr_id=1019&page=1",
-    "source": "playgwangju.co.kr"
-  },
-  {
-    "market_id": "REAL-051",
+    "market_id": "REAL-049",
     "market_name": "무료2025 ACC-지역대학 연계 특별전 〈윤슬울림〉",
     "market_description": "무료2025 ACC-지역대학 연계 특별전 〈윤슬울림〉 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "문화행사",
@@ -2670,13 +2561,13 @@
       "무료입장"
     ],
     "market_ameni": [],
-    "market_rating": 4.1,
+    "market_rating": 4.9,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1465,
-        "lon": 126.9195,
-        "distance_km": 1.0,
+        "lat": 35.1431,
+        "lon": 126.9149,
+        "distance_km": 2.5,
         "zone_id": "east-001"
       }
     ],
@@ -2715,7 +2606,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-052",
+    "market_id": "REAL-050",
     "market_name": "무료김한용 아카이브 사진전 〈꿈의 기록〉",
     "market_description": "무료김한용 아카이브 사진전 〈꿈의 기록〉 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "문화행사",
@@ -2724,13 +2615,13 @@
       "포토존"
     ],
     "market_ameni": [],
-    "market_rating": 4.2,
+    "market_rating": 4.0,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1481,
-        "lon": 126.9254,
-        "distance_km": 1.5,
+        "lat": 35.1447,
+        "lon": 126.9208,
+        "distance_km": 3.0,
         "zone_id": "east-001"
       }
     ],
@@ -2768,7 +2659,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-053",
+    "market_id": "REAL-051",
     "market_name": "무료국립아시아문화전당 개관 10주년 기념 특별전시 《봄의 선언》",
     "market_description": "무료국립아시아문화전당 개관 10주년 기념 특별전시 《봄의 선언》 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "전시",
@@ -2777,13 +2668,13 @@
       "무료입장"
     ],
     "market_ameni": [],
-    "market_rating": 4.3,
+    "market_rating": 4.1,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1499,
-        "lon": 126.9241,
-        "distance_km": 2.0,
+        "lat": 35.1465,
+        "lon": 126.9195,
+        "distance_km": 1.0,
         "zone_id": "east-001"
       }
     ],
@@ -2822,7 +2713,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-054",
+    "market_id": "REAL-052",
     "market_name": "무료제 1회 수성미디어아트페스타 《한국근현대미술 프로젝트 #1》",
     "market_description": "무료제 1회 수성미디어아트페스타 《한국근현대미술 프로젝트 #1》 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "축제",
@@ -2831,13 +2722,13 @@
       "감성적인"
     ],
     "market_ameni": [],
-    "market_rating": 4.4,
+    "market_rating": 4.2,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1415,
-        "lon": 126.92,
-        "distance_km": 2.5,
+        "lat": 35.1481,
+        "lon": 126.9254,
+        "distance_km": 1.5,
         "zone_id": "east-001"
       }
     ],
@@ -2877,7 +2768,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-055",
+    "market_id": "REAL-053",
     "market_name": "서아시아 문화예술 교류 협력 전시 〈Ahlan, The Fatima House〉",
     "market_description": "서아시아 문화예술 교류 협력 전시 〈Ahlan, The Fatima House〉 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "전시",
@@ -2886,13 +2777,13 @@
       "감성적인"
     ],
     "market_ameni": [],
-    "market_rating": 4.5,
+    "market_rating": 4.3,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1432,
-        "lon": 126.9223,
-        "distance_km": 3.0,
+        "lat": 35.1498,
+        "lon": 126.9277,
+        "distance_km": 2.0,
         "zone_id": "east-001"
       }
     ],
@@ -2930,7 +2821,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-056",
+    "market_id": "REAL-054",
     "market_name": "남도향토음식박물관 하반기 기획전시 <금빛 선으로 이어지는 차의 향>",
     "market_description": "남도향토음식박물관 하반기 기획전시 <금빛 선으로 이어지는 차의 향> - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "전시",
@@ -2939,13 +2830,13 @@
       "무료입장"
     ],
     "market_ameni": [],
-    "market_rating": 4.6,
+    "market_rating": 4.4,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1449,
-        "lon": 126.9246,
-        "distance_km": 1.0,
+        "lat": 35.1415,
+        "lon": 126.92,
+        "distance_km": 2.5,
         "zone_id": "east-001"
       }
     ],
@@ -2983,7 +2874,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-057",
+    "market_id": "REAL-055",
     "market_name": "2025 아시아 평화 기억하기 [협력전시] 세계에 새겨진 혁명의 기록",
     "market_description": "2025 아시아 평화 기억하기 [협력전시] 세계에 새겨진 혁명의 기록 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "전시",
@@ -2991,13 +2882,13 @@
       "무료입장"
     ],
     "market_ameni": [],
-    "market_rating": 4.7,
+    "market_rating": 4.5,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1466,
-        "lon": 126.9269,
-        "distance_km": 1.5,
+        "lat": 35.1432,
+        "lon": 126.9223,
+        "distance_km": 3.0,
         "zone_id": "east-001"
       }
     ],
@@ -3035,7 +2926,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-058",
+    "market_id": "REAL-056",
     "market_name": "무료2025 광주디자인비엔날레기념전 “장미 토끼 소금: 살아 있는 제의”",
     "market_description": "무료2025 광주디자인비엔날레기념전 “장미 토끼 소금: 살아 있는 제의” - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "문화행사",
@@ -3043,13 +2934,13 @@
       "무료입장"
     ],
     "market_ameni": [],
-    "market_rating": 4.8,
+    "market_rating": 4.6,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1483,
-        "lon": 126.9192,
-        "distance_km": 2.0,
+        "lat": 35.1449,
+        "lon": 126.9246,
+        "distance_km": 1.0,
         "zone_id": "east-001"
       }
     ],
@@ -3087,7 +2978,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-059",
+    "market_id": "REAL-057",
     "market_name": "2025 ACC 포커스《료지 이케다》",
     "market_description": "2025 ACC 포커스《료지 이케다》 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "문화행사",
@@ -3095,13 +2986,13 @@
       "문화체험"
     ],
     "market_ameni": [],
-    "market_rating": 4.9,
+    "market_rating": 4.7,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1501,
-        "lon": 126.9179,
-        "distance_km": 2.5,
+        "lat": 35.1467,
+        "lon": 126.9233,
+        "distance_km": 1.5,
         "zone_id": "east-001"
       }
     ],
@@ -3140,7 +3031,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-060",
+    "market_id": "REAL-058",
     "market_name": "ACC 10주년 기념 특별전시 뉴욕의 거장들: 잭슨 폴록과 마크 로스코의 친구들",
     "market_description": "ACC 10주년 기념 특별전시 뉴욕의 거장들: 잭슨 폴록과 마크 로스코의 친구들 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "전시",
@@ -3148,13 +3039,13 @@
       "친구와 함께"
     ],
     "market_ameni": [],
-    "market_rating": 4.0,
+    "market_rating": 4.8,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1418,
-        "lon": 126.9202,
-        "distance_km": 3.0,
+        "lat": 35.1484,
+        "lon": 126.9156,
+        "distance_km": 2.0,
         "zone_id": "east-001"
       }
     ],
@@ -3193,9 +3084,113 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-061",
+    "market_id": "REAL-059",
     "market_name": "[전시] 나다영 작가의 개인전 “연결의 연속”",
     "market_description": "[전시] 나다영 작가의 개인전 “연결의 연속” - 광주광역시 동구에서 열리는 문화 행사입니다.",
+    "market_category": "전시",
+    "market_attribute": [
+      "무료입장"
+    ],
+    "market_ameni": [],
+    "market_rating": 4.9,
+    "market_location": [
+      {
+        "address": "광주광역시 동구",
+        "lat": 35.15,
+        "lon": 126.9215,
+        "distance_km": 2.5,
+        "zone_id": "east-001"
+      }
+    ],
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "operating_days": [
+      "금",
+      "토",
+      "일"
+    ],
+    "price_range": "무료",
+    "event_type": "regular",
+    "event_dates": [
+      {
+        "date": "2025-12-02",
+        "day_of_week": "화",
+        "time": "10:00-18:00",
+        "type": "regular"
+      }
+    ],
+    "contact_phone": "",
+    "search_tags": [
+      "문화",
+      "동구",
+      "전시"
+    ],
+    "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/a30a2b54c74ec959.jpg",
+    "sns_links": {
+      "instagram": null,
+      "naver_blog": null
+    },
+    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=exhibition&wr_id=971&page=4",
+    "source": "playgwangju.co.kr"
+  },
+  {
+    "market_id": "REAL-060",
+    "market_name": "[전시] “일상, 그리다”",
+    "market_description": "[전시] “일상, 그리다” - 광주광역시 동구에서 열리는 문화 행사입니다.",
+    "market_category": "전시",
+    "market_attribute": [
+      "무료입장"
+    ],
+    "market_ameni": [],
+    "market_rating": 4.0,
+    "market_location": [
+      {
+        "address": "광주광역시 동구",
+        "lat": 35.1417,
+        "lon": 126.9238,
+        "distance_km": 3.0,
+        "zone_id": "east-001"
+      }
+    ],
+    "operating_hours": {
+      "weekday": "10:00-18:00",
+      "weekend": "10:00-20:00"
+    },
+    "operating_days": [
+      "금",
+      "토",
+      "일"
+    ],
+    "price_range": "무료",
+    "event_type": "regular",
+    "event_dates": [
+      {
+        "date": "2025-12-02",
+        "day_of_week": "화",
+        "time": "10:00-18:00",
+        "type": "regular"
+      }
+    ],
+    "contact_phone": "",
+    "search_tags": [
+      "문화",
+      "동구",
+      "전시"
+    ],
+    "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/194eb5c758113dfd.jpg",
+    "sns_links": {
+      "instagram": null,
+      "naver_blog": null
+    },
+    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=exhibition&wr_id=970&page=4",
+    "source": "playgwangju.co.kr"
+  },
+  {
+    "market_id": "REAL-061",
+    "market_name": "오월민중항쟁 마흔다섯해 오월기억전시_재독화가 정영창 몫숨",
+    "market_description": "오월민중항쟁 마흔다섯해 오월기억전시_재독화가 정영창 몫숨 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "전시",
     "market_attribute": [
       "무료입장"
@@ -3236,110 +3231,6 @@
       "동구",
       "전시"
     ],
-    "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/a30a2b54c74ec959.jpg",
-    "sns_links": {
-      "instagram": null,
-      "naver_blog": null
-    },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=exhibition&wr_id=971&page=4",
-    "source": "playgwangju.co.kr"
-  },
-  {
-    "market_id": "REAL-062",
-    "market_name": "[전시] “일상, 그리다”",
-    "market_description": "[전시] “일상, 그리다” - 광주광역시 동구에서 열리는 문화 행사입니다.",
-    "market_category": "전시",
-    "market_attribute": [
-      "무료입장"
-    ],
-    "market_ameni": [],
-    "market_rating": 4.2,
-    "market_location": [
-      {
-        "address": "광주광역시 동구",
-        "lat": 35.1451,
-        "lon": 126.9184,
-        "distance_km": 1.5,
-        "zone_id": "east-001"
-      }
-    ],
-    "operating_hours": {
-      "weekday": "10:00-18:00",
-      "weekend": "10:00-20:00"
-    },
-    "operating_days": [
-      "금",
-      "토",
-      "일"
-    ],
-    "price_range": "무료",
-    "event_type": "regular",
-    "event_dates": [
-      {
-        "date": "2025-12-02",
-        "day_of_week": "화",
-        "time": "10:00-18:00",
-        "type": "regular"
-      }
-    ],
-    "contact_phone": "",
-    "search_tags": [
-      "문화",
-      "동구",
-      "전시"
-    ],
-    "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/194eb5c758113dfd.jpg",
-    "sns_links": {
-      "instagram": null,
-      "naver_blog": null
-    },
-    "source_url": "https://playgwangju.co.kr/bbs/board.php?bo_table=exhibition&wr_id=970&page=4",
-    "source": "playgwangju.co.kr"
-  },
-  {
-    "market_id": "REAL-063",
-    "market_name": "오월민중항쟁 마흔다섯해 오월기억전시_재독화가 정영창 몫숨",
-    "market_description": "오월민중항쟁 마흔다섯해 오월기억전시_재독화가 정영창 몫숨 - 광주광역시 동구에서 열리는 문화 행사입니다.",
-    "market_category": "전시",
-    "market_attribute": [
-      "무료입장"
-    ],
-    "market_ameni": [],
-    "market_rating": 4.3,
-    "market_location": [
-      {
-        "address": "광주광역시 동구",
-        "lat": 35.1468,
-        "lon": 126.9207,
-        "distance_km": 2.0,
-        "zone_id": "east-001"
-      }
-    ],
-    "operating_hours": {
-      "weekday": "10:00-18:00",
-      "weekend": "10:00-20:00"
-    },
-    "operating_days": [
-      "금",
-      "토",
-      "일"
-    ],
-    "price_range": "무료",
-    "event_type": "regular",
-    "event_dates": [
-      {
-        "date": "2025-12-02",
-        "day_of_week": "화",
-        "time": "10:00-18:00",
-        "type": "regular"
-      }
-    ],
-    "contact_phone": "",
-    "search_tags": [
-      "문화",
-      "동구",
-      "전시"
-    ],
     "image_url": "https://daitdaing-static-files.s3.ap-northeast-2.amazonaws.com/uploads/popup/0/2025-12-02/2f0fd4e6da77766f.png",
     "sns_links": {
       "instagram": null,
@@ -3349,7 +3240,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-064",
+    "market_id": "REAL-062",
     "market_name": "ACC에 반한 스케치 〈어반드로잉&아트상품 전〉",
     "market_description": "ACC에 반한 스케치 〈어반드로잉&아트상품 전〉 - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "아트",
@@ -3358,13 +3249,13 @@
       "감성적인"
     ],
     "market_ameni": [],
-    "market_rating": 4.4,
+    "market_rating": 4.2,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1486,
-        "lon": 126.9194,
-        "distance_km": 2.5,
+        "lat": 35.1452,
+        "lon": 126.9148,
+        "distance_km": 1.5,
         "zone_id": "east-001"
       }
     ],
@@ -3403,7 +3294,7 @@
     "source": "playgwangju.co.kr"
   },
   {
-    "market_id": "REAL-065",
+    "market_id": "REAL-063",
     "market_name": "[전시] 철 그리고?",
     "market_description": "[전시] 철 그리고? - 광주광역시 동구에서 열리는 문화 행사입니다.",
     "market_category": "전시",
@@ -3411,13 +3302,13 @@
       "무료입장"
     ],
     "market_ameni": [],
-    "market_rating": 4.5,
+    "market_rating": 4.3,
     "market_location": [
       {
         "address": "광주광역시 동구",
-        "lat": 35.1502,
-        "lon": 126.9253,
-        "distance_km": 3.0,
+        "lat": 35.1468,
+        "lon": 126.9207,
+        "distance_km": 2.0,
         "zone_id": "east-001"
       }
     ],
