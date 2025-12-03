@@ -122,9 +122,13 @@ async def get_zone_cell_stats(zone_id: int, pool: Optional[asyncpg.Pool] = None)
     Note:
         "빈 셀" = 현재 승인된 팝업이 없는 셀 (owner_id는 NOT NULL 제약이 있음)
     """
+    settings = get_settings()
+    # pgvector_connection에서 asyncpg 호환 DSN 추출
+    dsn = settings.pgvector_connection.replace('postgresql+psycopg://', 'postgresql://')
+    
     close_pool = False
     if pool is None:
-        pool = await create_async_pool()
+        pool = await asyncpg.create_pool(dsn=dsn)
         close_pool = True
     
     try:
@@ -165,9 +169,12 @@ async def get_zone_geometry(zone_id: int, pool: Optional[asyncpg.Pool] = None) -
     Returns:
         geometry_data (JSON 문자열) 또는 None
     """
+    settings = get_settings()
+    dsn = settings.pgvector_connection.replace('postgresql+psycopg://', 'postgresql://')
+    
     close_pool = False
     if pool is None:
-        pool = await create_async_pool()
+        pool = await asyncpg.create_pool(dsn=dsn)
         close_pool = True
     
     try:
