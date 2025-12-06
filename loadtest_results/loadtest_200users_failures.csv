@@ -1,0 +1,6 @@
+Method,Name,Error,Occurrences
+POST,POST /ai/chat/consumer,CatchResponseError('Status 0'),183
+POST,POST /ai/chat/consumer,CatchResponseError('Status 500'),96
+POST,POST /ai/chat/consumer,CatchResponseError('Status 504'),5
+POST,POST /ai/chat/seller,CatchResponseError('Status 0'),66
+POST,POST /ai/chat/seller,CatchResponseError('Status 500'),46

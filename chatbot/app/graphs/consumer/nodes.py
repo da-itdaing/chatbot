@@ -312,14 +312,51 @@ def _build_market_recommendations(documents: List[Document], limit: int = 3) -> 
 # ---------------------------------------------------------------------------
 
 
+def _expand_district_query(query: str) -> str:
+    """
+    지역명(구 단위)을 구체적인 동네명으로 확장 (v12).
+    
+    예: "광산구 플리마켓" → "광산구 송정 첨단 수완 하남동 플리마켓"
+    """
+    import re
+    
+    # 구 단위 → 동네 매핑
+    DISTRICT_EXPANSION = {
+        "광산구": "광산구 송정 첨단 수완 하남동 신가동 운남동 월곡동",
+        "동구": "동구 충장로 대인동 동명동 계림동 산수동 지산동 금남로",
+        "서구": "서구 상무 치평동 농성동 화정동 양동 풍암동",
+        "남구": "남구 양림동 봉선동 백운동 주월동 진월동 방림동",
+        "북구": "북구 일곡동 오룡동 용봉동 문흥동 운암동 두암동",
+    }
+    
+    lowered = query.lower()
+    for district, expansion in DISTRICT_EXPANSION.items():
+        if district in query or district.replace("구", "") in lowered:
+            # 구 이름을 확장된 동네명으로 교체
+            expanded = query.replace(district, expansion)
+            if expanded == query:
+                # "광산"만 있는 경우
+                expanded = query.replace(district.replace("구", ""), expansion)
+            if expanded == query:
+                # 변경이 안됐으면 뒤에 추가
+                expanded = f"{query} {expansion}"
+            return expanded
+    
+    return query
+
+
 def extract_user_query(state: AgentState) -> AgentState:
-    """사용자 메시지에서 쿼리 추출."""
+    """사용자 메시지에서 쿼리 추출 및 지역 쿼리 확장."""
     messages = state.get("messages", [])
     latest = latest_user_message(messages)
     latest_text = latest.content if isinstance(latest.content, str) else str(latest.content)
+    
+    # 지역 쿼리 확장
+    expanded_query = _expand_district_query(latest_text.strip())
+    
     return {
         **state,
-        "query": latest_text.strip(),
+        "query": expanded_query,
     }
 
 

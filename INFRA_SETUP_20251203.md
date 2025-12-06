@@ -4,6 +4,8 @@
 
 12/10 발표일 200명 동시 접속 대비를 위한 인프라 구성 작업 내역.
 
+**부하 테스트 결과 파일:** `/home/ubuntu/loadtest_results/`
+
 ---
 
 ## ✅ 완료된 작업
@@ -127,72 +129,34 @@ WantedBy=multi-user.target
 | 항목 | 값 |
 |------|-----|
 | 이름 | itdaing-chatbot-asg |
-| Launch Template | lt-01f9a920f20edddfa (itdaing-chatbot-lt) |
-| AMI | ami-0473d782d15e59980 |
+| Launch Template | lt-01f9a920f20edddfa v4 |
+| AMI | ami-04e2c5aea47b94efb (itdaing-chatbot-ami-202512031807) |
 | Min/Max/Desired | 1 / 3 / 1 |
 | 스케일링 정책 | CPU 60% Target Tracking |
 
-#### Spring ASG (⏸️ 일시 중지)
+#### Spring ASG (✅ 활성화됨)
 | 항목 | 값 |
 |------|-----|
 | 이름 | itdaing-spring-asg |
-| Launch Template | lt-0349ad778d742625d (itdaing-spring-lt) |
-| AMI | ami-045db7c1e23eb9269 (⚠️ 문제 있음) |
-| Min/Max/Desired | 0 / 4 / 0 |
-| 상태 | **일시 중지** (AMI 재생성 필요) |
+| Launch Template | lt-0349ad778d742625d v4 |
+| AMI | ami-0f3ec82f44f09f1e4 (itdaing-spring-ami-202512031815-fixed) |
+| Min/Max/Desired | 1 / 4 / 1 |
+| 상태 | **활성화됨** (Nginx 문제 해결됨) |
 
 ---
 
 ## ⏳ 발표 전 해야 할 작업
 
-### 1. Spring AMI 재생성
+### ~~1. Spring AMI 재생성~~ ✅ 완료
 
-**문제:** AMI 생성 시 `/var/www/html` 삭제로 Nginx 오류 발생
+- **해결됨:** ami-0f3ec82f44f09f1e4 (itdaing-spring-ami-202512031815-fixed)
+- Nginx 설정 수정 완료 (`Connection '''` → `Connection ''`)
+- Launch Template v4로 업데이트됨
 
-**해결 방법:**
-```bash
-# 1. 기존 Spring 서버에서 수정
-ssh ubuntu@<spring-server-ip>
+### ~~2. 부하 테스트~~ ✅ 완료
 
-# 2. /var/www/html 생성 및 기본 파일 추가
-sudo mkdir -p /var/www/html
-echo "OK" | sudo tee /var/www/html/index.html
-
-# 3. Nginx default 설정에 /actuator/health 추가
-# /etc/nginx/sites-enabled/default 수정
-
-# 4. 새 AMI 생성
-aws ec2 create-image \
-  --instance-id i-0f3c3ae4ce27bb373 \
-  --name "itdaing-spring-ami-$(date +%Y%m%d%H%M)" \
-  --description "Fixed Spring Boot AMI" \
-  --no-reboot
-
-# 5. Launch Template 업데이트
-aws ec2 create-launch-template-version \
-  --launch-template-id lt-0349ad778d742625d \
-  --source-version 2 \
-  --launch-template-data '{"ImageId": "<NEW_AMI_ID>"}'
-
-# 6. Spring ASG 다시 활성화
-aws autoscaling update-auto-scaling-group \
-  --auto-scaling-group-name itdaing-spring-asg \
-  --min-size 1 \
-  --desired-capacity 1
-```
-
-### 2. 부하 테스트
-
-**도구:** Locust 또는 k6
-
-```bash
-# Locust 설치
-pip install locust
-
-# 테스트 스크립트 작성 (locustfile.py)
-# 200명 동시 접속 시뮬레이션
-locust -f locustfile.py --host=https://aischool.daitdaing.com
-```
+- 테스트 결과: `/home/ubuntu/loadtest_results/`
+- 상세 결과는 "10. 부하 테스트 결과" 섹션 참조
 
 ---
 
@@ -204,9 +168,11 @@ locust -f locustfile.py --host=https://aischool.daitdaing.com
          ├── /* (정적) → S3 (daitdaing-frontend-prod)
          └── /api/*, /ai/* → ALB (aischool-bastion-alb)
                               ├── /ai/* → chatbot-tg
-                              │           └── 챗봇 ASG (1~3대)
+                              │           ├── hj-chatbot-ec2 (원본)
+                              │           └── itdaing-chatbot-asg (1~3대)
                               └── default → private-tg
-                                            └── Spring 서버 (1대, ASG 중지)
+                                            ├── itdaing-service-ec2 (원본)
+                                            └── itdaing-spring-asg (1~4대)
 ```
 
 ---
@@ -222,10 +188,10 @@ locust -f locustfile.py --host=https://aischool.daitdaing.com
 | Spring TG | arn:aws:elasticloadbalancing:ap-northeast-2:166357011361:targetgroup/private-tg/e29ff30cb7c93b23 |
 | 챗봇 ASG | itdaing-chatbot-asg |
 | Spring ASG | itdaing-spring-asg |
-| 챗봇 Launch Template | lt-01f9a920f20edddfa |
-| Spring Launch Template | lt-0349ad778d742625d |
-| 챗봇 AMI | ami-0473d782d15e59980 |
-| Spring AMI | ami-045db7c1e23eb9269 (⚠️ 문제) |
+| 챗봇 Launch Template | lt-01f9a920f20edddfa (v4) |
+| Spring Launch Template | lt-0349ad778d742625d (v4) |
+| 챗봇 AMI | ami-04e2c5aea47b94efb ✅ |
+| Spring AMI | ami-0f3ec82f44f09f1e4 ✅ |
 | RDS | itdaing-db (db.t3.medium) |
 
 ---
@@ -247,8 +213,133 @@ rewrite or internal redirection cycle while internally redirecting to "/index.ht
 
 ---
 
+## 🖥️ EC2 인스턴스 현황 (2025-12-03 업데이트)
+
+### 운영 중 (유지 필수)
+
+| 이름 | Instance ID | Type | Private IP | 역할 | Target Group |
+|------|-------------|------|------------|------|--------------|
+| bastion-ec2-2 | i-02e2b0f805000e241 | t3.medium | 10.0.0.214 | Bastion 접근용 | - |
+| hj-chatbot-ec2 | i-0dcb1780b49300e0e | m5.large | 10.0.150.137 | 챗봇 개발/운영 | chatbot-tg ✅ |
+| itdaing-service-ec2 | i-0f3c3ae4ce27bb373 | m5.large | 10.0.145.136 | Spring 배포 | private-tg ✅ |
+| itdaing-chatbot-asg | i-0c3572f8fadc34c56 | m5.large | 10.0.145.228 | ASG 챗봇 | chatbot-tg ✅ |
+
+### 정리 대상 (확인 필요)
+
+| 이름 | Instance ID | Type | 상태 | 비고 |
+|------|-------------|------|------|------|
+| 11-29-cr | i-06707a55733b66fe3 | m5.large | **running** | 테스트? (비용 발생) |
+| 11-29-hj | i-0e910e5371d8ae13a | m5.large | **running** | 테스트? (비용 발생) |
+| hj-chatbot-ec2-2 | i-09cf8f36f0d5055e3 | t3.large | stopped | 이전 버전 |
+| 1125-EC2-cr | i-03de3b2d4ad079919 | m5.large | stopped | 테스트 |
+| 11-29-jc | i-0de01d6497be6700a | m5.large | stopped | 테스트 |
+
+**⚠️ 정리 권장:** running 상태 테스트 인스턴스 (m5.large × 2) 비용 절감 필요
+
+---
+
 ## 📅 작업 일시
 
-- **2025-12-03 15:30~17:00 UTC**
-- 작성자: AI Assistant
+- **2025-12-03 15:30~17:00 UTC** - 초기 인프라 구성 (S3, CloudFront, ALB)
+- **2025-12-03 17:40 UTC** - EC2 현황 업데이트, RDS 업그레이드
+- **2025-12-03 18:06 UTC** - Spring AMI 생성 (ami-00d904d2bdd860056)
+- **2025-12-03 18:07 UTC** - Chatbot AMI 생성 (ami-04e2c5aea47b94efb)
+- **2025-12-03 18:15 UTC** - Spring AMI 재생성 (ami-0f3ec82f44f09f1e4, Nginx 수정)
+- **2025-12-03 18:20~18:50 UTC** - 부하 테스트 실행 (50명, 200명, 100명×3회)
 
+
+---
+
+## 10. 부하 테스트 결과 (2025-12-03 18:20~18:50 UTC)
+
+### 테스트 환경
+- **도구:** Locust 2.42.6
+- **대상:** https://aischool.daitdaing.com
+- **시나리오:** Consumer 70%, Seller 30%
+- **결과 파일:** `/home/ubuntu/loadtest_results/`
+
+### 테스트 1: 50명 동시접속 (90초)
+
+| 엔드포인트 | 요청수 | 실패 | 평균 응답 | P95 | P99 |
+|-----------|-------|------|----------|-----|-----|
+| GET / | 605 | 0 | 4ms | 5ms | 25ms |
+| GET /api/popups | 328 | 0 | 59ms | 120ms | 290ms |
+| GET /api/zones | 67 | 0 | 22ms | 52ms | 75ms |
+| POST /ai/chat/consumer | 76 | 0 | 8.9s | 12s | 13s |
+| POST /ai/chat/seller | 33 | 0 | 17.4s | 23s | 25s |
+
+**결과:** ✅ 50명 동시접속은 문제 없음
+
+### 테스트 2: 200명 동시접속 (120초)
+
+| 엔드포인트 | 요청수 | 실패율 | 평균 응답 | P95 |
+|-----------|-------|-------|----------|-----|
+| GET / | 2,544 | 0% | 7ms | 23ms |
+| GET /api/popups | 1,619 | 0% | 54ms | 100ms |
+| GET /api/zones | 423 | 0% | 20ms | 44ms |
+| POST /ai/chat/consumer | 344 | 82.6% | 21.7s | 30s (timeout) |
+| POST /ai/chat/seller | 124 | 90.3% | 22.3s | 30s (timeout) |
+
+**결과:** 
+- ✅ 정적 콘텐츠/Spring API: 200명 동시접속 충분히 처리 가능
+- ⚠️ 챗봇 API: ALB 30초 타임아웃으로 대부분 실패
+
+### 테스트 3: 챗봇 전용 - 100명 × 3회 순차 요청
+
+#### 서버 1대 운영 시
+| 챗봇 | 요청 | 성공 | 실패 | 실패율 | 평균 응답 |
+|------|-----|------|------|-------|----------|
+| Consumer | 209 | 71 | 138 | 66.0% | 23.1s |
+| Seller | 91 | 10 | 81 | 89.0% | 27.6s |
+| **전체** | **300** | **81** | **219** | **73.0%** | 24.5s |
+
+#### 서버 3대 운영 시 (원본1 + ASG2)
+| 챗봇 | 요청 | 성공 | 실패 | 실패율 | 평균 응답 |
+|------|-----|------|------|-------|----------|
+| Consumer | 216 | 178 | 38 | 17.6% | 19.4s |
+| Seller | 84 | 25 | 59 | 70.2% | 27.8s |
+| **전체** | **300** | **203** | **97** | **32.3%** | 21.8s |
+
+#### 서버 증설 효과
+| 지표 | 1대 | 3대 | 개선 |
+|-----|-----|-----|------|
+| Consumer 성공률 | 34% | 82.4% | **↑48.4%p** |
+| Seller 성공률 | 11% | 29.8% | **↑18.8%p** |
+| 전체 성공률 | 27% | 67.7% | **↑40.7%p** |
+
+### 분석 및 결론
+
+**✅ 문제 없음:**
+- CloudFront + S3 (정적 콘텐츠): 무제한 확장
+- Spring API: 200명 동시접속 안정적
+
+**⚠️ 병목 구간:**
+- 챗봇 서버: OpenAI API 응답 시간 (10-25초)
+- ALB 타임아웃: 30초 (기본값)
+- 동시 LLM 요청 제한
+
+### 발표일 체크리스트
+
+```bash
+# ✅ 발표 30분 전 실행
+aws autoscaling update-auto-scaling-group \
+  --auto-scaling-group-name itdaing-chatbot-asg \
+  --desired-capacity 2
+
+# ✅ 발표 종료 후 실행
+aws autoscaling update-auto-scaling-group \
+  --auto-scaling-group-name itdaing-chatbot-asg \
+  --desired-capacity 1
+```
+
+### 테스트 파일 목록
+
+```
+/home/ubuntu/loadtest_results/
+├── load_test.py                          # 일반 부하 테스트 스크립트
+├── load_test_chatbot.py                  # 챗봇 전용 테스트 스크립트
+├── loadtest_50users_*.csv                # 50명 테스트 결과
+├── loadtest_200users_*.csv               # 200명 테스트 결과
+├── loadtest_chatbot_100x3_*.csv          # 챗봇 1대 테스트 결과
+└── loadtest_chatbot_2instances_*.csv     # 챗봇 3대 테스트 결과
+```

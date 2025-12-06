@@ -1,0 +1,3 @@
+Method,Name,Error,Occurrences
+POST,POST /ai/chat/consumer,CatchResponseError('Status 504'),38
+POST,POST /ai/chat/seller,CatchResponseError('Status 504'),59

@@ -1,0 +1,2 @@
+Method,Name,Error,Occurrences
+GET,GET /api/popups/{id},HTTPError('500 Server Error:  for url: GET /api/popups/{id}'),219
