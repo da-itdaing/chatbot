@@ -278,32 +278,108 @@ def _documents_from_payload(payload: Dict[str, Any]) -> List[Document]:
     return documents
 
 
-def _build_market_recommendations(documents: List[Document], limit: int = 3) -> List[Dict[str, Any]]:
+def _extract_district(address: str) -> str:
+    """주소에서 구/동 정보를 추출하여 지역 키를 반환."""
+    import re
+    if not address:
+        return "unknown"
+    
+    # 구 단위 추출 (광산구, 동구, 서구, 남구, 북구)
+    gu_match = re.search(r"(광산구|동구|서구|남구|북구)", address)
+    if gu_match:
+        return gu_match.group(1)
+    
+    # 동 단위 추출
+    dong_match = re.search(r"([가-힣]+동)", address)
+    if dong_match:
+        return dong_match.group(1)
+    
+    return "unknown"
+
+
+def _build_market_recommendations(
+    documents: List[Document], 
+    limit: int = 2,
+    diversify_districts: bool = True,
+) -> List[Dict[str, Any]]:
+    """
+    검색된 문서에서 추천 목록 생성.
+    
+    diversify_districts=True: 같은 지역(구) 마켓 중복 방지
+    """
     recommendations: List[Dict[str, Any]] = []
-    for doc in documents:
-        metadata = doc.metadata or {}
-        market_id = metadata.get("market_id")
-        name = metadata.get("market_name") or metadata.get("name")
-        if not (market_id or name):
-            continue
-        recommendations.append(
-            {
-                "type": "market",
-                "market_id": market_id,
-                "name": name,
-                "address": metadata.get("address"),
-                "lat": metadata.get("lat"),
-                "lon": metadata.get("lon"),
-                "distance_km": metadata.get("distance_km"),
-                "rating": metadata.get("market_rating"),
-                "category": metadata.get("market_category"),
-                "attributes": metadata.get("market_attribute"),
-                "amenities": metadata.get("market_ameni"),
-                "metadata": metadata,
-            }
-        )
-        if len(recommendations) >= limit:
-            break
+    seen_districts: set = set()
+    
+    # 첫 번째 패스: 지역 다양성 고려
+    if diversify_districts:
+        for doc in documents:
+            metadata = doc.metadata or {}
+            market_id = metadata.get("market_id")
+            name = metadata.get("market_name") or metadata.get("name")
+            address = metadata.get("address", "")
+            
+            if not (market_id or name):
+                continue
+            
+            district = _extract_district(address)
+            
+            # 이미 같은 지역이 있으면 스킵
+            if district != "unknown" and district in seen_districts:
+                continue
+            
+            seen_districts.add(district)
+            recommendations.append(
+                {
+                    "type": "market",
+                    "market_id": market_id,
+                    "name": name,
+                    "address": address,
+                    "lat": metadata.get("lat"),
+                    "lon": metadata.get("lon"),
+                    "distance_km": metadata.get("distance_km"),
+                    "rating": metadata.get("market_rating"),
+                    "category": metadata.get("market_category"),
+                    "attributes": metadata.get("market_attribute"),
+                    "amenities": metadata.get("market_ameni"),
+                    "metadata": metadata,
+                }
+            )
+            if len(recommendations) >= limit:
+                break
+    
+    # limit에 못 미치면 나머지 채우기 (중복 허용)
+    if len(recommendations) < limit:
+        seen_ids = {r.get("market_id") for r in recommendations}
+        for doc in documents:
+            metadata = doc.metadata or {}
+            market_id = metadata.get("market_id")
+            name = metadata.get("market_name") or metadata.get("name")
+            
+            if not (market_id or name):
+                continue
+            if market_id in seen_ids:
+                continue
+            
+            recommendations.append(
+                {
+                    "type": "market",
+                    "market_id": market_id,
+                    "name": name,
+                    "address": metadata.get("address"),
+                    "lat": metadata.get("lat"),
+                    "lon": metadata.get("lon"),
+                    "distance_km": metadata.get("distance_km"),
+                    "rating": metadata.get("market_rating"),
+                    "category": metadata.get("market_category"),
+                    "attributes": metadata.get("market_attribute"),
+                    "amenities": metadata.get("market_ameni"),
+                    "metadata": metadata,
+                }
+            )
+            seen_ids.add(market_id)
+            if len(recommendations) >= limit:
+                break
+    
     return recommendations
 
 
@@ -479,6 +555,28 @@ def consumer_tool_router(state: AgentState) -> Literal["tools", "resume"]:
     return "tools" if state.get("pending_tool_name") else "resume"
 
 
+def _has_specific_district(query: str) -> bool:
+    """쿼리에 특정 지역(구/동)이 명시되어 있는지 확인."""
+    import re
+    if not query:
+        return False
+    
+    # 구 단위 또는 동 단위 지역명이 있으면 특정 지역 지정으로 판단
+    district_patterns = [
+        r"(광산구|동구|서구|남구|북구)",
+        r"(광산|송정|첨단|수완|하남)",
+        r"(충장로|대인동|동명동|금남로)",
+        r"(상무|치평동|농성동|화정동)",
+        r"(양림동|봉선동|백운동)",
+        r"(일곡동|오룡동|용봉동|문흥동)",
+    ]
+    
+    for pattern in district_patterns:
+        if re.search(pattern, query, re.IGNORECASE):
+            return True
+    return False
+
+
 def consume_consumer_tool_result(state: AgentState) -> AgentState:
     """도구 실행 결과 소비."""
     call_id = state.get("pending_tool_call_id")
@@ -499,7 +597,11 @@ def consume_consumer_tool_result(state: AgentState) -> AgentState:
     if plan_result:
         next_state["structured_plan_result"] = plan_result
 
-    recs = _build_market_recommendations(documents)
+    # 특정 지역 지정 여부에 따라 다양성 옵션 결정
+    query = state.get("query", "")
+    diversify = not _has_specific_district(query)
+    
+    recs = _build_market_recommendations(documents, diversify_districts=diversify)
     if recs:
         next_state["recommendations"] = recs
     else:
