@@ -1,0 +1,422 @@
+[
+  {
+    "cell_id": 252,
+    "popup_id": 1689,
+    "popup_name": "2025 서빛 문화 페스타",
+    "new_address": "광주 동구 문화전당로 38",
+    "source": "manual"
+  },
+  {
+    "cell_id": 327,
+    "popup_id": 1691,
+    "popup_name": "북구생활문화센터 연말 특별 핫 클래스 「원데이 마켓」 수강 신청",
+    "new_address": "광주 북구 용봉로 77",
+    "source": "manual"
+  },
+  {
+    "cell_id": 252,
+    "popup_id": 1692,
+    "popup_name": "[청년] 청년 목요 미식회 : 주제별 원데이 클래스",
+    "new_address": "광주 동구 문화전당로 38",
+    "source": "manual"
+  },
+  {
+    "cell_id": 277,
+    "popup_id": 1696,
+    "popup_name": "소상공인 플리마켓 x 유스퀘어",
+    "new_address": "광주 서구 무진대로 235",
+    "source": "manual"
+  },
+  {
+    "cell_id": 252,
+    "popup_id": 1698,
+    "popup_name": "청년 문화향유와 지역격차, 청년의 눈으로 보다(2025 제4차 대한민국 청년총회)",
+    "new_address": "광주 동구 문화전당로 38",
+    "source": "manual"
+  },
+  {
+    "cell_id": 252,
+    "popup_id": 1700,
+    "popup_name": "10월 대인예술야시장",
+    "new_address": "광주 동구 제봉로184번길 9-10",
+    "source": "manual"
+  },
+  {
+    "cell_id": 252,
+    "popup_id": 1702,
+    "popup_name": "제22회 광주 추억의 충장축제 '추억의 동화'",
+    "new_address": "광주 동구 충장로 일대",
+    "source": "manual"
+  },
+  {
+    "cell_id": 252,
+    "popup_id": 1711,
+    "popup_name": "개관 10주년 기념 2025 아시아 문화주간 - 아시아 아트마켓",
+    "new_address": "광주 동구 문화전당로 38",
+    "source": "manual"
+  },
+  {
+    "cell_id": 252,
+    "popup_id": 1715,
+    "popup_name": "동명동 카페거리 예술골목 〈플리마켓〉",
+    "new_address": "광주 동구 동계천로 150",
+    "source": "manual"
+  },
+  {
+    "cell_id": 352,
+    "popup_id": 1720,
+    "popup_name": "제2회 광주송정 남도맛 페스티벌 〈도란도란 문화夜시장〉",
+    "new_address": "광주 광산구 송정로 8",
+    "source": "manual"
+  },
+  {
+    "cell_id": 252,
+    "popup_id": 1721,
+    "popup_name": "제7회 GAC 공연예술축제 〈그라제〉",
+    "new_address": "광주 동구 문화전당로 38",
+    "source": "manual"
+  },
+  {
+    "cell_id": 252,
+    "popup_id": 1723,
+    "popup_name": "2025 [대인예술주간 야시장편] 예술체험 스탬프 투어",
+    "new_address": "광주 동구 제봉로184번길 9-10",
+    "source": "manual"
+  },
+  {
+    "cell_id": 252,
+    "popup_id": 1730,
+    "popup_name": "제14회 빛고을핸드메이드페어",
+    "new_address": "광주 서구 상무누리로 30",
+    "source": "manual"
+  },
+  {
+    "cell_id": 252,
+    "popup_id": 1731,
+    "popup_name": "동명동 예술골목 플리마켓(08.16) - 유명DJ초청 음악행사 병행",
+    "new_address": "광주 동구 동계천로 150",
+    "source": "csv"
+  },
+  {
+    "cell_id": 262,
+    "popup_id": 1934,
+    "popup_name": "대인예술시장 만원의 행복",
+    "new_address": "광주 동구 제봉로184번길 9-10",
+    "source": "csv"
+  },
+  {
+    "cell_id": 269,
+    "popup_id": 1935,
+    "popup_name": "남도달밤야시장 시즌3탄",
+    "new_address": "광주 동구 독립로 284-2",
+    "source": "csv"
+  },
+  {
+    "cell_id": 275,
+    "popup_id": 1936,
+    "popup_name": "주말은 청춘",
+    "new_address": "광주 동구 호남동 23-1",
+    "source": "csv"
+  },
+  {
+    "cell_id": 284,
+    "popup_id": 1937,
+    "popup_name": "아트&플리마켓",
+    "new_address": "광주 서구 내방로 111",
+    "source": "csv"
+  },
+  {
+    "cell_id": 269,
+    "popup_id": 1938,
+    "popup_name": "완전럭키비키잖아",
+    "new_address": "광주 동구 독립로 284-2",
+    "source": "csv"
+  },
+  {
+    "cell_id": 275,
+    "popup_id": 1939,
+    "popup_name": "지구농장터",
+    "new_address": "광주 동구 충장로46번길 10",
+    "source": "csv"
+  },
+  {
+    "cell_id": 259,
+    "popup_id": 1940,
+    "popup_name": "지하상점가 금남 문화의 날",
+    "new_address": "광주 동구 서석로 지하 56",
+    "source": "csv"
+  },
+  {
+    "cell_id": 272,
+    "popup_id": 1941,
+    "popup_name": "청년상생마켓",
+    "new_address": "광주 동구 충장로22번길 2",
+    "source": "csv"
+  },
+  {
+    "cell_id": 285,
+    "popup_id": 1942,
+    "popup_name": "마켓 광장",
+    "new_address": "광주 서구 상무누리로 30",
+    "source": "csv"
+  },
+  {
+    "cell_id": 281,
+    "popup_id": 1943,
+    "popup_name": "보이저 첨단 마당마켓",
+    "new_address": "광주 광산구 임방울대로826번길 19-20",
+    "source": "csv"
+  },
+  {
+    "cell_id": 324,
+    "popup_id": 1944,
+    "popup_name": "VERT Market",
+    "new_address": "광주 동구 선교로 45",
+    "source": "csv"
+  },
+  {
+    "cell_id": 279,
+    "popup_id": 1945,
+    "popup_name": "맘스팡 프리마켓",
+    "new_address": "광주 광산구 임방울대로825번길 30",
+    "source": "csv"
+  },
+  {
+    "cell_id": 290,
+    "popup_id": 1946,
+    "popup_name": "다과 플리마켓",
+    "new_address": "광주 서구 마재로 3",
+    "source": "csv"
+  },
+  {
+    "cell_id": 280,
+    "popup_id": 1947,
+    "popup_name": "상생광산장터",
+    "new_address": "광주 광산구 첨단중앙로 160",
+    "source": "csv"
+  },
+  {
+    "cell_id": 339,
+    "popup_id": 1948,
+    "popup_name": "맘스팡 마켓 1차",
+    "new_address": "광주 북구 설죽로 490",
+    "source": "csv"
+  },
+  {
+    "cell_id": 279,
+    "popup_id": 1949,
+    "popup_name": "맘스팡 마켓 2차",
+    "new_address": "광주 광산구 첨단강변로99번길 22",
+    "source": "csv"
+  },
+  {
+    "cell_id": 259,
+    "popup_id": 1950,
+    "popup_name": "동명동 ART Eco Tour Day",
+    "new_address": "광주 동구 동계천로 151-5",
+    "source": "csv"
+  },
+  {
+    "cell_id": 330,
+    "popup_id": 1951,
+    "popup_name": "다 어울림",
+    "new_address": "광주 북구 용봉로 105",
+    "source": "csv"
+  },
+  {
+    "cell_id": 361,
+    "popup_id": 1952,
+    "popup_name": "제 66회 광수방 친구마켓",
+    "new_address": "광주 광산구 사암로 172",
+    "source": "csv"
+  },
+  {
+    "cell_id": 320,
+    "popup_id": 1953,
+    "popup_name": "푸릇마켓",
+    "new_address": "광주 남구 도동길 142",
+    "source": "csv"
+  },
+  {
+    "cell_id": 259,
+    "popup_id": 1954,
+    "popup_name": "아시아 컬처마켓",
+    "new_address": "광주 동구 문화전당로 38",
+    "source": "csv"
+  },
+  {
+    "cell_id": 387,
+    "popup_id": 1955,
+    "popup_name": "1913 송정역시장 플리마켓",
+    "new_address": "광주 광산구 송정로 8",
+    "source": "manual"
+  },
+  {
+    "cell_id": 263,
+    "popup_id": 1956,
+    "popup_name": "문화장터 누리랑께",
+    "new_address": "광주 동구 구성로 257",
+    "source": "csv"
+  },
+  {
+    "cell_id": 281,
+    "popup_id": 1957,
+    "popup_name": "첨단 보이저 마당 수공예 플리마켓",
+    "new_address": "광주 광산구 임방울대로826번길 19-20",
+    "source": "csv"
+  },
+  {
+    "cell_id": 324,
+    "popup_id": 1958,
+    "popup_name": "INFORE MARKET",
+    "new_address": "광주 동구 선교로 45",
+    "source": "csv"
+  },
+  {
+    "cell_id": 261,
+    "popup_id": 1959,
+    "popup_name": "충장로 플리마켓",
+    "new_address": "광주 동구 서석로 43",
+    "source": "csv"
+  },
+  {
+    "cell_id": 276,
+    "popup_id": 1960,
+    "popup_name": "충장로 도깨비 장터",
+    "new_address": "광주 동구 충장로4가 59",
+    "source": "csv"
+  },
+  {
+    "cell_id": 259,
+    "popup_id": 1961,
+    "popup_name": "동명동 예술골목 플리마켓",
+    "new_address": "광주 동구 동계천로 150",
+    "source": "csv"
+  },
+  {
+    "cell_id": 297,
+    "popup_id": 1962,
+    "popup_name": "유스퀘어 소상공인 플리마켓",
+    "new_address": "광주 서구 무진대로 904",
+    "source": "csv"
+  },
+  {
+    "cell_id": 259,
+    "popup_id": 1963,
+    "popup_name": "동명동 플리마켓 8월 2차",
+    "new_address": "광주 동구 동명동 68-66",
+    "source": "csv"
+  },
+  {
+    "cell_id": 259,
+    "popup_id": 1964,
+    "popup_name": "동명동 플리마켓 8월 1차",
+    "new_address": "광주 동구 동명동 72-37",
+    "source": "csv"
+  },
+  {
+    "cell_id": 259,
+    "popup_id": 1965,
+    "popup_name": "동명동 골목길 음악산책",
+    "new_address": "광주 동구 동명동 72-37",
+    "source": "csv"
+  },
+  {
+    "cell_id": 259,
+    "popup_id": 1966,
+    "popup_name": "동명동 능소화 포토스팟",
+    "new_address": "광주 동구 동명동 72-37",
+    "source": "csv"
+  },
+  {
+    "cell_id": 285,
+    "popup_id": 1967,
+    "popup_name": "브리즈 마켓",
+    "new_address": "광주 서구 치평동 1159-2",
+    "source": "csv"
+  },
+  {
+    "cell_id": 259,
+    "popup_id": 1968,
+    "popup_name": "그 겨울의 플리마켓",
+    "new_address": "광주 동구 동계천로 150",
+    "source": "csv"
+  },
+  {
+    "cell_id": 381,
+    "popup_id": 1969,
+    "popup_name": "희망나눔 소상공인 플리마켓",
+    "new_address": "광주 북구 충효동 908",
+    "source": "csv"
+  },
+  {
+    "cell_id": 285,
+    "popup_id": 1970,
+    "popup_name": "라이콘 플리마켓",
+    "new_address": "광주 서구 상무중앙로 24",
+    "source": "csv"
+  },
+  {
+    "cell_id": 259,
+    "popup_id": 1971,
+    "popup_name": "전일빌딩 플리마켓",
+    "new_address": "광주 동구 금남로 245",
+    "source": "csv"
+  },
+  {
+    "cell_id": 283,
+    "popup_id": 1972,
+    "popup_name": "시민의날 생일컨셉 플리마켓",
+    "new_address": "광주 서구 내방로 111",
+    "source": "csv"
+  },
+  {
+    "cell_id": 275,
+    "popup_id": 1973,
+    "popup_name": "Winter CheckIn 플리마켓",
+    "new_address": "광주 남구 중앙로107번길 15",
+    "source": "csv"
+  },
+  {
+    "cell_id": 387,
+    "popup_id": 1974,
+    "popup_name": "송정역시작 플리마켓 with 난장콘서트",
+    "new_address": "광주 광산구 송정동 859-5",
+    "source": "csv"
+  },
+  {
+    "cell_id": 275,
+    "popup_id": 1975,
+    "popup_name": "Awesome CheckIn 플리마켓",
+    "new_address": "광주 남구 중앙로107번길 15",
+    "source": "csv"
+  },
+  {
+    "cell_id": 275,
+    "popup_id": 1976,
+    "popup_name": "Summer CheckIn 플리마켓",
+    "new_address": "광주 남구 중앙로107번길 15",
+    "source": "csv"
+  },
+  {
+    "cell_id": 275,
+    "popup_id": 1977,
+    "popup_name": "Spring CheckIn 플리마켓",
+    "new_address": "광주 남구 중앙로107번길 15",
+    "source": "csv"
+  },
+  {
+    "cell_id": 275,
+    "popup_id": 1978,
+    "popup_name": "Awesome CheckIn 파티(광주창조경제혁신센터)",
+    "new_address": "광주 남구 중앙로107번길 15",
+    "source": "csv"
+  },
+  {
+    "cell_id": 275,
+    "popup_id": 1979,
+    "popup_name": "Summer CheckIn 파티",
+    "new_address": "광주 남구 중앙로107번길 15",
+    "source": "csv"
+  }
+]

@@ -50,6 +50,23 @@ class BulkSyncRequest(BaseModel):
     )
 
 
+class ZoneSyncRequest(BaseModel):
+    """단일 zone 동기화 요청"""
+    zone_id: int = Field(..., description="동기화할 zone_area ID")
+
+
+class ZoneBulkSyncRequest(BaseModel):
+    """전체 zone 동기화 요청"""
+    zone_ids: Optional[List[int]] = Field(
+        None,
+        description="동기화할 zone_area ID 목록 (없으면 전체)"
+    )
+    clear_existing: bool = Field(
+        True,
+        description="기존 임베딩 삭제 후 재생성 여부"
+    )
+
+
 class SyncResponse(BaseModel):
     """동기화 응답"""
     status: str
@@ -216,6 +233,158 @@ async def bulk_sync_popups(
         
     except Exception as e:
         logger.error(f"[Sync] 전체 동기화 실패: {e}")
+        result.status = "failed"
+        result.errors.append(str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============= Zone Sync Endpoints =============
+
+@router.post("/zone", response_model=SyncResponse)
+async def sync_zone(request: ZoneSyncRequest) -> SyncResponse:
+    """
+    단일 zone 동기화 (생성/수정)
+    
+    Spring에서 zone_area 생성/수정 후 호출합니다.
+    DB에서 zone 데이터를 조회하여 PGVector(itdaing_zone)에 임베딩합니다.
+    
+    Args:
+        request: zone_id 포함
+    
+    Returns:
+        동기화 결과
+    """
+    worker = get_worker()
+    try:
+        await worker.embed_zone(request.zone_id)
+        logger.info(f"[Sync] Zone {request.zone_id} 동기화 완료")
+        return SyncResponse(
+            status="success",
+            popup_id=request.zone_id,  # reuse popup_id field for zone_id
+            message="임베딩 완료"
+        )
+    except ValueError as e:
+        logger.warning(f"[Sync] Zone {request.zone_id} not found: {e}")
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"[Sync] Zone {request.zone_id} 동기화 실패: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/zone/{zone_id}", response_model=SyncResponse)
+async def delete_zone_sync(zone_id: int) -> SyncResponse:
+    """
+    zone 삭제 시 임베딩 제거
+    
+    Spring에서 zone_area 삭제 후 호출합니다.
+    
+    Args:
+        zone_id: 삭제할 zone_area ID
+    
+    Returns:
+        삭제 결과
+    """
+    worker = get_worker()
+    try:
+        await worker.delete_zone_embedding(zone_id)
+        logger.info(f"[Sync] Zone {zone_id} 임베딩 삭제 완료")
+        return SyncResponse(
+            status="deleted",
+            popup_id=zone_id,
+            message="임베딩 삭제됨"
+        )
+    except Exception as e:
+        logger.error(f"[Sync] Zone {zone_id} 임베딩 삭제 실패: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/zones/bulk", response_model=BulkSyncResponse)
+async def bulk_sync_zones(
+    request: ZoneBulkSyncRequest = None,
+) -> BulkSyncResponse:
+    """
+    전체 zone 동기화 (초기화용)
+    
+    모든 zone_area를 PGVector(itdaing_zone)에 임베딩합니다.
+    초기 데이터 마이그레이션 또는 전체 재생성 시 사용합니다.
+    
+    Args:
+        request: zone_ids (없으면 전체), clear_existing (기존 삭제 여부)
+    
+    Returns:
+        동기화 결과
+    """
+    worker = get_worker()
+    
+    if request is None:
+        request = ZoneBulkSyncRequest()
+    
+    result = BulkSyncResponse(status="processing")
+    
+    try:
+        import asyncpg
+        from app.config import get_settings
+        
+        settings = get_settings()
+        conn = await asyncpg.connect(
+            host=settings.postgres_host,
+            database=settings.postgres_db,
+            user=settings.postgres_user,
+            password=settings.postgres_password,
+            port=settings.postgres_port,
+        )
+        
+        try:
+            if request.zone_ids:
+                zone_ids = request.zone_ids
+            else:
+                # 모든 AVAILABLE zone 조회
+                rows = await conn.fetch("""
+                    SELECT id FROM zone_area 
+                    WHERE status = 'AVAILABLE'
+                    ORDER BY id
+                """)
+                zone_ids = [row["id"] for row in rows]
+            
+            result.total = len(zone_ids)
+            logger.info(f"[Sync] 전체 zone 동기화 시작: {result.total}개 zone")
+            
+            # 기존 임베딩 삭제 (선택적)
+            if request.clear_existing and not request.zone_ids:
+                logger.info("[Sync] 기존 itdaing_zone 임베딩 전체 삭제")
+                zone_uuid = await conn.fetchval(
+                    "SELECT uuid FROM langchain_pg_collection WHERE name = 'itdaing_zone'"
+                )
+                if zone_uuid:
+                    await conn.execute(
+                        "DELETE FROM langchain_pg_embedding WHERE collection_id = $1",
+                        zone_uuid
+                    )
+            
+            # 각 zone 임베딩
+            for zone_id in zone_ids:
+                try:
+                    await worker.embed_zone(zone_id)
+                    result.success += 1
+                except Exception as e:
+                    result.failed += 1
+                    error_msg = f"zone:{zone_id} - {str(e)[:100]}"
+                    result.errors.append(error_msg)
+                    logger.warning(f"[Sync] {error_msg}")
+            
+            result.status = "completed"
+            logger.info(
+                f"[Sync] 전체 zone 동기화 완료: "
+                f"성공 {result.success}/{result.total}, 실패 {result.failed}"
+            )
+            
+        finally:
+            await conn.close()
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"[Sync] 전체 zone 동기화 실패: {e}")
         result.status = "failed"
         result.errors.append(str(e))
         raise HTTPException(status_code=500, detail=str(e))

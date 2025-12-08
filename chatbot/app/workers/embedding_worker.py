@@ -248,43 +248,86 @@ class EmbeddingWorker:
             await conn.close()
     
     async def embed_zone(self, zone_id: int) -> None:
-        """zone_area 임베딩 생성/업데이트"""
+        """zone_area 임베딩 생성/업데이트 (셀 정보 포함)"""
         conn = await self._get_connection()
         try:
-            # zone_area 조회
+            # zone_area 조회 (district 정보 포함)
             zone = await conn.fetchrow("""
-                SELECT id, name, status, max_capacity, notice
-                FROM zone_area
-                WHERE id = $1
+                SELECT za.id, za.name, za.status, za.max_capacity, za.notice,
+                       d.name as district_name
+                FROM zone_area za
+                LEFT JOIN district d ON za.district_id = d.id
+                WHERE za.id = $1
             """, zone_id)
             
             if not zone:
                 raise ValueError(f"Zone {zone_id} not found")
             
+            # 해당 존의 셀 목록 조회
+            cells = await conn.fetch("""
+                SELECT zc.id, zc.label, zc.detailed_address, zc.status, 
+                       zc.max_capacity, zc.notice,
+                       u.login_id as owner_login_id
+                FROM zone_cell zc
+                LEFT JOIN users u ON zc.owner_id = u.id
+                WHERE zc.zone_area_id = $1
+                ORDER BY zc.label
+            """, zone_id)
+            
             # 기존 임베딩 삭제
             await self.delete_zone_embedding(zone_id)
             
-            # 상권 정보 (별도 테이블이 없으므로 기본값 사용)
-            # TODO: 상권 정보 테이블 연동 시 업데이트
+            # 셀 정보 텍스트 생성
+            cell_text = ""
+            available_cells = []
+            total_capacity = 0
             
+            for cell in cells:
+                cell_status = cell["status"] or "PENDING"
+                if cell_status == "APPROVED":
+                    available_cells.append(cell["label"] or "미지정")
+                    total_capacity += cell["max_capacity"] or 1
+                cell_text += f"- {cell['label'] or '미지정'}: {cell['detailed_address'] or '주소 미정'} ({cell_status})\n"
+            
+            # 임베딩 텍스트
             text = f"""
 ## {zone['name']}
 
-### 기본 정보
+### 위치
+- 구역: {zone['district_name'] or '광주광역시'}
+- 주소: 광주광역시 {zone['district_name'] or ''} 일대
+
+### 존 정보
 - 상태: {zone['status']}
-- 수용 인원: {zone['max_capacity']}명
-- 안내: {zone['notice'] or '없음'}
+- 최대 수용 인원: {zone['max_capacity'] or '미정'}명
+- 안내사항: {zone['notice'] or '없음'}
+
+### 셀(부스) 현황
+- 전체 셀 수: {len(cells)}개
+- 승인된 셀: {len(available_cells)}개 ({', '.join(available_cells) if available_cells else '없음'})
+- 총 수용 가능 인원: {total_capacity}명
+
+### 셀 목록
+{cell_text if cell_text else '등록된 셀이 없습니다.'}
+
+이 존은 광주 {zone['district_name'] or ''}에 위치한 플리마켓/팝업 운영 구역입니다.
+판매자가 셀을 신청하여 팝업/플리마켓을 운영할 수 있습니다.
 """.strip()
             
             metadata = {
                 "type": "zone_detail",
                 "zone_id": str(zone["id"]),
                 "zone_name": zone["name"],
+                "district": zone["district_name"],
+                "status": zone["status"],
+                "total_cells": len(cells),
+                "available_cells": len(available_cells),
+                "max_capacity": zone["max_capacity"],
             }
             
             # 임베딩 추가
             self.zone_vectorstore.add_texts(texts=[text], metadatas=[metadata])
-            logger.info(f"Zone {zone_id} 임베딩 완료")
+            logger.info(f"Zone {zone_id} 임베딩 완료 (셀 {len(cells)}개 포함)")
             
         finally:
             await conn.close()
