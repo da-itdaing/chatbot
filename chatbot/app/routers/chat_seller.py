@@ -140,6 +140,8 @@ async def _enrich_zone_recommendations_async(recommendations: List[Dict[str, Any
     
     메타데이터에서 lat/lng, 상권 정보 등을 추출하고,
     DB에서 셀 가용성 정보와 폴리곤 데이터를 조회합니다.
+    
+    주의: 빈 셀이 0개인 존은 추천에서 제외됩니다.
     """
     enriched = []
     for rec in recommendations:
@@ -180,12 +182,14 @@ async def _enrich_zone_recommendations_async(recommendations: List[Dict[str, Any
         }
         
         # DB에서 셀 가용성 정보 및 폴리곤/좌표 조회
+        available_cells = 0
         if zone_id:
             try:
                 zone_id_int = int(zone_id)
                 cell_stats = await get_zone_cell_stats(zone_id_int)
                 enriched_rec["total_cells"] = cell_stats.get("total_cells", 0)
-                enriched_rec["available_cells"] = cell_stats.get("available_cells", 0)
+                available_cells = cell_stats.get("available_cells", 0)
+                enriched_rec["available_cells"] = available_cells
                 
                 # 폴리곤 + 중심점 좌표 조회
                 geo_data = await get_zone_geometry_with_center(zone_id_int)
@@ -207,6 +211,12 @@ async def _enrich_zone_recommendations_async(recommendations: List[Dict[str, Any
                 
             except (ValueError, TypeError) as e:
                 logger.warning(f"Failed to get cell stats for zone_id={zone_id}: {e}")
+        
+        # 빈 셀이 0개인 존은 추천에서 제외
+        if available_cells == 0:
+            zone_name = enriched_rec.get("name", zone_id)
+            logger.info(f"[enrich] 빈 셀 0개로 제외: {zone_name} (zone_id={zone_id})")
+            continue
         
         # None 값 제거
         enriched_rec = {k: v for k, v in enriched_rec.items() if v is not None}
