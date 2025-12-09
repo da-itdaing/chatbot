@@ -5,19 +5,83 @@ Spring Boot에서 호출하여 PGVector를 동기화합니다.
 - 단일 popup 동기화 (생성/수정)
 - popup 삭제 시 벡터 제거
 - 전체 popup 동기화 (초기화용)
+- **캐시 무효화**: 임베딩 변경 시 RAG 캐시도 함께 클리어
 """
 from __future__ import annotations
 
 import logging
 from typing import Any, Dict, List, Optional
 
+import asyncpg
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
 
 from app.workers.embedding_worker import EmbeddingWorker
+from app.config import get_settings
 
 router = APIRouter(prefix="/api/sync", tags=["sync"])
 logger = logging.getLogger(__name__)
+
+
+# ============= 캐시 무효화 헬퍼 =============
+
+async def invalidate_rag_cache(mode: str = "all") -> int:
+    """
+    RAG 캐시 무효화
+    
+    Args:
+        mode: "all" | "consumer" | "seller"
+    
+    Returns:
+        삭제된 캐시 항목 수
+    """
+    # L1 메모리 캐시 클리어 (retrieval.py의 _rag_cache)
+    try:
+        from app.tools.retrieval import _rag_cache
+        _rag_cache.clear()
+        logger.info(f"[Cache] L1 메모리 캐시 클리어 완료")
+    except Exception as e:
+        logger.warning(f"[Cache] L1 캐시 클리어 실패: {e}")
+    
+    # L2 DB 캐시 클리어
+    deleted_count = 0
+    try:
+        settings = get_settings()
+        conn = await asyncpg.connect(
+            host=settings.postgres_host,
+            database=settings.postgres_db,
+            user=settings.postgres_user,
+            password=settings.postgres_password,
+            port=settings.postgres_port,
+        )
+        try:
+            if mode == "all":
+                result = await conn.execute("DELETE FROM rag_cache")
+            elif mode == "consumer":
+                # consumer 관련 캐시만 삭제 (캐시 키에 mode가 포함됨)
+                result = await conn.execute(
+                    "DELETE FROM rag_cache WHERE cache_key LIKE 'consumer:%'"
+                )
+            elif mode == "seller":
+                result = await conn.execute(
+                    "DELETE FROM rag_cache WHERE cache_key LIKE 'seller:%'"
+                )
+            else:
+                result = await conn.execute("DELETE FROM rag_cache")
+            
+            # "DELETE N" 형식에서 N 추출
+            if result:
+                parts = result.split()
+                if len(parts) >= 2:
+                    deleted_count = int(parts[1])
+            
+            logger.info(f"[Cache] L2 DB 캐시 클리어 완료: {deleted_count}개 삭제")
+        finally:
+            await conn.close()
+    except Exception as e:
+        logger.warning(f"[Cache] L2 캐시 클리어 실패: {e}")
+    
+    return deleted_count
 
 # 싱글톤 워커 인스턴스
 _worker: Optional[EmbeddingWorker] = None
@@ -92,6 +156,7 @@ async def sync_popup(request: PopupSyncRequest) -> SyncResponse:
     
     Spring에서 popup 생성/수정 후 호출합니다.
     DB에서 popup 데이터를 조회하여 PGVector에 임베딩합니다.
+    **캐시 무효화**: consumer 관련 RAG 캐시도 함께 클리어합니다.
     
     Args:
         request: popup_id 포함
@@ -102,11 +167,15 @@ async def sync_popup(request: PopupSyncRequest) -> SyncResponse:
     worker = get_worker()
     try:
         await worker.embed_popup(request.popup_id)
-        logger.info(f"[Sync] Popup {request.popup_id} 동기화 완료")
+        
+        # 캐시 무효화 (consumer 캐시)
+        cache_cleared = await invalidate_rag_cache("consumer")
+        logger.info(f"[Sync] Popup {request.popup_id} 동기화 완료 (캐시 {cache_cleared}개 클리어)")
+        
         return SyncResponse(
             status="success",
             popup_id=request.popup_id,
-            message="임베딩 완료"
+            message=f"임베딩 완료, 캐시 {cache_cleared}개 클리어"
         )
     except ValueError as e:
         logger.warning(f"[Sync] Popup {request.popup_id} not found: {e}")
@@ -122,6 +191,7 @@ async def delete_popup_sync(popup_id: int) -> SyncResponse:
     popup 삭제 시 임베딩 제거
     
     Spring에서 popup 삭제 후 호출합니다.
+    **캐시 무효화**: consumer 관련 RAG 캐시도 함께 클리어합니다.
     
     Args:
         popup_id: 삭제할 popup ID
@@ -132,11 +202,15 @@ async def delete_popup_sync(popup_id: int) -> SyncResponse:
     worker = get_worker()
     try:
         await worker.delete_popup_embedding(popup_id)
-        logger.info(f"[Sync] Popup {popup_id} 임베딩 삭제 완료")
+        
+        # 캐시 무효화
+        cache_cleared = await invalidate_rag_cache("consumer")
+        logger.info(f"[Sync] Popup {popup_id} 임베딩 삭제 완료 (캐시 {cache_cleared}개 클리어)")
+        
         return SyncResponse(
             status="deleted",
             popup_id=popup_id,
-            message="임베딩 삭제됨"
+            message=f"임베딩 삭제됨, 캐시 {cache_cleared}개 클리어"
         )
     except Exception as e:
         logger.error(f"[Sync] Popup {popup_id} 임베딩 삭제 실패: {e}")
@@ -247,6 +321,7 @@ async def sync_zone(request: ZoneSyncRequest) -> SyncResponse:
     
     Spring에서 zone_area 생성/수정 후 호출합니다.
     DB에서 zone 데이터를 조회하여 PGVector(itdaing_zone)에 임베딩합니다.
+    **캐시 무효화**: seller 관련 RAG 캐시도 함께 클리어합니다.
     
     Args:
         request: zone_id 포함
@@ -257,11 +332,15 @@ async def sync_zone(request: ZoneSyncRequest) -> SyncResponse:
     worker = get_worker()
     try:
         await worker.embed_zone(request.zone_id)
-        logger.info(f"[Sync] Zone {request.zone_id} 동기화 완료")
+        
+        # 캐시 무효화 (seller 캐시)
+        cache_cleared = await invalidate_rag_cache("seller")
+        logger.info(f"[Sync] Zone {request.zone_id} 동기화 완료 (캐시 {cache_cleared}개 클리어)")
+        
         return SyncResponse(
             status="success",
             popup_id=request.zone_id,  # reuse popup_id field for zone_id
-            message="임베딩 완료"
+            message=f"임베딩 완료, 캐시 {cache_cleared}개 클리어"
         )
     except ValueError as e:
         logger.warning(f"[Sync] Zone {request.zone_id} not found: {e}")
@@ -277,6 +356,7 @@ async def delete_zone_sync(zone_id: int) -> SyncResponse:
     zone 삭제 시 임베딩 제거
     
     Spring에서 zone_area 삭제 후 호출합니다.
+    **캐시 무효화**: seller 관련 RAG 캐시도 함께 클리어합니다.
     
     Args:
         zone_id: 삭제할 zone_area ID
@@ -287,11 +367,15 @@ async def delete_zone_sync(zone_id: int) -> SyncResponse:
     worker = get_worker()
     try:
         await worker.delete_zone_embedding(zone_id)
-        logger.info(f"[Sync] Zone {zone_id} 임베딩 삭제 완료")
+        
+        # 캐시 무효화
+        cache_cleared = await invalidate_rag_cache("seller")
+        logger.info(f"[Sync] Zone {zone_id} 임베딩 삭제 완료 (캐시 {cache_cleared}개 클리어)")
+        
         return SyncResponse(
             status="deleted",
             popup_id=zone_id,
-            message="임베딩 삭제됨"
+            message=f"임베딩 삭제됨, 캐시 {cache_cleared}개 클리어"
         )
     except Exception as e:
         logger.error(f"[Sync] Zone {zone_id} 임베딩 삭제 실패: {e}")

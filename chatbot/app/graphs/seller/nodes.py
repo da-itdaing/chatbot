@@ -251,7 +251,9 @@ FULL_SELLER_CLASSIFICATION_SYSTEM_PROMPT = """
 - general: 기타
 
 ## 4. 검색 계획 (seller_query일 때)
-- rewritten_query: "광주" 포함하여 검색에 적합하게 재작성
+- rewritten_query: **원래 질문의 핵심 키워드(대학교명, 지역명, 건물명 등)를 반드시 유지**하면서 "광주" 포함하여 검색에 적합하게 재작성
+  - 예: "조선대 쪽" → "광주 조선대학교 근처 플리마켓 존"
+  - 예: "전남대 주변" → "광주 전남대학교 주변 플리마켓 존"
 - target_entity: 판매자용이므로 항상 "zone"
 - keyword_filters: 지역 필터
   - "동구에서" → keyword_filters에 district include: ["동구"]

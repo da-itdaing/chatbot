@@ -251,12 +251,12 @@ class EmbeddingWorker:
         """zone_area 임베딩 생성/업데이트 (셀 정보 포함)"""
         conn = await self._get_connection()
         try:
-            # zone_area 조회 (district 정보 포함)
+            # zone_area 조회 (region 정보 포함)
             zone = await conn.fetchrow("""
                 SELECT za.id, za.name, za.status, za.max_capacity, za.notice,
-                       d.name as district_name
+                       r.name as region_name
                 FROM zone_area za
-                LEFT JOIN district d ON za.district_id = d.id
+                LEFT JOIN region r ON za.region_id = r.id
                 WHERE za.id = $1
             """, zone_id)
             
@@ -289,13 +289,37 @@ class EmbeddingWorker:
                     total_capacity += cell["max_capacity"] or 1
                 cell_text += f"- {cell['label'] or '미지정'}: {cell['detailed_address'] or '주소 미정'} ({cell_status})\n"
             
-            # 임베딩 텍스트
+            # 지역명 추출 (예: "광주 동구" -> "동구")
+            region_name = zone['region_name'] or '광주광역시'
+            district = region_name.replace('광주 ', '').replace('광주', '') if region_name else ''
+            
+            # 존 이름에서 핵심 키워드 추출 (검색 유사도 향상)
+            zone_name = zone['name']
+            keywords = []
+            # 대학교/학교 관련 키워드
+            if '대학교' in zone_name:
+                base = zone_name.split('대학교')[0]
+                keywords.extend([f"{base}대학교", f"{base}대", base])
+            elif '대' in zone_name and '플리마켓' not in zone_name.split('대')[0]:
+                base = zone_name.split('대')[0]
+                if len(base) >= 2:
+                    keywords.extend([f"{base}대", f"{base}대학교"])
+            # 지역 관련 키워드
+            if district:
+                keywords.append(district)
+            keywords_text = ', '.join(set(keywords)) if keywords else ''
+            
+            # 임베딩 텍스트 (핵심 키워드를 앞에 배치하여 유사도 향상)
+            # 존 이름과 키워드를 반복하여 검색 유사도 강화
             text = f"""
-## {zone['name']}
+## {zone_name}
+{zone_name} {zone_name}
+{f'관련 키워드: {keywords_text}' if keywords_text else ''}
+{f'{keywords_text}' if keywords_text else ''}
 
 ### 위치
-- 구역: {zone['district_name'] or '광주광역시'}
-- 주소: 광주광역시 {zone['district_name'] or ''} 일대
+- 구역: {region_name}
+- 주소: 광주광역시 {district} 일대
 
 ### 존 정보
 - 상태: {zone['status']}
@@ -310,7 +334,8 @@ class EmbeddingWorker:
 ### 셀 목록
 {cell_text if cell_text else '등록된 셀이 없습니다.'}
 
-이 존은 광주 {zone['district_name'] or ''}에 위치한 플리마켓/팝업 운영 구역입니다.
+이 존은 {region_name}에 위치한 플리마켓/팝업 운영 구역입니다.
+{f'{zone_name}은(는) {keywords_text} 근처에 있습니다.' if keywords_text else ''}
 판매자가 셀을 신청하여 팝업/플리마켓을 운영할 수 있습니다.
 """.strip()
             
@@ -318,7 +343,7 @@ class EmbeddingWorker:
                 "type": "zone_detail",
                 "zone_id": str(zone["id"]),
                 "zone_name": zone["name"],
-                "district": zone["district_name"],
+                "region": region_name,
                 "status": zone["status"],
                 "total_cells": len(cells),
                 "available_cells": len(available_cells),
