@@ -46,8 +46,9 @@ def _serialize_documents(docs: Sequence[Document]) -> List[Dict[str, Any]]:
 
 
 def _cache_key(query: str, mode: str, plan_hash: str = "") -> str:
-    """캐시 키 생성."""
-    return hashlib.md5(f"{mode}:{query}:{plan_hash}".encode()).hexdigest()
+    """캐시 키 생성. mode를 prefix로 포함하여 캐시 무효화 시 필터링 가능."""
+    query_hash = hashlib.md5(f"{query}:{plan_hash}".encode()).hexdigest()
+    return f"{mode}:{query_hash}"
 
 
 def _get_cached_docs(key: str) -> Optional[List[Document]]:
