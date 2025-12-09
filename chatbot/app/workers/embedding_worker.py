@@ -204,12 +204,13 @@ class EmbeddingWorker:
         """popup 임베딩 생성/업데이트"""
         conn = await self._get_connection()
         try:
-            # popup 조회
+            # popup 조회 (geometry_data 포함)
             popup = await conn.fetchrow("""
                 SELECT 
                     p.id, p.name, p.description, p.start_date, p.end_date,
                     p.operating_time, p.view_count, p.favorite_count,
                     zc.lat, zc.lng, zc.detailed_address, zc.label as cell_label,
+                    zc.geometry_data, zc.id as cell_id,
                     za.name as zone_name, za.id as zone_area_id
                 FROM popup p
                 LEFT JOIN zone_cell zc ON p.zone_cell_id = zc.id
@@ -223,6 +224,23 @@ class EmbeddingWorker:
             # 기존 임베딩 삭제
             await self.delete_popup_embedding(popup_id)
             
+            # 위경도 추출 (lat/lng 컬럼 우선, 없으면 geometry_data에서 파싱)
+            lat = popup["lat"]
+            lng = popup["lng"]
+            
+            if (lat is None or lng is None) and popup["geometry_data"]:
+                try:
+                    import json
+                    geo = json.loads(popup["geometry_data"]) if isinstance(popup["geometry_data"], str) else popup["geometry_data"]
+                    if geo.get("type") == "Point" and geo.get("coordinates"):
+                        # GeoJSON은 [longitude, latitude] 순서
+                        coords = geo["coordinates"]
+                        lng = coords[0]
+                        lat = coords[1]
+                        logger.debug(f"Popup {popup_id}: geometry_data에서 좌표 추출 - lat={lat}, lng={lng}")
+                except Exception as e:
+                    logger.warning(f"Popup {popup_id}: geometry_data 파싱 실패 - {e}")
+            
             # 임베딩 텍스트
             text = f"""
 {popup['name']}
@@ -235,15 +253,21 @@ class EmbeddingWorker:
 운영시간: {popup['operating_time'] or '미정'}
 """.strip()
             
-            # 메타데이터
+            # 메타데이터 (프론트엔드 호환을 위해 popup_id, latitude, longitude도 추가)
             metadata = {
                 "market_id": str(popup["id"]),
+                "popup_id": popup["id"],  # 프론트엔드 호환
                 "market_name": popup["name"],
+                "name": popup["name"],  # 프론트엔드 호환
                 "address": popup["detailed_address"] or "광주광역시",
-                "lat": float(popup["lat"]) if popup["lat"] else None,
-                "lon": float(popup["lng"]) if popup["lng"] else None,
+                "location": popup["detailed_address"] or "광주광역시",  # 프론트엔드 호환
+                "lat": float(lat) if lat else None,
+                "lon": float(lng) if lng else None,
+                "latitude": float(lat) if lat else None,  # 프론트엔드 호환
+                "longitude": float(lng) if lng else None,  # 프론트엔드 호환
                 "zone_id": str(popup["zone_area_id"]) if popup["zone_area_id"] else None,
                 "zone_name": popup["zone_name"],
+                "cell_id": popup["cell_id"],  # 프론트엔드 호환
                 "cell_label": popup["cell_label"],
                 "start_date": str(popup["start_date"]) if popup["start_date"] else None,
                 "end_date": str(popup["end_date"]) if popup["end_date"] else None,
@@ -253,7 +277,7 @@ class EmbeddingWorker:
             
             # 임베딩 추가
             self.popup_vectorstore.add_texts(texts=[text], metadatas=[metadata])
-            logger.info(f"Popup {popup_id} 임베딩 완료")
+            logger.info(f"Popup {popup_id} 임베딩 완료 (lat={lat}, lng={lng})")
             
         finally:
             await conn.close()

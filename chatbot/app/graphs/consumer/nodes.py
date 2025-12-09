@@ -297,6 +297,56 @@ def _extract_district(address: str) -> str:
     return "unknown"
 
 
+def _build_recommendation_item(metadata: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    메타데이터에서 추천 아이템 생성.
+    프론트엔드 호환을 위해 다양한 키 포맷 지원.
+    """
+    # 위경도: lat/lon 또는 latitude/longitude
+    lat = metadata.get("lat") or metadata.get("latitude")
+    lon = metadata.get("lon") or metadata.get("longitude")
+    
+    # popup_id: popup_id 또는 market_id (숫자 변환)
+    popup_id = metadata.get("popup_id")
+    if popup_id is None:
+        market_id_str = metadata.get("market_id")
+        if market_id_str:
+            try:
+                popup_id = int(market_id_str) if isinstance(market_id_str, str) else market_id_str
+            except (ValueError, TypeError):
+                popup_id = None
+    
+    # cell_id
+    cell_id = metadata.get("cell_id")
+    
+    # 주소/위치
+    address = metadata.get("address") or metadata.get("location") or ""
+    
+    return {
+        "type": "market",
+        "market_id": metadata.get("market_id"),
+        "popup_id": popup_id,  # 프론트엔드 호환
+        "name": metadata.get("market_name") or metadata.get("name"),
+        "address": address,
+        "location": address,  # 프론트엔드 호환
+        "lat": lat,
+        "lon": lon,
+        "latitude": lat,  # 프론트엔드 호환
+        "longitude": lon,  # 프론트엔드 호환
+        "cell_id": cell_id,  # 프론트엔드 호환
+        "cell_label": metadata.get("cell_label"),
+        "zone_name": metadata.get("zone_name"),
+        "distance_km": metadata.get("distance_km"),
+        "rating": metadata.get("market_rating"),
+        "category": metadata.get("market_category"),
+        "attributes": metadata.get("market_attribute"),
+        "amenities": metadata.get("market_ameni"),
+        "start_date": metadata.get("start_date"),
+        "end_date": metadata.get("end_date"),
+        "metadata": metadata,
+    }
+
+
 def _build_market_recommendations(
     documents: List[Document], 
     limit: int = 2,
@@ -328,22 +378,7 @@ def _build_market_recommendations(
                 continue
             
             seen_districts.add(district)
-            recommendations.append(
-                {
-                    "type": "market",
-                    "market_id": market_id,
-                    "name": name,
-                    "address": address,
-                    "lat": metadata.get("lat"),
-                    "lon": metadata.get("lon"),
-                    "distance_km": metadata.get("distance_km"),
-                    "rating": metadata.get("market_rating"),
-                    "category": metadata.get("market_category"),
-                    "attributes": metadata.get("market_attribute"),
-                    "amenities": metadata.get("market_ameni"),
-                    "metadata": metadata,
-                }
-            )
+            recommendations.append(_build_recommendation_item(metadata))
             if len(recommendations) >= limit:
                 break
     
@@ -360,22 +395,7 @@ def _build_market_recommendations(
             if market_id in seen_ids:
                 continue
             
-            recommendations.append(
-                {
-                    "type": "market",
-                    "market_id": market_id,
-                    "name": name,
-                    "address": metadata.get("address"),
-                    "lat": metadata.get("lat"),
-                    "lon": metadata.get("lon"),
-                    "distance_km": metadata.get("distance_km"),
-                    "rating": metadata.get("market_rating"),
-                    "category": metadata.get("market_category"),
-                    "attributes": metadata.get("market_attribute"),
-                    "amenities": metadata.get("market_ameni"),
-                    "metadata": metadata,
-                }
-            )
+            recommendations.append(_build_recommendation_item(metadata))
             seen_ids.add(market_id)
             if len(recommendations) >= limit:
                 break
