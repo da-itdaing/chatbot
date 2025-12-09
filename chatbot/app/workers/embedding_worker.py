@@ -388,6 +388,7 @@ class EmbeddingWorker:
                 "zone_id": str(zone["id"]),
                 "zone_name": zone["name"],
                 "region": region_name,
+                "district": district,  # 지역 필터링용 (예: "동구", "서구")
                 "status": zone["status"],
                 "total_cells": len(cells),
                 "available_cells": len(available_cells),
