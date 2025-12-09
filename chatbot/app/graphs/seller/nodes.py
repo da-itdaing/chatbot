@@ -485,6 +485,7 @@ def _build_zone_recommendations(documents: List[Document], limit: int = 3) -> Li
     검색된 존 문서에서 프론트엔드용 추천 목록을 생성합니다.
     
     상권 정보, 유동인구, 위도/경도 등 판매자에게 유용한 정보를 포함합니다.
+    빈 셀이 0개인 존은 추천에서 제외합니다.
     """
     recommendations: List[Dict[str, Any]] = []
     for doc in documents:
@@ -492,6 +493,12 @@ def _build_zone_recommendations(documents: List[Document], limit: int = 3) -> Li
         zone_id = metadata.get("zone_id")
         name = metadata.get("zone_name") or metadata.get("name") or metadata.get("zone_id")
         if not (zone_id or name):
+            continue
+        
+        # 빈 셀이 0개인 존은 제외 (available_cells가 없으면 포함)
+        available_cells = metadata.get("available_cells")
+        if available_cells is not None and int(available_cells) == 0:
+            logger.debug(f"Excluding zone {name} (zone_id={zone_id}) - 0 available cells")
             continue
         
         rec = {
