@@ -87,6 +87,17 @@ class EmbeddingWorker:
             port=settings.postgres_port,
         )
     
+    async def _table_exists(self, conn: asyncpg.Connection, table_name: str) -> bool:
+        """테이블 존재 여부 확인"""
+        result = await conn.fetchval("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_schema = 'public' 
+                AND table_name = $1
+            )
+        """, table_name)
+        return result or False
+    
     async def get_queue_status(self) -> QueueStatus:
         """큐 상태 조회"""
         conn = await self._get_connection()
@@ -248,7 +259,7 @@ class EmbeddingWorker:
             await conn.close()
     
     async def embed_zone(self, zone_id: int) -> None:
-        """zone_area 임베딩 생성/업데이트 (셀 정보 포함)"""
+        """zone_area 임베딩 생성/업데이트 (셀 정보 + 상권 정보 포함)"""
         conn = await self._get_connection()
         try:
             # zone_area 조회 (region 정보 포함)
@@ -259,6 +270,15 @@ class EmbeddingWorker:
                 LEFT JOIN region r ON za.region_id = r.id
                 WHERE za.id = $1
             """, zone_id)
+            
+            # 상권 정보 조회 (zone_commercial_info 테이블이 있으면)
+            commercial_info = await conn.fetchrow("""
+                SELECT commercial_grade, traffic_score, competition_score, potential_score,
+                       weekday_traffic, weekend_traffic, best_products, rent_per_day, avg_sales,
+                       detailed_address, neighborhood
+                FROM zone_commercial_info
+                WHERE zone_id = $1
+            """, zone_id) if await self._table_exists(conn, 'zone_commercial_info') else None
             
             if not zone:
                 raise ValueError(f"Zone {zone_id} not found")
@@ -349,6 +369,22 @@ class EmbeddingWorker:
                 "available_cells": len(available_cells),
                 "max_capacity": zone["max_capacity"],
             }
+            
+            # 상권 정보가 있으면 메타데이터에 추가
+            if commercial_info:
+                metadata.update({
+                    "commercial_grade": commercial_info.get("commercial_grade"),
+                    "traffic_score": commercial_info.get("traffic_score"),
+                    "competition_score": commercial_info.get("competition_score"),
+                    "potential_score": commercial_info.get("potential_score"),
+                    "weekday_traffic": commercial_info.get("weekday_traffic"),
+                    "weekend_traffic": commercial_info.get("weekend_traffic"),
+                    "best_products": commercial_info.get("best_products"),
+                    "rent_per_day": commercial_info.get("rent_per_day"),
+                    "avg_sales": commercial_info.get("avg_sales"),
+                    "detailed_address": commercial_info.get("detailed_address"),
+                    "neighborhood": commercial_info.get("neighborhood"),
+                })
             
             # 임베딩 추가
             self.zone_vectorstore.add_texts(texts=[text], metadatas=[metadata])
