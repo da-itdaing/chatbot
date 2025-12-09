@@ -353,6 +353,29 @@ class EmbeddingWorker:
                 keywords.append(district)
             keywords_text = ', '.join(set(keywords)) if keywords else ''
             
+            # 상권 정보 텍스트 생성
+            commercial_text = ""
+            if commercial_info:
+                grade = commercial_info.get("commercial_grade", "정보 없음")
+                traffic = commercial_info.get("traffic_score", "정보 없음")
+                rent = commercial_info.get("rent_per_day")
+                rent_text = f"{rent:,}원/일" if rent else "정보 없음"
+                products = commercial_info.get("best_products", "정보 없음")
+                weekday = commercial_info.get("weekday_traffic", "정보 없음")
+                weekend = commercial_info.get("weekend_traffic", "정보 없음")
+                addr = commercial_info.get("detailed_address", "")
+                
+                commercial_text = f"""
+### 상권 정보
+- 상권 등급: {grade}
+- 유동인구 점수: {traffic}/100
+- 평일 유동인구: {weekday}
+- 주말 유동인구: {weekend}
+- 대여료: {rent_text}
+- 추천 상품: {products}
+{f'- 상세 주소: {addr}' if addr else ''}
+"""
+            
             # 임베딩 텍스트 (핵심 키워드를 앞에 배치하여 유사도 향상)
             # 존 이름과 키워드를 반복하여 검색 유사도 강화
             text = f"""
@@ -369,10 +392,10 @@ class EmbeddingWorker:
 - 상태: {zone['status']}
 - 최대 수용 인원: {zone['max_capacity'] or '미정'}명
 - 안내사항: {zone['notice'] or '없음'}
-
+{commercial_text}
 ### 셀(부스) 현황
 - 전체 셀 수: {len(cells)}개
-- 승인된 셀: {len(available_cells)}개 ({', '.join(available_cells) if available_cells else '없음'})
+- 빈 셀: {len(available_cells)}개 ({', '.join(available_cells) if available_cells else '없음'})
 - 총 수용 가능 인원: {total_capacity}명
 
 ### 셀 목록
